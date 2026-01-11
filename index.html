@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS 2025 NEXUS</title>
+    <style>
+        :root {
+            --bg-color: #050505;       /* Deep Black */
+            --card-bg: #0a0a0a;        /* Darker Grey */
+            --text-main: #ffffff;      /* White */
+            --text-dim: #a0a0a0;       /* Dim Grey */
+            --neon-blue: #00e5ff;      /* Sky Blue */
+            --neon-yellow: #f2ff00;    /* Cyber Yellow */
+            --font-main: 'Courier New', Courier, monospace; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* --- NEW HEADER DESIGN --- */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0, 229, 255, 0.05) 100%);
+        }
+
+        .brand-sub {
+            color: var(--neon-yellow);
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .brand-main {
+            font-size: 2.5rem;
+            margin: 0;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            display: inline-block;
+            padding: 5px 20px;
+            background: rgba(0, 229, 255, 0.05);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+        }
+
+        /* --- LOADING STATUS --- */
+        #status {
+            text-align: center;
+            color: var(--neon-yellow);
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.3; } }
+
+        /* --- GRID SYSTEM --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --- CARD DESIGN --- */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #222;
+            border-left: 3px solid var(--neon-blue);
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
+            transform: translateY(-3px);
+            background-color: #0f0f0f;
+        }
+
+        .card h2 { 
+            margin: 0; 
+            font-size: 1.4rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+        
+        .card p { 
+            color: var(--text-dim); 
+            font-size: 0.8rem; 
+            margin-top: 8px; 
+            font-style: italic;
+        }
+
+        /* --- CHAPTER LIST --- */
+        .chapter-list {
+            display: none;
+            margin-top: 20px;
+            border-top: 1px dashed #333;
+            padding-top: 15px;
+        }
+
+        .chapter-btn {
+            background: transparent;
+            border: 1px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            text-align: left;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .chapter-btn:hover { 
+            background: var(--neon-yellow); 
+            color: #000; 
+            box-shadow: 0 0 10px var(--neon-yellow);
+        }
+
+        /* --- LINKS --- */
+        .test-links {
+            display: none;
+            padding: 10px 0 10px 15px;
+            border-left: 1px solid #333;
+            margin-bottom: 10px;
+        }
+
+        .test-link {
+            display: block;
+            color: var(--neon-blue);
+            text-decoration: none;
+            padding: 6px 0;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .test-link:hover { 
+            color: #fff;
+            padding-left: 5px;
+            text-shadow: 0 0 5px var(--neon-blue); 
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="brand-sub">THE SSC SCHOLARS OFFICIAL</span><br>
+        <h1 class="brand-main">GS 2025 NEXUS</h1>
+    </header>
+
+    <div id="status">INITIALIZING SYSTEM SCAN...</div>
+    <div id="app" class="grid-container"></div>
+
+<script>
+        // ===============================================
+    // 🔴 SETTINGS: EDIT HERE
+    // ===============================================
+    const USERNAME = "THE-SSC-SCHOLARS-OFFICIAL";  
+    const REPO_NAME = "Gs2025";       
+    const BRANCH = "main";
+    // ===============================================
+
+    const apiUrl = `https://api.github.com/repos/${USERNAME}/${REPO_NAME}/git/trees/${BRANCH}?recursive=1`;
+    const app = document.getElementById('app');
+    const statusDiv = document.getElementById('status');
+
+    async function fetchFiles() {
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error("Repo not found");
+            
+            const data = await response.json();
+            const files = data.tree;
+            const structuredData = {};
+
+            files.forEach(file => {
+                if (file.path.endsWith('.html') && !file.path.startsWith('index.html')) {
+                    
+                    const parts = file.path.split('/');
+                    
+                    if (parts.length >= 2) {
+                        const subject = parts[0];
+                        
+                        // LOGIC: Polity/Geo -> 'Topic Wise Test' | History/Science -> Folder Name
+                        let chapter = "Topic Wise Test"; 
+                        let filename = "";
+
+                        if (parts.length === 2) {
+                            filename = parts[1].replace('.html', '');
+                        } else if (parts.length >= 3) {
+                            chapter = parts[1];
+                            filename = parts[parts.length - 1].replace('.html', '');
+                        }
+
+                        if (!structuredData[subject]) structuredData[subject] = {};
+                        if (!structuredData[subject][chapter]) structuredData[subject][chapter] = [];
+
+                        structuredData[subject][chapter].push({
+                            name: filename,
+                            path: file.path
+                        });
+                    }
+                }
+            });
+
+            renderDashboard(structuredData);
+
+        } catch (error) {
+            statusDiv.innerText = "SYSTEM ERROR: REPO NOT FOUND";
+            statusDiv.style.color = "red";
+            console.error(error);
+        }
+    }
+
+    function renderDashboard(data) {
+        statusDiv.style.display = 'none'; 
+        app.innerHTML = ''; 
+
+        if (Object.keys(data).length === 0) {
+            statusDiv.style.display = 'block';
+            statusDiv.innerText = "NO DATA MODULES FOUND.";
+            return;
+        }
+
+        for (const [subject, chapters] of Object.entries(data)) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            const title = document.createElement('h2');
+            title.innerText = subject.replace(/-/g, ' ');
+
+            let totalTests = 0;
+            Object.values(chapters).forEach(list => totalTests += list.length);
+            
+            const sub = document.createElement('p');
+            sub.innerText = `>> ${totalTests} ACTIVE MODULES`;
+
+            const chapterListDiv = document.createElement('div');
+            chapterListDiv.className = 'chapter-list';
+
+            for (const [chapter, tests] of Object.entries(chapters)) {
+                const chapBtn = document.createElement('button');
+                chapBtn.className = 'chapter-btn';
+                chapBtn.innerText = `[+] ${chapter.replace(/-/g, ' ')}`;
+
+                const linksDiv = document.createElement('div');
+                linksDiv.className = 'test-links';
+
+                tests.forEach(test => {
+                    const link = document.createElement('a');
+                    link.className = 'test-link';
+                    link.innerText = `> ${test.name.replace(/-/g, ' ')}`;
+                    link.href = test.path;
+                    linksDiv.appendChild(link);
+                });
+
+                chapBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    const isHidden = linksDiv.style.display !== 'block';
+                    linksDiv.style.display = isHidden ? 'block' : 'none';
+                    chapBtn.innerText = isHidden ? `[-] ${chapter.replace(/-/g, ' ')}` : `[+] ${chapter.replace(/-/g, ' ')}`;
+                };
+
+                chapterListDiv.appendChild(chapBtn);
+                chapterListDiv.appendChild(linksDiv);
+            }
+
+            card.onclick = () => {
+                const isVisible = chapterListDiv.style.display === 'block';
+                document.querySelectorAll('.chapter-list').forEach(el => el.style.display = 'none');
+                chapterListDiv.style.display = isVisible ? 'none' : 'block';
+            };
+
+            card.appendChild(title);
+            card.appendChild(sub);
+            card.appendChild(chapterListDiv);
+            app.appendChild(card);
+        }
+    }
+
+    fetchFiles();
+</script>
+
+</body>
+</html>
