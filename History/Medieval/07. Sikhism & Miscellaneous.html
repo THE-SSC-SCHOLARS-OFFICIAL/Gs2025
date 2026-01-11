@@ -1,0 +1,1513 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Night-NewBie</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #6a5af9; --secondary: #5041d5; --accent: #f72585;
+    --bg-light: #f4f7fc; --bg-dark: #161925;
+    --surface-light: #ffffff; --surface-dark: #232a40;
+    --text-light: #212529; --text-dark: #e8eaed;
+    --border-light: rgba(0, 0, 0, 0.1); --border-dark: rgba(255, 255, 255, 0.1);
+    --glass-light: rgba(255, 255, 255, 0.7); --glass-dark: rgba(35, 42, 64, 0.7);
+    --success: #20c997; --danger: #e63946; --warning: #ffb703; --info: #0096c7;
+  }
+
+  html {
+      font-size: 14px; /* Reduced base font size */
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    margin: 0;
+    transition: background-color 0.3s, color 0.3s;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body.dark-mode {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+
+  /* --- Home Screen --- */
+  #home-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100vh;
+    padding: 20px;
+  }
+  .home-header {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 2rem;
+  }
+  .home-card {
+    max-width: 500px;
+    width: 100%;
+    padding: 2rem;
+  }
+  .home-card h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+  }
+  .test-details p {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 1rem;
+  }
+  body.dark-mode .test-details p {
+      border-bottom-color: var(--border-dark);
+  }
+  .test-details p span:first-child {
+      font-weight: 500;
+      opacity: 0.8;
+      white-space: nowrap;
+      margin-right: 15px;
+  }
+  .test-details p span:last-child {
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word; /* Ensure long URLs wrap */
+  }
+  #startQuizBtn {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+  }
+   #startQuizBtn:hover {
+      background-color: var(--secondary);
+   }
+  .home-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 40px;
+      font-weight: 600;
+      opacity: 0.9;
+  }
+  /* Updated Home Footer Links */
+  .home-footer a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+  }
+  .home-footer a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+  }
+
+
+  /* --- Main Layout --- */
+  .quiz-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .quiz-sidebar, .quiz-main, .quiz-palette {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .quiz-main {
+    padding: 20px 20px 0 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .quiz-sidebar {
+    background-color: var(--surface-light);
+    border-right: 1px solid var(--border-light);
+  }
+  body.dark-mode .quiz-sidebar {
+    background-color: var(--surface-dark);
+    border-right-color: var(--border-dark);
+  }
+
+  .quiz-palette {
+    background-color: var(--surface-light);
+    border-left: 1px solid var(--border-light);
+  }
+  body.dark-mode .quiz-palette {
+    background-color: var(--surface-dark);
+    border-left-color: var(--border-dark);
+  }
+
+  /* --- Shared Card Style --- */
+  .card-ui {
+    background-color: var(--surface-light);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    margin-bottom: 20px;
+    padding: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+  body.dark-mode .card-ui {
+    background-color: var(--surface-dark);
+    border-color: var(--border-dark);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* --- Left Sidebar: Timer & Info --- */
+  .quiz-brand { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+  .timer-box { text-align: center; }
+  .timer-display { font-size: 3rem; font-weight: 700; letter-spacing: 2px; }
+  #timeProgress { height: 6px; border-radius: 3px; }
+
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-item { text-align: center; background: rgba(0,0,0,0.03); padding: 8px; border-radius: 8px; }
+  body.dark-mode .stat-item { background: rgba(255,255,255,0.05); }
+  .stat-item .value { font-weight: 700; font-size: 1.25rem; }
+  .stat-item .label { font-size: 0.75rem; opacity: 0.7; }
+  .value.correct { color: var(--success); }
+  .value.incorrect { color: var(--danger); }
+  .value.marked { color: var(--info); }
+  .value.unattempted { color: var(--warning); }
+
+
+  /* --- Main Content Area --- */
+  .quiz-main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  /* New Header Timer Style */
+  .header-timer {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-left: 15px;
+      margin-right: auto; /* Pushes subsequent items to the right */
+      letter-spacing: 1px;
+      font-variant-numeric: tabular-nums;
+  }
+
+  .mobile-menu-toggle { display: none; background: none; border: none; font-size: 1.375rem; color: var(--text-light); }
+  body.dark-mode .mobile-menu-toggle { color: var(--text-dark); }
+
+  .quiz-content-area {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      margin: 0 -20px;
+      padding: 0 20px 20px 20px;
+  }
+
+  .thin-progress-bar {
+    height: 4px;
+    background-color: var(--border-light);
+    border-radius: 2px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  body.dark-mode .thin-progress-bar {
+      background-color: var(--border-dark);
+  }
+  .thin-progress-bar-inner {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      border-radius: 2px;
+      transition: width 0.3s ease-in-out;
+  }
+
+  .q-text { font-size: 1.25rem; font-weight: 500; margin: 12px 0; line-height: 1.6; }
+
+  .option-btn {
+    width: 100%; text-align: left;
+    border: 1px solid var(--border-light);
+    background: transparent; color: inherit;
+    border-radius: 10px; padding: 14px 18px;
+    margin: 8px 0; transition: .2s ease all; font-size: 1rem;
+  }
+  body.dark-mode .option-btn { border-color: var(--border-dark); }
+  .option-btn:hover { border-color: var(--primary); background: rgba(106,90,249, 0.05); transform: translateY(-2px); }
+  .option-btn.selected { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+  .option-btn.correct { background: var(--success) !important; color: #fff; border-color: var(--success) !important; }
+  .option-btn.incorrect { background: var(--danger) !important; color: #fff; border-color: var(--danger) !important; }
+
+  .explanation {
+    background: rgba(106,90,249, 0.05);
+    border-left: 4px solid var(--primary);
+    border-radius: 8px; padding: 14px; margin-top: 16px;
+    font-size: 0.9rem;
+  }
+
+  /* Question Timer Styling & Accuracy Badge */
+  .q-meta-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+  }
+  .q-timer {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: rgba(106,90,249, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+  }
+  .q-accuracy {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--success);
+      background: rgba(32, 201, 151, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+  }
+  body.dark-mode .q-timer { color: #9d8fff; background: rgba(106,90,249, 0.2); }
+  body.dark-mode .q-accuracy { color: #4ade80; background: rgba(32, 201, 151, 0.2); }
+
+  .quiz-nav-buttons { 
+      display: flex; 
+      justify-content: space-between; 
+      margin: 0 -20px;
+      padding: 15px 20px;
+      border-top: 1px solid var(--border-light);
+      background: var(--surface-light);
+      transition: background-color 0.3s, border-color 0.3s;
+  }
+  body.dark-mode .quiz-nav-buttons {
+      border-top-color: var(--border-dark);
+      background: var(--surface-dark);
+  }
+  .btn-nav { padding: 10px 20px; border-radius: 8px; font-weight: 600; }
+
+  /* --- Right Sidebar: Question Palette --- */
+  .palette-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 8px; }
+  .q-tile {
+    width: 100%; aspect-ratio: 1 / 1;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border-light);
+    border-radius: 8px; font-weight: 600; cursor: pointer;
+    transition: .2s ease all;
+  }
+  body.dark-mode .q-tile { border-color: var(--border-dark); }
+  .q-tile:hover { transform: scale(1.08); }
+  .q-tile.current { background-color: var(--primary); color: #fff; border-color: var(--primary); }
+  .q-tile.answered { background-color: var(--success); color: #fff; border-color: var(--success); }
+  .q-tile.marked { box-shadow: 0 0 0 2px var(--info) inset; }
+  .q-tile.review-correct { background-color: var(--success); color: #fff; border-color: transparent; }
+  .q-tile.review-incorrect { background-color: var(--danger); color: #fff; border-color: transparent; }
+  .q-tile.review-unattempted { background-color: var(--warning); color: #fff; border-color: transparent; }
+
+  /* --- Results View --- */
+  .results-container { text-align: center; }
+  .final-score { font-size: 5rem; font-weight: 800; color: var(--primary); }
+  .results-tabs .nav-link { color: inherit; opacity: 0.7; }
+  .results-tabs .nav-link.active { color: var(--primary); font-weight: 600; opacity: 1; border-bottom: 2px solid var(--primary); border-radius: 0; background: none; }
+  .chart-container { height: 250px; }
+
+  /* Leaderboard Styles */
+  .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
+  .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-light); }
+  body.dark-mode .leaderboard-table th, body.dark-mode .leaderboard-table td { border-bottom-color: var(--border-dark); }
+  .leaderboard-table th { font-weight: 600; opacity: 0.8; }
+  .rank-1 { color: #FFD700; font-weight: bold; }
+  .rank-2 { color: #C0C0C0; font-weight: bold; }
+  .rank-3 { color: #CD7F32; font-weight: bold; }
+
+  /* --- Header Action Buttons --- */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1;
+    gap: 8px;
+  }
+  .action-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+  .action-btn:hover {
+    transform: scale(1.1);
+    background-color: rgba(0,0,0,0.05);
+  }
+  body.dark-mode .action-btn {
+    color: var(--text-dark);
+  }
+  body.dark-mode .action-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+  }
+
+  #languageSwitch button {
+    font-weight: 700;
+    min-width: 55px;
+    padding: 0 8px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--text-light);
+    box-shadow: none;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+  body.dark-mode #languageSwitch button {
+    background-color: transparent;
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+  }
+  #languageSwitch button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+  }
+
+  /* --- Responsive Design --- */
+  @media (max-width: 992px) {
+    .quiz-layout { grid-template-columns: 1fr; }
+    .quiz-sidebar, .quiz-palette {
+      position: fixed; top: 0;
+      width: 280px; height: 100%;
+      z-index: 1100;
+      transition: transform 0.3s ease;
+      box-shadow: 0 0 40px rgba(0,0,0,0.2);
+    }
+    .quiz-sidebar { transform: translateX(-100%); left: 0; border-right: none; }
+    .quiz-palette { transform: translateX(100%); right: 0; border-left: none; }
+    .quiz-sidebar.show, .quiz-palette.show { transform: translateX(0); }
+
+    .mobile-menu-toggle { display: block; }
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 1090; opacity: 0; visibility: hidden; transition: .3s;
+    }
+    .overlay.show { opacity: 1; visibility: visible; }
+
+    /* Adjust header timer on mobile */
+    .header-timer { font-size: 1.1rem; margin-left: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="home-screen">
+    <h1 class="home-header">TEST</h1>
+    <div class="card-ui home-card">
+        <h2>Test</h2>
+        <div class="test-details">
+            <p><span>Topic</span> <span id="homeTopic">Topic Name Here</span></p>
+            <p><span>Q.</span> <span id="homeQuestions">0</span></p>
+            <p><span>Timer</span> <span id="homeTime">0 Minutes</span></p>
+            <p><span>N.Mark</span> <span id="homeNegative">0</span></p>
+        </div>
+        <button id="startQuizBtn">Start</button>
+    </div>
+    <footer class="home-footer">
+        <!-- Clickable Links -->
+        <a href="https://t.me/AI_quiz_bot_pro" target="_blank">@AI_quiz_bot_pro</a>
+        <a href="https://t.me/elite_quiz_bot" target="_blank">@elite_quiz_bot</a>
+    </footer>
+</div>
+
+
+<div id="quiz-screen" style="display: none;">
+    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/269/269.wav" preload="auto"></audio>
+    <audio id="swipeSound" src="https://assets.mixkit.co/active_storage/sfx/1897/1897.wav" preload="auto"></audio>
+    <audio id="correctSound" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav" preload="auto"></audio>
+    <audio id="wrongSound" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav" preload="auto"></audio>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="quiz-layout">
+      <aside class="quiz-sidebar" id="infoSidebar">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="quiz-brand">@elite_quiz_bot</div>
+            <button class="mobile-menu-toggle" id="closeInfoSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="card-ui timer-box">
+            <div class="timer-display"><span id="minutes">00</span>:<span id="seconds">00</span></div>
+            <div class="progress mt-2">
+              <div id="timeProgress" class="progress-bar bg-primary" style="width:100%"></div>
+            </div>
+        </div>
+        <div class="card-ui">
+            <h5 class="fw-bold mb-3">Quiz Stats</h5>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="value correct" id="statAnswered">0</div>
+                    <div class="label">Answered</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value unattempted" id="statUnanswered">0</div>
+                    <div class="label">Unanswered</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value marked" id="statMarked">0</div>
+                    <div class="label">Marked</div>
+                </div>
+                 <div class="stat-item">
+                    <div class="value" id="statTotal">0</div>
+                    <div class="label">Total</div>
+                </div>
+            </div>
+        </div>
+         <button id="submitBtn" class="btn btn-primary w-100 py-2 fw-bold">
+            <i class="fas fa-paper-plane me-2"></i>Submit Quiz
+         </button>
+      </aside>
+
+      <main class="quiz-main">
+        <div class="quiz-main-header">
+          <button class="mobile-menu-toggle" id="openInfoSidebar"><i class="fas fa-bars"></i></button>
+
+          <!-- MAIN HEADER TIMER ADDED HERE -->
+          <div class="header-timer" id="headerTimerDisp">00:00</div>
+
+          <div class="header-actions">
+              <div id="languageSwitch">
+                  <button id="langToggleBtn">BILI</button>
+              </div>
+              <button class="action-btn" id="fontDecreaseBtn" aria-label="Decrease font size"><i class="fas fa-minus"></i></button>
+              <button class="action-btn" id="fontIncreaseBtn" aria-label="Increase font size"><i class="fas fa-plus"></i></button>
+              <button class="action-btn" id="fullscreenToggle" aria-label="Toggle fullscreen"><i class="fas fa-expand"></i></button>
+              <button class="action-btn" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+          </div>
+
+          <button class="mobile-menu-toggle" id="openPaletteSidebar"><i class="fas fa-th-large"></i></button>
+        </div>
+
+        <div class="quiz-content-area">
+            <div class="thin-progress-bar">
+                <div id="thinProgressBarInner" class="thin-progress-bar-inner"></div>
+            </div>
+            <div id="questionArea"></div>
+            <div id="resultsContainer" style="display: none;"></div>
+        </div>
+
+        <div id="quizNav" class="quiz-nav-buttons" style="display: none;"></div>
+
+      </main>
+
+      <aside class="quiz-palette" id="paletteSidebar">
+         <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold m-0">Question Palette</h5>
+            <button class="mobile-menu-toggle" id="closePaletteSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="palette-grid" id="qList"></div>
+        <div class="mt-4">
+            <h6 class="fw-bold">Legend</h6>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile me-2" style="width: 25px; height: 25px;"></div> Not Visited</div>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile answered me-2" style="width: 25px; height: 25px;"></div> Answered</div>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile marked me-2" style="width: 25px; height: 25px;"></div> Marked for Review</div>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile current me-2" style="width: 25px; height: 25px;"></div> Current Question</div>
+        </div>
+      </aside>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Placeholder quizData, will be replaced by Python
+const quizData = {
+  "settings": {
+    "topic": "Mediaeval History \n\nSikhism and mislineous \n\n\ud83c\udfaf Discussion & quiz:-https://t.me/+jLBCSC40twkyNWZl \n\ud83d\udccc Quiz collection:-  https://t.me/+_sXRuzxAFGwzMWE1\n\ud83c\udfaf other than warbook quizzes link :- https://t.me/quizz_whizz/130",
+    "totalTimeSec": 340,
+    "negativeMarkPerWrong": 0.33
+  },
+  "questions": [
+    {
+      "text": "<b>Q1.</b> Q1. In which year Guru Gobind Singh died? / \u0917\u0941\u0930\u0941 \u0917\u094b\u092c\u093f\u0902\u0926 \u0938\u093f\u0902\u0939 \u0915\u0940 \u092e\u0943\u0924\u094d\u092f\u0941 \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u0939\u0941\u0908 \u0925\u0940? [SSC CHSL, 18 Nov 2025, Shift-1]",
+      "options": [
+        "1708 / 1708",
+        "1711 / 1711",
+        "1718 / 1718",
+        "1722 / 1722"
+      ],
+      "correctIndex": 0,
+      "explanation": "Guru Gobind Singh, the tenth and last human Sikh Guru, passed away in 1708 at Nanded, Maharashtra (now Hazur Sahib). He was assassinated by a Pathan named Jamshed Khan, likely sent by Wazir Khan, the Governor of Sirhind. Before his death, he declared the Guru Granth Sahib as the eternal Guru of the Sikhs, ending the lineage of human Gurus. The Khalsa leadership then passed to Banda Singh Bahadur. / \u0938\u093f\u0916\u094b\u0902 \u0915\u0947 \u0926\u0938\u0935\u0947\u0902 \u0914\u0930 \u0905\u0902\u0924\u093f\u092e \u092e\u093e\u0928\u0935 \u0917\u0941\u0930\u0941, \u0917\u0941\u0930\u0941 \u0917\u094b\u092c\u093f\u0902\u0926 \u0938\u093f\u0902\u0939 \u0915\u093e \u0928\u093f\u0927\u0928 1708 \u092e\u0947\u0902 \u092e\u0939\u093e\u0930\u093e\u0937\u094d\u091f\u094d\u0930 \u0915\u0947 \u0928\u093e\u0902\u0926\u0947\u0921\u093c (\u0905\u092c \u0939\u0941\u091c\u093c\u0942\u0930 \u0938\u093e\u0939\u093f\u092c) \u092e\u0947\u0902 \u0939\u0941\u0906 \u0925\u093e\u0964 \u0909\u0928\u0915\u0940 \u0939\u0924\u094d\u092f\u093e \u091c\u092e\u0936\u0947\u0926 \u0916\u093e\u0928 \u0928\u093e\u092e\u0915 \u090f\u0915 \u092a\u0920\u093e\u0928 \u0928\u0947 \u0915\u0940 \u0925\u0940, \u091c\u093f\u0938\u0947 \u0938\u0902\u092d\u0935\u0924\u0903 \u0938\u0930\u0939\u093f\u0902\u0926 \u0915\u0947 \u0917\u0935\u0930\u094d\u0928\u0930 \u0935\u091c\u093c\u0940\u0930 \u0916\u093e\u0928 \u0928\u0947 \u092d\u0947\u091c\u093e \u0925\u093e\u0964 \u0905\u092a\u0928\u0940 \u092e\u0943\u0924\u094d\u092f\u0941 \u0938\u0947 \u092a\u0939\u0932\u0947, \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0917\u0941\u0930\u0941 \u0917\u094d\u0930\u0902\u0925 \u0938\u093e\u0939\u093f\u092c \u0915\u094b \u0938\u093f\u0916\u094b\u0902 \u0915\u0947 \u0936\u093e\u0936\u094d\u0935\u0924 \u0917\u0941\u0930\u0941 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0918\u094b\u0937\u093f\u0924 \u0915\u093f\u092f\u093e, \u091c\u093f\u0938\u0938\u0947 \u092e\u093e\u0928\u0935 \u0917\u0941\u0930\u0941\u0913\u0902 \u0915\u0940 \u0935\u0902\u0936\u093e\u0935\u0932\u0940 \u0938\u092e\u093e\u092a\u094d\u0924 \u0939\u094b \u0917\u0908\u0964 \u0907\u0938\u0915\u0947 \u092c\u093e\u0926 \u0916\u093e\u0932\u0938\u093e \u0915\u093e \u0928\u0947\u0924\u0943\u0924\u094d\u0935 \u092c\u0902\u0926\u093e \u0938\u093f\u0902\u0939 \u092c\u0939\u093e\u0926\u0941\u0930 \u0915\u0947 \u092a\u093e\u0938 \u091a\u0932\u093e \u0917\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q2.</b> Q2. Which Sikh Guru instituted the Khalsa in 1699? / 1699 \u092e\u0947\u0902 \u0915\u093f\u0938 \u0938\u093f\u0916 \u0917\u0941\u0930\u0941 \u0928\u0947 \u0916\u093e\u0932\u0938\u093e \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u0915\u0940 \u0925\u0940? [SSC CHSL, 13 Nov 2025, Shift-3]",
+      "options": [
+        "Guru Nanak / \u0917\u0941\u0930\u0941 \u0928\u093e\u0928\u0915",
+        "Guru Ramdas / \u0917\u0941\u0930\u0941 \u0930\u093e\u092e\u0926\u093e\u0938",
+        "Guru Tegh Bahadur / \u0917\u0941\u0930\u0941 \u0924\u0947\u0917 \u092c\u0939\u093e\u0926\u0941\u0930",
+        "Guru Gobind Singh / \u0917\u0941\u0930\u0941 \u0917\u094b\u092c\u093f\u0902\u0926 \u0938\u093f\u0902\u0939"
+      ],
+      "correctIndex": 3,
+      "explanation": "Guru Gobind Singh instituted the Khalsa (The Pure Ones) on the day of Baisakhi in 1699 at Anandpur Sahib. He initiated the 'Panj Pyare' (Five Beloved Ones) and mandated the 'Five Ks' (Kesh, Kangha, Kara, Kachhera, Kirpan) for all baptized Sikhs. This event transformed the Sikh community into a martial order dedicated to fighting tyranny. Guru Nanak was the founder of the faith. / \u0917\u0941\u0930\u0941 \u0917\u094b\u092c\u093f\u0902\u0926 \u0938\u093f\u0902\u0939 \u0928\u0947 1699 \u092e\u0947\u0902 \u092c\u0948\u0938\u093e\u0916\u0940 \u0915\u0947 \u0926\u093f\u0928 \u0906\u0928\u0902\u0926\u092a\u0941\u0930 \u0938\u093e\u0939\u093f\u092c \u092e\u0947\u0902 \u0916\u093e\u0932\u0938\u093e (\u0936\u0941\u0926\u094d\u0927 \u091c\u0928) \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u0915\u0940 \u0925\u0940\u0964 \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 '\u092a\u0902\u091c \u092a\u094d\u092f\u093e\u0930\u0947' (\u092a\u093e\u0902\u091a \u092a\u094d\u092f\u093e\u0930\u0947) \u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924 \u0915\u0940 \u0914\u0930 \u0938\u092d\u0940 \u0926\u0940\u0915\u094d\u0937\u093f\u0924 \u0938\u093f\u0916\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f '\u092a\u093e\u0902\u091a \u0915\u0915\u093e\u0930' (\u0915\u0947\u0936, \u0915\u0902\u0918\u093e, \u0915\u0921\u093c\u093e, \u0915\u091b\u0948\u0930\u093e, \u0915\u0943\u092a\u093e\u0923) \u0905\u0928\u093f\u0935\u093e\u0930\u094d\u092f \u0915\u0930 \u0926\u093f\u090f\u0964 \u0907\u0938 \u0918\u091f\u0928\u093e \u0928\u0947 \u0938\u093f\u0916 \u0938\u092e\u0941\u0926\u093e\u092f \u0915\u094b \u0905\u0924\u094d\u092f\u093e\u091a\u093e\u0930 \u0938\u0947 \u0932\u0921\u093c\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0938\u092e\u0930\u094d\u092a\u093f\u0924 \u090f\u0915 \u0938\u0948\u0928\u094d\u092f \u0915\u094d\u0930\u092e \u092e\u0947\u0902 \u092c\u0926\u0932 \u0926\u093f\u092f\u093e\u0964 \u0917\u0941\u0930\u0941 \u0928\u093e\u0928\u0915 \u0907\u0938 \u0927\u0930\u094d\u092e \u0915\u0947 \u0938\u0902\u0938\u094d\u0925\u093e\u092a\u0915 \u0925\u0947\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q3.</b> Q3. In the eighteenth century, where did the Sikh community gather during Baisakhi and Diwali to take collective decisions called Gurmatas? / \u0905\u0920\u093e\u0930\u0939\u0935\u0940\u0902 \u0936\u0924\u093e\u092c\u094d\u0926\u0940 \u092e\u0947\u0902, \u0938\u093f\u0916 \u0938\u092e\u0941\u0926\u093e\u092f \u092c\u0948\u0938\u093e\u0916\u0940 \u0914\u0930 \u0926\u093f\u0935\u093e\u0932\u0940 \u0915\u0947 \u0926\u094c\u0930\u093e\u0928 &#x27;\u0917\u0941\u0930\u092e\u0924\u093e&#x27; \u0928\u093e\u092e\u0915 \u0938\u093e\u092e\u0942\u0939\u093f\u0915 \u0928\u093f\u0930\u094d\u0923\u092f \u0932\u0947\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0915\u0939\u093e\u0901 \u090f\u0915\u0924\u094d\u0930 \u0939\u094b\u0924\u093e \u0925\u093e? [SSC CHSL, 18 Nov 2025, Shift-2]",
+      "options": [
+        "Nagpur / \u0928\u093e\u0917\u092a\u0941\u0930",
+        "Amritsar / \u0905\u092e\u0943\u0924\u0938\u0930",
+        "Patna Sahib / \u092a\u091f\u0928\u093e \u0938\u093e\u0939\u093f\u092c",
+        "Bhopal / \u092d\u094b\u092a\u093e\u0932"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Sikh community gathered at Amritsar (specifically at the Akal Takht) twice a year on Baisakhi and Diwali. These gatherings were called 'Sarbat Khalsa'. The collective decisions taken during these assemblies were known as 'Gurmatas' (Resolutions of the Guru), which were binding on all the Sikh Misls. This system helped coordinate their political and military actions against the Mughals and Afghans. / \u0938\u093f\u0916 \u0938\u092e\u0941\u0926\u093e\u092f \u0938\u093e\u0932 \u092e\u0947\u0902 \u0926\u094b \u092c\u093e\u0930 \u092c\u0948\u0938\u093e\u0916\u0940 \u0914\u0930 \u0926\u093f\u0935\u093e\u0932\u0940 \u092a\u0930 \u0905\u092e\u0943\u0924\u0938\u0930 (\u0935\u093f\u0936\u0947\u0937 \u0930\u0942\u092a \u0938\u0947 \u0905\u0915\u093e\u0932 \u0924\u0916\u094d\u0924 \u092a\u0930) \u092e\u0947\u0902 \u0907\u0915\u091f\u094d\u0920\u093e \u0939\u094b\u0924\u093e \u0925\u093e\u0964 \u0907\u0928 \u0938\u092d\u093e\u0913\u0902 \u0915\u094b '\u0938\u0930\u092c\u0924 \u0916\u093e\u0932\u0938\u093e' \u0915\u0939\u093e \u091c\u093e\u0924\u093e \u0925\u093e\u0964 \u0907\u0928 \u0938\u092d\u093e\u0913\u0902 \u0915\u0947 \u0926\u094c\u0930\u093e\u0928 \u0932\u093f\u090f \u0917\u090f \u0938\u093e\u092e\u0942\u0939\u093f\u0915 \u0928\u093f\u0930\u094d\u0923\u092f\u094b\u0902 \u0915\u094b '\u0917\u0941\u0930\u092e\u0924\u093e' (\u0917\u0941\u0930\u0941 \u0915\u0947 \u092a\u094d\u0930\u0938\u094d\u0924\u093e\u0935) \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u091c\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0925\u093e, \u091c\u094b \u0938\u092d\u0940 \u0938\u093f\u0916 \u092e\u093f\u0938\u0932\u094b\u0902 \u092a\u0930 \u092c\u093e\u0927\u094d\u092f\u0915\u093e\u0930\u0940 \u0925\u0947\u0964 \u0907\u0938 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0928\u0947 \u092e\u0941\u0917\u0932\u094b\u0902 \u0914\u0930 \u0905\u092b\u0917\u093e\u0928\u094b\u0902 \u0915\u0947 \u0916\u093f\u0932\u093e\u092b \u0909\u0928\u0915\u0947 \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u0914\u0930 \u0938\u0948\u0928\u094d\u092f \u0915\u093e\u0930\u094d\u092f\u094b\u0902 \u0915\u0947 \u0938\u092e\u0928\u094d\u0935\u092f \u092e\u0947\u0902 \u092e\u0926\u0926 \u0915\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q4.</b> Q4. Under whose leadership did the Khalsa revolt against the Mughal rule after the death of Guru Gobind Singh? / \u0917\u0941\u0930\u0941 \u0917\u094b\u092c\u093f\u0902\u0926 \u0938\u093f\u0902\u0939 \u0915\u0940 \u092e\u0943\u0924\u094d\u092f\u0941 \u0915\u0947 \u092c\u093e\u0926 \u0915\u093f\u0938\u0915\u0947 \u0928\u0947\u0924\u0943\u0924\u094d\u0935 \u092e\u0947\u0902 \u0916\u093e\u0932\u0938\u093e \u0928\u0947 \u092e\u0941\u0917\u0932 \u0936\u093e\u0938\u0928 \u0915\u0947 \u0916\u093f\u0932\u093e\u092b \u0935\u093f\u0926\u094d\u0930\u094b\u0939 \u0915\u093f\u092f\u093e \u0925\u093e? [SSC CHSL, 20 Nov 2025, Shift-3]",
+      "options": [
+        "Chattar Singh Attriwal / \u091a\u0924\u0930 \u0938\u093f\u0902\u0939 \u0905\u091f\u093e\u0930\u0940\u0935\u093e\u0932\u093e",
+        "Banda Bahadur / \u092c\u0902\u0926\u093e \u092c\u0939\u093e\u0926\u0941\u0930",
+        "Duleep Singh / \u0926\u0932\u0940\u092a \u0938\u093f\u0902\u0939",
+        "Udai Singh / \u0909\u0926\u092f \u0938\u093f\u0902\u0939"
+      ],
+      "correctIndex": 1,
+      "explanation": "After the death of Guru Gobind Singh in 1708, the Khalsa rose in revolt under the leadership of Banda Singh Bahadur. He rallied the Sikh peasantry, defeated the Mughal governor Wazir Khan at the Battle of Chappar Chiri, and established the first sovereign Sikh state in Punjab, striking coins in the names of the Gurus. He was eventually captured and executed in 1716. / 1708 \u092e\u0947\u0902 \u0917\u0941\u0930\u0941 \u0917\u094b\u092c\u093f\u0902\u0926 \u0938\u093f\u0902\u0939 \u0915\u0940 \u092e\u0943\u0924\u094d\u092f\u0941 \u0915\u0947 \u092c\u093e\u0926, \u092c\u0902\u0926\u093e \u0938\u093f\u0902\u0939 \u092c\u0939\u093e\u0926\u0941\u0930 \u0915\u0947 \u0928\u0947\u0924\u0943\u0924\u094d\u0935 \u092e\u0947\u0902 \u0916\u093e\u0932\u0938\u093e \u0928\u0947 \u0935\u093f\u0926\u094d\u0930\u094b\u0939 \u0915\u0930 \u0926\u093f\u092f\u093e\u0964 \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0938\u093f\u0916 \u0915\u093f\u0938\u093e\u0928\u094b\u0902 \u0915\u094b \u0932\u093e\u092e\u092c\u0902\u0926 \u0915\u093f\u092f\u093e, \u091a\u092a\u094d\u092a\u0921\u093c \u091a\u093f\u0921\u093c\u0940 \u0915\u0947 \u092f\u0941\u0926\u094d\u0927 \u092e\u0947\u0902 \u092e\u0941\u0917\u0932 \u0917\u0935\u0930\u094d\u0928\u0930 \u0935\u091c\u093c\u0940\u0930 \u0916\u093e\u0928 \u0915\u094b \u0939\u0930\u093e\u092f\u093e \u0914\u0930 \u092a\u0902\u091c\u093e\u092c \u092e\u0947\u0902 \u092a\u0939\u0932\u0947 \u0938\u0902\u092a\u094d\u0930\u092d\u0941 \u0938\u093f\u0916 \u0930\u093e\u091c\u094d\u092f \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u0915\u0940, \u0924\u0925\u093e \u0917\u0941\u0930\u0941\u0913\u0902 \u0915\u0947 \u0928\u093e\u092e \u092a\u0930 \u0938\u093f\u0915\u094d\u0915\u0947 \u091a\u0932\u093e\u090f\u0964 \u0905\u0902\u0924\u0924\u0903 1716 \u092e\u0947\u0902 \u0909\u0928\u094d\u0939\u0947\u0902 \u092a\u0915\u0921\u093c \u0932\u093f\u092f\u093e \u0917\u092f\u093e \u0914\u0930 \u092e\u0943\u0924\u094d\u092f\u0941\u0926\u0902\u0921 \u0926\u0947 \u0926\u093f\u092f\u093e \u0917\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q5.</b> Q5. What was the combined army of the Sikh &#x27;Jathas&#x27; and &#x27;Misls&#x27; called in the eighteenth century? / \u0905\u0920\u093e\u0930\u0939\u0935\u0940\u0902 \u0936\u0924\u093e\u092c\u094d\u0926\u0940 \u092e\u0947\u0902 \u0938\u093f\u0916 &#x27;\u091c\u0924\u094d\u0925\u094b\u0902&#x27; \u0914\u0930 &#x27;\u092e\u093f\u0938\u0932\u094b\u0902&#x27; \u0915\u0940 \u0938\u0902\u092f\u0941\u0915\u094d\u0924 \u0938\u0947\u0928\u093e \u0915\u094b \u0915\u094d\u092f\u093e \u0915\u0939\u093e \u091c\u093e\u0924\u093e \u0925\u093e? [SSC CHSL, 27 Nov 2025, Shift-2]",
+      "options": [
+        "Sangats / \u0938\u0902\u0917\u0924",
+        "Mansabdars / \u092e\u0928\u0938\u092c\u0926\u093e\u0930",
+        "Nihangs / \u0928\u093f\u0939\u0902\u0917",
+        "Dal Khalsa / \u0926\u0932 \u0916\u093e\u0932\u0938\u093e"
+      ],
+      "correctIndex": 3,
+      "explanation": "The combined military force of the various Sikh 'Jathas' (bands) and 'Misls' (confederacies) was known as the Dal Khalsa. It was formally organized in 1748 under the supreme command of Jassa Singh Ahluwalia at Amritsar. The Dal Khalsa was instrumental in repelling the invasions of Ahmad Shah Abdali and establishing Sikh rule in Punjab before Ranjit Singh's empire. / \u0935\u093f\u092d\u093f\u0928\u094d\u0928 \u0938\u093f\u0916 '\u091c\u0924\u094d\u0925\u094b\u0902' \u0914\u0930 '\u092e\u093f\u0938\u0932\u094b\u0902' \u0915\u0947 \u0938\u0902\u092f\u0941\u0915\u094d\u0924 \u0938\u0948\u0928\u094d\u092f \u092c\u0932 \u0915\u094b \u0926\u0932 \u0916\u093e\u0932\u0938\u093e \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u091c\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0925\u093e\u0964 \u0907\u0938\u0947 \u0914\u092a\u091a\u093e\u0930\u093f\u0915 \u0930\u0942\u092a \u0938\u0947 1748 \u092e\u0947\u0902 \u0905\u092e\u0943\u0924\u0938\u0930 \u092e\u0947\u0902 \u091c\u0938\u094d\u0938\u093e \u0938\u093f\u0902\u0939 \u0905\u0939\u0932\u0942\u0935\u093e\u0932\u093f\u092f\u093e \u0915\u0940 \u0938\u0930\u094d\u0935\u094b\u091a\u094d\u091a \u0915\u092e\u093e\u0928 \u0915\u0947 \u0924\u0939\u0924 \u0906\u092f\u094b\u091c\u093f\u0924 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0930\u0923\u091c\u0940\u0924 \u0938\u093f\u0902\u0939 \u0915\u0947 \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f \u0938\u0947 \u092a\u0939\u0932\u0947 \u092a\u0902\u091c\u093e\u092c \u092e\u0947\u0902 \u0938\u093f\u0916 \u0936\u093e\u0938\u0928 \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0930\u0928\u0947 \u0914\u0930 \u0905\u0939\u092e\u0926 \u0936\u093e\u0939 \u0905\u092c\u094d\u0926\u093e\u0932\u0940 \u0915\u0947 \u0906\u0915\u094d\u0930\u092e\u0923\u094b\u0902 \u0915\u094b \u0935\u093f\u092b\u0932 \u0915\u0930\u0928\u0947 \u092e\u0947\u0902 \u0926\u0932 \u0916\u093e\u0932\u0938\u093e \u0915\u0940 \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u092d\u0942\u092e\u093f\u0915\u093e \u0925\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q6.</b> Q6. What important event is celebrated during the festival of &#x27;Baisakhi&#x27; in Punjab? / \u092a\u0902\u091c\u093e\u092c \u092e\u0947\u0902 &#x27;\u092c\u0948\u0938\u093e\u0916\u0940&#x27; \u0915\u0947 \u0924\u094d\u092f\u094b\u0939\u093e\u0930 \u0915\u0947 \u0926\u094c\u0930\u093e\u0928 \u0915\u094c\u0928 \u0938\u0940 \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0918\u091f\u0928\u093e \u092e\u0928\u093e\u0908 \u091c\u093e\u0924\u0940 \u0939\u0948? [SSC CHSL, 29 Nov 2025, Shift-2]",
+      "options": [
+        "Birth of Guru Nanak / \u0917\u0941\u0930\u0941 \u0928\u093e\u0928\u0915 \u0915\u093e \u091c\u0928\u094d\u092e",
+        "Founding of Golden Temple / \u0938\u094d\u0935\u0930\u094d\u0923 \u092e\u0902\u0926\u093f\u0930 \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e",
+        "Birth of Guru Angad / \u0917\u0941\u0930\u0941 \u0905\u0902\u0917\u0926 \u0915\u093e \u091c\u0928\u094d\u092e",
+        "Founding of Khalsa Panth / \u0916\u093e\u0932\u0938\u093e \u092a\u0902\u0925 \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e"
+      ],
+      "correctIndex": 3,
+      "explanation": "The festival of 'Baisakhi' (Vaisakhi) primarily celebrates the Founding of the Khalsa Panth by Guru Gobind Singh in 1699. It marks the birth of the collective Sikh identity. While it is also a harvest festival, its historical significance in Punjab is tied to the creation of the Khalsa. Guru Nanak's birth is celebrated as Gurpurab on Kartik Purnima. / '\u092c\u0948\u0938\u093e\u0916\u0940' (\u0935\u0948\u0938\u093e\u0916\u0940) \u0915\u093e \u0924\u094d\u092f\u094b\u0939\u093e\u0930 \u092e\u0941\u0916\u094d\u092f \u0930\u0942\u092a \u0938\u0947 1699 \u092e\u0947\u0902 \u0917\u0941\u0930\u0941 \u0917\u094b\u092c\u093f\u0902\u0926 \u0938\u093f\u0902\u0939 \u0926\u094d\u0935\u093e\u0930\u093e \u0916\u093e\u0932\u0938\u093e \u092a\u0902\u0925 \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u0915\u093e \u091c\u0936\u094d\u0928 \u092e\u0928\u093e\u0924\u093e \u0939\u0948\u0964 \u092f\u0939 \u0938\u093e\u092e\u0942\u0939\u093f\u0915 \u0938\u093f\u0916 \u092a\u0939\u091a\u093e\u0928 \u0915\u0947 \u091c\u0928\u094d\u092e \u0915\u093e \u092a\u094d\u0930\u0924\u0940\u0915 \u0939\u0948\u0964 \u0939\u093e\u0932\u093e\u0901\u0915\u093f \u092f\u0939 \u090f\u0915 \u092b\u0938\u0932 \u0909\u0924\u094d\u0938\u0935 \u092d\u0940 \u0939\u0948, \u0932\u0947\u0915\u093f\u0928 \u092a\u0902\u091c\u093e\u092c \u092e\u0947\u0902 \u0907\u0938\u0915\u093e \u0910\u0924\u093f\u0939\u093e\u0938\u093f\u0915 \u092e\u0939\u0924\u094d\u0935 \u0916\u093e\u0932\u0938\u093e \u0915\u0947 \u0928\u093f\u0930\u094d\u092e\u093e\u0923 \u0938\u0947 \u091c\u0941\u0921\u093c\u093e \u0939\u0948\u0964 \u0917\u0941\u0930\u0941 \u0928\u093e\u0928\u0915 \u0915\u093e \u091c\u0928\u094d\u092e \u0915\u093e\u0930\u094d\u0924\u093f\u0915 \u092a\u0942\u0930\u094d\u0923\u093f\u092e\u093e \u0915\u094b \u0917\u0941\u0930\u0941\u092a\u0930\u094d\u0935 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u092e\u0928\u093e\u092f\u093e \u091c\u093e\u0924\u093e \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q7.</b> Which architectural style is best described by the following features: ribbed vaults, pointed arches, flying buttresses, and stained-glass windows? / \u0915\u093f\u0938 \u0935\u093e\u0938\u094d\u0924\u0941\u0936\u093f\u0932\u094d\u092a \u0936\u0948\u0932\u0940 \u0915\u094b \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u0935\u093f\u0936\u0947\u0937\u0924\u093e\u0913\u0902 \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u092c\u0938\u0947 \u0905\u091a\u094d\u091b\u0940 \u0924\u0930\u0939 \u0935\u0930\u094d\u0923\u093f\u0924 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0939\u0948: \u0930\u093f\u092c\u094d\u0921 \u0935\u0949\u0932\u094d\u091f, \u0928\u0941\u0915\u0940\u0932\u0947 \u092e\u0947\u0939\u0930\u093e\u092c, \u092b\u094d\u0932\u093e\u0907\u0902\u0917 \u092c\u091f\u094d\u0930\u0947\u0938 \u0914\u0930 \u0938\u0928\u093e \u0939\u0941\u0906 \u0915\u093e\u0902\u091a \u0915\u0940 \u0916\u093f\u0921\u093c\u0915\u093f\u092f\u093e\u0902? [SSC Steno, 06/08/2025, Shift-1]",
+      "options": [
+        "Mughal / \u092e\u0941\u0917\u0932",
+        "Deccan / \u0926\u0915\u094d\u0915\u0928",
+        "Indo-Islamic / \u092d\u093e\u0930\u0924-\u0907\u0938\u094d\u0932\u093e\u092e\u0940",
+        "Gothic / \u0917\u094b\u0925\u093f\u0915"
+      ],
+      "correctIndex": 3,
+      "explanation": "The features described\u2014ribbed vaults, pointed arches, flying buttresses, and stained-glass windows\u2014are the defining characteristics of Gothic architecture, a style that flourished in medieval Europe. It is distinct from Mughal or Indo-Islamic architecture, which utilize domes, minarets, and arches but lack flying buttresses. In India, this style was introduced much later by the British (Victorian Gothic). / \u0935\u0930\u094d\u0923\u093f\u0924 \u0935\u093f\u0936\u0947\u0937\u0924\u093e\u090f\u0902\u2014\u0930\u093f\u092c\u094d\u0921 \u0935\u0949\u0932\u094d\u091f, \u0928\u0941\u0915\u0940\u0932\u0947 \u092e\u0947\u0939\u0930\u093e\u092c, \u092b\u094d\u0932\u093e\u0907\u0902\u0917 \u092c\u091f\u094d\u0930\u0947\u0938 \u0914\u0930 \u0938\u0928\u093e \u0939\u0941\u0906 \u0915\u093e\u0902\u091a \u0915\u0940 \u0916\u093f\u0921\u093c\u0915\u093f\u092f\u093e\u0902\u2014\u0917\u094b\u0925\u093f\u0915 \u0935\u093e\u0938\u094d\u0924\u0941\u0915\u0932\u093e \u0915\u0940 \u092a\u0930\u093f\u092d\u093e\u0937\u093f\u0924 \u0935\u093f\u0936\u0947\u0937\u0924\u093e\u090f\u0902 \u0939\u0948\u0902, \u090f\u0915 \u0910\u0938\u0940 \u0936\u0948\u0932\u0940 \u091c\u094b \u092e\u0927\u094d\u092f\u0915\u093e\u0932\u0940\u0928 \u092f\u0942\u0930\u094b\u092a \u092e\u0947\u0902 \u092b\u0932\u0940-\u092b\u0942\u0932\u0940\u0964 \u092f\u0939 \u092e\u0941\u0917\u0932 \u092f\u093e \u092d\u093e\u0930\u0924-\u0907\u0938\u094d\u0932\u093e\u092e\u0940 \u0935\u093e\u0938\u094d\u0924\u0941\u0915\u0932\u093e \u0938\u0947 \u0905\u0932\u0917 \u0939\u0948, \u091c\u094b \u0917\u0941\u0902\u092c\u0926\u094b\u0902, \u092e\u0940\u0928\u093e\u0930\u094b\u0902 \u0914\u0930 \u092e\u0947\u0939\u0930\u093e\u092c\u094b\u0902 \u0915\u093e \u0909\u092a\u092f\u094b\u0917 \u0915\u0930\u0924\u0947 \u0939\u0948\u0902 \u0932\u0947\u0915\u093f\u0928 \u0909\u0928\u092e\u0947\u0902 \u092b\u094d\u0932\u093e\u0907\u0902\u0917 \u092c\u091f\u094d\u0930\u0947\u0938 \u0915\u0940 \u0915\u092e\u0940 \u0939\u094b\u0924\u0940 \u0939\u0948\u0964 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902, \u092f\u0939 \u0936\u0948\u0932\u0940 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0926\u094d\u0935\u093e\u0930\u093e \u092c\u0939\u0941\u0924 \u092c\u093e\u0926 \u092e\u0947\u0902 (\u0935\u093f\u0915\u094d\u091f\u094b\u0930\u093f\u092f\u0928 \u0917\u094b\u0925\u093f\u0915) \u0936\u0941\u0930\u0942 \u0915\u0940 \u0917\u0908 \u0925\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q8.</b> Which of the following correctly pairs a monument with its architectural style? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e \u090f\u0915 \u0938\u094d\u092e\u093e\u0930\u0915 \u0915\u094b \u0909\u0938\u0915\u0940 \u0935\u093e\u0938\u094d\u0924\u0941\u0936\u093f\u0932\u094d\u092a \u0936\u0948\u0932\u0940 \u0915\u0947 \u0938\u093e\u0925 \u0938\u0939\u0940 \u0922\u0902\u0917 \u0938\u0947 \u091c\u094b\u0921\u093c\u0924\u093e \u0939\u0948? [SSC Steno, 06/08/2025, Shift-3]",
+      "options": [
+        "Khajuraho Temples - French / \u0916\u091c\u0941\u0930\u093e\u0939\u094b \u092e\u0902\u0926\u093f\u0930 - \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940",
+        "Qutub Minar - Indo-Islamic / \u0915\u0941\u0924\u0941\u092c \u092e\u0940\u0928\u093e\u0930 - \u092d\u093e\u0930\u0924-\u0907\u0938\u094d\u0932\u093e\u092e\u0940",
+        "India Gate - Rajput / \u0907\u0902\u0921\u093f\u092f\u093e \u0917\u0947\u091f - \u0930\u093e\u091c\u092a\u0942\u0924",
+        "Lotus Temple - Mughal / \u0932\u094b\u091f\u0938 \u091f\u0947\u092e\u094d\u092a\u0932 - \u092e\u0941\u0917\u0932"
+      ],
+      "correctIndex": 1,
+      "explanation": "Qutub Minar is a classic example of early Indo-Islamic architecture (specifically the Mamluk style). It blends Islamic structural elements like minarets and calligraphy with Indian craftsmanship. Khajuraho temples are Nagara style (Hindu); India Gate is Indo-Saracenic/Neo-Classical (British); Lotus Temple is modern Expressionist. / \u0915\u0941\u0924\u0941\u092c \u092e\u0940\u0928\u093e\u0930 \u092a\u094d\u0930\u093e\u0930\u0902\u092d\u093f\u0915 \u092d\u093e\u0930\u0924-\u0907\u0938\u094d\u0932\u093e\u092e\u0940 \u0935\u093e\u0938\u094d\u0924\u0941\u0915\u0932\u093e (\u0935\u093f\u0936\u0947\u0937 \u0930\u0942\u092a \u0938\u0947 \u092e\u092e\u0932\u0941\u0915 \u0936\u0948\u0932\u0940) \u0915\u093e \u090f\u0915 \u0909\u0924\u094d\u0915\u0943\u0937\u094d\u091f \u0909\u0926\u093e\u0939\u0930\u0923 \u0939\u0948\u0964 \u092f\u0939 \u092e\u0940\u0928\u093e\u0930\u094b\u0902 \u0914\u0930 \u0938\u0941\u0932\u0947\u0916 \u091c\u0948\u0938\u0947 \u0907\u0938\u094d\u0932\u093e\u092e\u0940 \u0938\u0902\u0930\u091a\u0928\u093e\u0924\u094d\u092e\u0915 \u0924\u0924\u094d\u0935\u094b\u0902 \u0915\u094b \u092d\u093e\u0930\u0924\u0940\u092f \u0936\u093f\u0932\u094d\u092a \u0915\u094c\u0936\u0932 \u0915\u0947 \u0938\u093e\u0925 \u091c\u094b\u0921\u093c\u0924\u093e \u0939\u0948\u0964 \u0916\u091c\u0941\u0930\u093e\u0939\u094b \u092e\u0902\u0926\u093f\u0930 \u0928\u093e\u0917\u0930 \u0936\u0948\u0932\u0940 (\u0939\u093f\u0902\u0926\u0942) \u0915\u0947 \u0939\u0948\u0902; \u0907\u0902\u0921\u093f\u092f\u093e \u0917\u0947\u091f \u092d\u093e\u0930\u0924-\u0938\u093e\u0930\u0938\u0947\u0928\u093f\u0915/\u0928\u0935-\u0936\u093e\u0938\u094d\u0924\u094d\u0930\u0940\u092f (\u092c\u094d\u0930\u093f\u091f\u093f\u0936) \u0939\u0948; \u0932\u094b\u091f\u0938 \u091f\u0947\u092e\u094d\u092a\u0932 \u0906\u0927\u0941\u0928\u093f\u0915 \u0905\u092d\u093f\u0935\u094d\u092f\u0915\u094d\u0924\u093f\u0935\u093e\u0926\u0940 \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q3. Consider the following statements regarding provincial architecture in medieval India: / \u092e\u0927\u094d\u092f\u0915\u093e\u0932\u0940\u0928 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092a\u094d\u0930\u093e\u0902\u0924\u0940\u092f \u0935\u093e\u0938\u094d\u0924\u0941\u0915\u0932\u093e \u0915\u0947 \u0938\u0902\u092c\u0902\u0927 \u092e\u0947\u0902 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u0915\u0925\u0928\u094b\u0902 \u092a\u0930 \u0935\u093f\u091a\u093e\u0930 \u0915\u0930\u0947\u0902:<br>1. Bengal and Jaunpur developed distinct architectural styles separate from the Delhi Sultanate. / 1. \u092c\u0902\u0917\u093e\u0932 \u0914\u0930 \u091c\u094c\u0928\u092a\u0941\u0930 \u0928\u0947 \u0926\u093f\u0932\u094d\u0932\u0940 \u0938\u0932\u094d\u0924\u0928\u0924 \u0938\u0947 \u0905\u0932\u0917 \u0935\u093f\u0936\u093f\u0937\u094d\u091f \u0935\u093e\u0938\u094d\u0924\u0941\u0936\u093f\u0932\u094d\u092a \u0936\u0948\u0932\u093f\u092f\u094b\u0902 \u0915\u093e \u0935\u093f\u0915\u093e\u0938 \u0915\u093f\u092f\u093e\u0964<br>2. Regional styles often blended Islamic structures with local artistic traditions. / 2. \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u0940\u092f \u0936\u0948\u0932\u093f\u092f\u094b\u0902 \u0928\u0947 \u0905\u0915\u094d\u0938\u0930 \u0907\u0938\u094d\u0932\u093e\u092e\u0940 \u0938\u0902\u0930\u091a\u0928\u093e\u0913\u0902 \u0915\u094b \u0938\u094d\u0925\u093e\u0928\u0940\u092f \u0915\u0932\u093e\u0924\u094d\u092e\u0915 \u092a\u0930\u0902\u092a\u0930\u093e\u0913\u0902 \u0915\u0947 \u0938\u093e\u0925 \u092e\u093f\u0932\u093e\u092f\u093e\u0964<br>3. Provincial styles remained completely uniform across all regions of India. / 3. \u092a\u094d\u0930\u093e\u0902\u0924\u0940\u092f \u0936\u0948\u0932\u093f\u092f\u093e\u0901 \u092d\u093e\u0930\u0924 \u0915\u0947 \u0938\u092d\u0940 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u094b\u0902 \u092e\u0947\u0902 \u092a\u0942\u0930\u0940 \u0924\u0930\u0939 \u0938\u0947 \u0938\u092e\u093e\u0928 \u0930\u0939\u0940\u0902\u0964<br>[SSC Steno, 08/08/2025, Shift-2]\n            </div>\n            <b>Q9.</b> Which of the statements above is/are correct? / \u0909\u092a\u0930\u094d\u092f\u0941\u0915\u094d\u0924 \u0915\u0925\u0928\u094b\u0902 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e/\u0938\u0947 \u0938\u0939\u0940 \u0939\u0948/\u0939\u0948\u0902?",
+      "options": [
+        "Only 1 / \u0915\u0947\u0935\u0932 1",
+        "1 and 2 Only / \u0915\u0947\u0935\u0932 1 \u0914\u0930 2",
+        "2 and 3 Only / \u0915\u0947\u0935\u0932 2 \u0914\u0930 3",
+        "All 1, 2, and 3 are correct / 1, 2 \u0914\u0930 3 \u0938\u092d\u0940 \u0938\u0939\u0940 \u0939\u0948\u0902"
+      ],
+      "correctIndex": 1,
+      "explanation": "Statements 1 and 2 are correct. Provincial kingdoms like Bengal (using brick/terracotta) and Jaunpur (Sharqi style) developed unique styles that were distinct from the imperial style of Delhi, blending local traditions with Islamic forms. Statement 3 is incorrect because provincial styles were highly diverse (not uniform), varying significantly from Gujarat to Bengal due to local materials and culture. / \u0915\u0925\u0928 1 \u0914\u0930 2 \u0938\u0939\u0940 \u0939\u0948\u0902\u0964 \u092c\u0902\u0917\u093e\u0932 (\u0908\u0902\u091f/\u091f\u0947\u0930\u093e\u0915\u094b\u091f\u093e \u0915\u093e \u0909\u092a\u092f\u094b\u0917 \u0915\u0930\u0915\u0947) \u0914\u0930 \u091c\u094c\u0928\u092a\u0941\u0930 (\u0936\u0930\u094d\u0915\u0940 \u0936\u0948\u0932\u0940) \u091c\u0948\u0938\u0947 \u092a\u094d\u0930\u093e\u0902\u0924\u0940\u092f \u0930\u093e\u091c\u094d\u092f\u094b\u0902 \u0928\u0947 \u0905\u0928\u0942\u0920\u0940 \u0936\u0948\u0932\u093f\u092f\u093e\u0901 \u0935\u093f\u0915\u0938\u093f\u0924 \u0915\u0940\u0902 \u091c\u094b \u0926\u093f\u0932\u094d\u0932\u0940 \u0915\u0940 \u0936\u093e\u0939\u0940 \u0936\u0948\u0932\u0940 \u0938\u0947 \u0905\u0932\u0917 \u0925\u0940\u0902, \u091c\u093f\u0938\u092e\u0947\u0902 \u0938\u094d\u0925\u093e\u0928\u0940\u092f \u092a\u0930\u0902\u092a\u0930\u093e\u0913\u0902 \u0915\u094b \u0907\u0938\u094d\u0932\u093e\u092e\u0940 \u0930\u0942\u092a\u094b\u0902 \u0915\u0947 \u0938\u093e\u0925 \u092e\u093f\u0932\u093e\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0915\u0925\u0928 3 \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u092a\u094d\u0930\u093e\u0902\u0924\u0940\u092f \u0936\u0948\u0932\u093f\u092f\u093e\u0901 \u0905\u0924\u094d\u092f\u0927\u093f\u0915 \u0935\u093f\u0935\u093f\u0927 \u0925\u0940\u0902 (\u0938\u092e\u093e\u0928 \u0928\u0939\u0940\u0902), \u091c\u094b \u0938\u094d\u0925\u093e\u0928\u0940\u092f \u0938\u093e\u092e\u0917\u094d\u0930\u0940 \u0914\u0930 \u0938\u0902\u0938\u094d\u0915\u0943\u0924\u093f \u0915\u0947 \u0915\u093e\u0930\u0923 \u0917\u0941\u091c\u0930\u093e\u0924 \u0938\u0947 \u092c\u0902\u0917\u093e\u0932 \u0924\u0915 \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0930\u0942\u092a \u0938\u0947 \u092d\u093f\u0928\u094d\u0928 \u0925\u0940\u0902\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q10.</b> Which of the following temples is also known as &quot;Taj Mahal of the South&quot;? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938 \u092e\u0902\u0926\u093f\u0930 \u0915\u094b &quot;\u0926\u0915\u094d\u0937\u093f\u0923 \u0915\u093e \u0924\u093e\u091c\u092e\u0939\u0932&quot; \u092d\u0940 \u0915\u0939\u093e \u091c\u093e\u0924\u093e \u0939\u0948? [SSC CHSL, 17 Nov 2025, Shift-2]",
+      "options": [
+        "Sri Jagannath Puri Temple, Puri / \u0936\u094d\u0930\u0940 \u091c\u0917\u0928\u094d\u0928\u093e\u0925 \u092a\u0941\u0930\u0940 \u092e\u0902\u0926\u093f\u0930, \u092a\u0941\u0930\u0940",
+        "Meenakshi Temple, Madurai / \u092e\u0940\u0928\u093e\u0915\u094d\u0937\u0940 \u092e\u0902\u0926\u093f\u0930, \u092e\u0926\u0941\u0930\u0948",
+        "Sri Venkateswara Temple, Tirupati / \u0936\u094d\u0930\u0940 \u0935\u0947\u0902\u0915\u091f\u0947\u0936\u094d\u0935\u0930 \u092e\u0902\u0926\u093f\u0930, \u0924\u093f\u0930\u0941\u092a\u0924\u093f",
+        "Chamundeshwari Temple, Mysore / \u091a\u093e\u092e\u0941\u0902\u0921\u0947\u0936\u094d\u0935\u0930\u0940 \u092e\u0902\u0926\u093f\u0930, \u092e\u0948\u0938\u0942\u0930"
+      ],
+      "correctIndex": 1,
+      "explanation": "Among the given options, the Meenakshi Amman Temple in Madurai is colloquially and symbolically referred to as the \"Taj Mahal of the South\" due to its architectural magnificence and status as a supreme masterpiece of Dravidian art, rivaling the Taj in grandeur. Note: Historically, the 'Ibrahim Rauza' in Bijapur is the monument most formally cited as the \"Taj Mahal of the South\" (and an inspiration for the Taj), but it is not an option here. / \u0926\u093f\u090f \u0917\u090f \u0935\u093f\u0915\u0932\u094d\u092a\u094b\u0902 \u092e\u0947\u0902 \u0938\u0947, \u092e\u0926\u0941\u0930\u0948 \u0915\u0947 \u092e\u0940\u0928\u093e\u0915\u094d\u0937\u0940 \u0905\u092e\u094d\u092e\u0928 \u092e\u0902\u0926\u093f\u0930 \u0915\u094b \u0907\u0938\u0915\u0940 \u0935\u093e\u0938\u094d\u0924\u0941\u0936\u093f\u0932\u094d\u092a \u092d\u0935\u094d\u092f\u0924\u093e \u0914\u0930 \u0926\u094d\u0930\u0935\u093f\u0921\u093c \u0915\u0932\u093e \u0915\u0940 \u090f\u0915 \u0938\u0930\u094d\u0935\u094b\u091a\u094d\u091a \u0909\u0924\u094d\u0915\u0943\u0937\u094d\u091f \u0915\u0943\u0924\u093f \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0938\u094d\u0925\u093f\u0924\u093f \u0915\u0947 \u0915\u093e\u0930\u0923 \u092c\u094b\u0932\u091a\u093e\u0932 \u0914\u0930 \u092a\u094d\u0930\u0924\u0940\u0915\u093e\u0924\u094d\u092e\u0915 \u0930\u0942\u092a \u0938\u0947 \"\u0926\u0915\u094d\u0937\u093f\u0923 \u0915\u093e \u0924\u093e\u091c\u092e\u0939\u0932\" \u0915\u0939\u093e \u091c\u093e\u0924\u093e \u0939\u0948, \u091c\u094b \u092d\u0935\u094d\u092f\u0924\u093e \u092e\u0947\u0902 \u0924\u093e\u091c\u092e\u0939\u0932 \u0915\u093e \u092e\u0941\u0915\u093e\u092c\u0932\u093e \u0915\u0930\u0924\u093e \u0939\u0948\u0964 \u0928\u094b\u091f: \u0910\u0924\u093f\u0939\u093e\u0938\u093f\u0915 \u0930\u0942\u092a \u0938\u0947, \u092c\u0940\u091c\u093e\u092a\u0941\u0930 \u092e\u0947\u0902 '\u0907\u092c\u094d\u0930\u093e\u0939\u093f\u092e \u0930\u094c\u091c\u093c\u093e' \u0935\u0939 \u0938\u094d\u092e\u093e\u0930\u0915 \u0939\u0948 \u091c\u093f\u0938\u0947 \u0914\u092a\u091a\u093e\u0930\u093f\u0915 \u0930\u0942\u092a \u0938\u0947 \"\u0926\u0915\u094d\u0937\u093f\u0923 \u0915\u0947 \u0924\u093e\u091c\u092e\u0939\u0932\" (\u0914\u0930 \u0924\u093e\u091c\u092e\u0939\u0932 \u0915\u0947 \u0932\u093f\u090f \u090f\u0915 \u092a\u094d\u0930\u0947\u0930\u0923\u093e) \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0909\u0926\u094d\u0927\u0943\u0924 \u0915\u093f\u092f\u093e \u091c\u093e\u0924\u093e \u0939\u0948, \u0932\u0947\u0915\u093f\u0928 \u092f\u0939 \u092f\u0939\u093e\u0901 \u090f\u0915 \u0935\u093f\u0915\u0932\u094d\u092a \u0928\u0939\u0940\u0902 \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q11.</b> In which year did Tipu Sultan become the ruler of Mysore? / \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928 \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u092e\u0948\u0938\u0942\u0930 \u0915\u0947 \u0936\u093e\u0938\u0915 \u092c\u0928\u0947? [SSC CHSL, 24 Nov 2025, Shift-2]",
+      "options": [
+        "1782 / 1782",
+        "1788 / 1788",
+        "1795 / 1795",
+        "1799 / 1799"
+      ],
+      "correctIndex": 0,
+      "explanation": "Tipu Sultan assumed the rulership of Mysore in 1782 following the death of his father, Hyder Ali, during the Second Anglo-Mysore War. He continued the struggle against the British East India Company until his death in 1799 at the Battle of Seringapatam. He is known for his military innovations, including the use of iron-cased Mysore rockets. / \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928 \u0928\u0947 \u0926\u094d\u0935\u093f\u0924\u0940\u092f \u0906\u0902\u0917\u094d\u0932-\u092e\u0948\u0938\u0942\u0930 \u092f\u0941\u0926\u094d\u0927 \u0915\u0947 \u0926\u094c\u0930\u093e\u0928 \u0905\u092a\u0928\u0947 \u092a\u093f\u0924\u093e \u0939\u0948\u0926\u0930 \u0905\u0932\u0940 \u0915\u0940 \u092e\u0943\u0924\u094d\u092f\u0941 \u0915\u0947 \u092c\u093e\u0926 1782 \u092e\u0947\u0902 \u092e\u0948\u0938\u0942\u0930 \u0915\u093e \u0936\u093e\u0938\u0928 \u0938\u0902\u092d\u093e\u0932\u093e\u0964 \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 1799 \u092e\u0947\u0902 \u0936\u094d\u0930\u0940\u0930\u0902\u0917\u092a\u091f\u094d\u091f\u0928\u092e \u0915\u0940 \u0932\u0921\u093c\u093e\u0908 \u092e\u0947\u0902 \u0905\u092a\u0928\u0940 \u092e\u0943\u0924\u094d\u092f\u0941 \u0924\u0915 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0915\u0947 \u0916\u093f\u0932\u093e\u092b \u0938\u0902\u0918\u0930\u094d\u0937 \u091c\u093e\u0930\u0940 \u0930\u0916\u093e\u0964 \u0935\u0947 \u0905\u092a\u0928\u0947 \u0938\u0948\u0928\u094d\u092f \u0928\u0935\u093e\u091a\u093e\u0930\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u091c\u093e\u0928\u0947 \u091c\u093e\u0924\u0947 \u0939\u0948\u0902, \u091c\u093f\u0938\u092e\u0947\u0902 \u0932\u094b\u0939\u0947 \u0915\u0947 \u0906\u0935\u0930\u0923 \u0935\u093e\u0932\u0947 \u092e\u0948\u0938\u0942\u0930 \u0930\u0949\u0915\u0947\u091f \u0915\u093e \u0909\u092a\u092f\u094b\u0917 \u0936\u093e\u092e\u093f\u0932 \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q12.</b> Which of the following was the capital of the kingdom of Tipu Sultan? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928 \u0915\u0947 \u0930\u093e\u091c\u094d\u092f \u0915\u0940 \u0930\u093e\u091c\u0927\u093e\u0928\u0940 \u0925\u0940? [SSC CHSL, 30 Nov 2025, Shift-3]",
+      "options": [
+        "Erode / \u0907\u0930\u094b\u0921",
+        "Seringapatam / \u0936\u094d\u0930\u0940\u0930\u0902\u0917\u092a\u091f\u094d\u091f\u0928\u092e",
+        "Sira / \u0938\u093f\u0930\u093e",
+        "Chitradurga / \u091a\u093f\u0924\u094d\u0930\u0926\u0941\u0930\u094d\u0917"
+      ],
+      "correctIndex": 1,
+      "explanation": "The capital of Tipu Sultan's kingdom was Seringapatam (Srirangapatna), an island fortress on the Kaveri river. From here, he administered his state and fought against the British. The city houses his summer palace (Dariya Daulat Bagh) and his mausoleum (Gumbaz). It was stormed and captured by the British in 1799. / \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928 \u0915\u0947 \u0930\u093e\u091c\u094d\u092f \u0915\u0940 \u0930\u093e\u091c\u0927\u093e\u0928\u0940 \u0936\u094d\u0930\u0940\u0930\u0902\u0917\u092a\u091f\u094d\u091f\u0928\u092e (\u0936\u094d\u0930\u0940\u0930\u0902\u0917\u092a\u091f\u094d\u091f\u0928\u093e) \u0925\u0940, \u091c\u094b \u0915\u093e\u0935\u0947\u0930\u0940 \u0928\u0926\u0940 \u092a\u0930 \u090f\u0915 \u0926\u094d\u0935\u0940\u092a\u0940\u092f \u0915\u093f\u0932\u093e \u0925\u093e\u0964 \u092f\u0939\u0940\u0902 \u0938\u0947 \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0905\u092a\u0928\u0947 \u0930\u093e\u091c\u094d\u092f \u0915\u093e \u092a\u094d\u0930\u0936\u093e\u0938\u0928 \u091a\u0932\u093e\u092f\u093e \u0914\u0930 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0915\u0947 \u0916\u093f\u0932\u093e\u092b \u0932\u0921\u093c\u093e\u0908 \u0932\u0921\u093c\u0940\u0964 \u0936\u0939\u0930 \u092e\u0947\u0902 \u0909\u0928\u0915\u093e \u0917\u094d\u0930\u0940\u0937\u094d\u092e\u0915\u093e\u0932\u0940\u0928 \u092e\u0939\u0932 (\u0926\u0930\u093f\u092f\u093e \u0926\u094c\u0932\u0924 \u092c\u093e\u0917) \u0914\u0930 \u0909\u0928\u0915\u093e \u092e\u0915\u092c\u0930\u093e (\u0917\u0941\u0902\u092c\u0926) \u0939\u0948\u0964 \u0907\u0938\u0947 1799 \u092e\u0947\u0902 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0926\u094d\u0935\u093e\u0930\u093e \u0939\u092e\u0932\u093e \u0915\u0930\u0915\u0947 \u0915\u092c\u094d\u091c\u093e \u0915\u0930 \u0932\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q13.</b> The Kailasa Temple built in the 8th century is in which of the following state? / 8\u0935\u0940\u0902 \u0936\u0924\u093e\u092c\u094d\u0926\u0940 \u092e\u0947\u0902 \u0928\u093f\u0930\u094d\u092e\u093f\u0924 \u0915\u0948\u0932\u093e\u0936 \u092e\u0902\u0926\u093f\u0930 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938 \u0930\u093e\u091c\u094d\u092f \u092e\u0947\u0902 \u0939\u0948? [SSC CHSL, 19 Nov 2025, Shift-2]",
+      "options": [
+        "Madhya Pradesh / \u092e\u0927\u094d\u092f \u092a\u094d\u0930\u0926\u0947\u0936",
+        "Rajasthan / \u0930\u093e\u091c\u0938\u094d\u0925\u093e\u0928",
+        "Maharashtra / \u092e\u0939\u093e\u0930\u093e\u0937\u094d\u091f\u094d\u0930",
+        "Gujarat / \u0917\u0941\u091c\u0930\u093e\u0924"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Kailasa Temple (Cave 16) is located at the Ellora Caves in the Aurangabad district of Maharashtra. It was built by the Rashtrakuta King Krishna I in the 8th century CE. It is a monolithic wonder, carved out of a single rock face from the top down, and is considered one of the most remarkable cave temples in the world. / \u0915\u0948\u0932\u093e\u0936 \u092e\u0902\u0926\u093f\u0930 (\u0917\u0941\u092b\u093e 16) \u092e\u0939\u093e\u0930\u093e\u0937\u094d\u091f\u094d\u0930 \u0915\u0947 \u0914\u0930\u0902\u0917\u093e\u092c\u093e\u0926 \u091c\u093f\u0932\u0947 \u092e\u0947\u0902 \u090f\u0932\u094b\u0930\u093e \u0915\u0940 \u0917\u0941\u092b\u093e\u0913\u0902 \u092e\u0947\u0902 \u0938\u094d\u0925\u093f\u0924 \u0939\u0948\u0964 \u0907\u0938\u0947 8\u0935\u0940\u0902 \u0936\u0924\u093e\u092c\u094d\u0926\u0940 \u0908\u0938\u094d\u0935\u0940 \u092e\u0947\u0902 \u0930\u093e\u0937\u094d\u091f\u094d\u0930\u0915\u0942\u091f \u0930\u093e\u091c\u093e \u0915\u0943\u0937\u094d\u0923 \u092a\u094d\u0930\u0925\u092e \u0926\u094d\u0935\u093e\u0930\u093e \u092c\u0928\u093e\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u092f\u0939 \u090f\u0915 \u090f\u0915\u093e\u0936\u094d\u092e (monolithic) \u0906\u0936\u094d\u091a\u0930\u094d\u092f \u0939\u0948, \u091c\u093f\u0938\u0947 \u090a\u092a\u0930 \u0938\u0947 \u0928\u0940\u091a\u0947 \u0924\u0915 \u090f\u0915 \u0939\u0940 \u091a\u091f\u094d\u091f\u093e\u0928 \u0915\u0947 \u092e\u0941\u0916 \u0938\u0947 \u0924\u0930\u093e\u0936\u093e \u0917\u092f\u093e \u0939\u0948, \u0914\u0930 \u0907\u0938\u0947 \u0926\u0941\u0928\u093f\u092f\u093e \u0915\u0947 \u0938\u092c\u0938\u0947 \u0909\u0932\u094d\u0932\u0947\u0916\u0928\u0940\u092f \u0917\u0941\u092b\u093e \u092e\u0902\u0926\u093f\u0930\u094b\u0902 \u092e\u0947\u0902 \u0938\u0947 \u090f\u0915 \u092e\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q8. Which of the following statements is/are correct regarding the regional features of Gujarat&#x27;s medieval architecture? / \u0917\u0941\u091c\u0930\u093e\u0924 \u0915\u0940 \u092e\u0927\u094d\u092f\u0915\u093e\u0932\u0940\u0928 \u0935\u093e\u0938\u094d\u0924\u0941\u0915\u0932\u093e \u0915\u0940 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u0940\u092f \u0935\u093f\u0936\u0947\u0937\u0924\u093e\u0913\u0902 \u0915\u0947 \u0938\u0902\u092c\u0902\u0927 \u092e\u0947\u0902 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e/\u0938\u0947 \u0915\u0925\u0928 \u0938\u0939\u0940 \u0939\u0948/\u0939\u0948\u0902?<br>1. Architectural forms in Gujarat often incorporated elements from local temple traditions. / 1. \u0917\u0941\u091c\u0930\u093e\u0924 \u092e\u0947\u0902 \u0935\u093e\u0938\u094d\u0924\u0941\u0936\u093f\u0932\u094d\u092a \u0930\u0942\u092a\u094b\u0902 \u0928\u0947 \u0905\u0915\u094d\u0938\u0930 \u0938\u094d\u0925\u093e\u0928\u0940\u092f \u092e\u0902\u0926\u093f\u0930 \u092a\u0930\u0902\u092a\u0930\u093e\u0913\u0902 \u0915\u0947 \u0924\u0924\u094d\u0935\u094b\u0902 \u0915\u094b \u0936\u093e\u092e\u093f\u0932 \u0915\u093f\u092f\u093e\u0964<br>2. Structures such as mosques and tombs in Gujarat featured ornamental carvings like toranas and bell motifs. / 2. \u0917\u0941\u091c\u0930\u093e\u0924 \u092e\u0947\u0902 \u092e\u0938\u094d\u091c\u093f\u0926\u094b\u0902 \u0914\u0930 \u092e\u0915\u092c\u0930\u094b\u0902 \u091c\u0948\u0938\u0940 \u0938\u0902\u0930\u091a\u0928\u093e\u0913\u0902 \u092e\u0947\u0902 \u0924\u094b\u0930\u0923 \u0914\u0930 \u0918\u0902\u091f\u0940 \u0930\u0942\u092a\u093e\u0902\u0915\u0928\u094b\u0902 \u091c\u0948\u0938\u0940 \u0938\u091c\u093e\u0935\u091f\u0940 \u0928\u0915\u094d\u0915\u093e\u0936\u0940 \u0925\u0940\u0964<br>3. Gujarat&#x27;s architectural style strictly avoided any decorative influence from indigenous practices. / 3. \u0917\u0941\u091c\u0930\u093e\u0924 \u0915\u0940 \u0935\u093e\u0938\u094d\u0924\u0941\u0936\u093f\u0932\u094d\u092a \u0936\u0948\u0932\u0940 \u0928\u0947 \u0938\u094d\u0935\u0926\u0947\u0936\u0940 \u092a\u094d\u0930\u0925\u093e\u0913\u0902 \u0915\u0947 \u0915\u093f\u0938\u0940 \u092d\u0940 \u0938\u091c\u093e\u0935\u091f\u0940 \u092a\u094d\u0930\u092d\u093e\u0935 \u0938\u0947 \u0915\u0921\u093c\u093e\u0908 \u0938\u0947 \u092a\u0930\u0939\u0947\u091c \u0915\u093f\u092f\u093e\u0964<br>[SSC Steno, 07/08/2025, Shift-2]\n            </div>\n            <b>Q14.</b> Choose the correct option: / \u0938\u0939\u0940 \u0935\u093f\u0915\u0932\u094d\u092a \u091a\u0941\u0928\u0947\u0902:",
+      "options": [
+        "Only 1 / \u0915\u0947\u0935\u0932 1",
+        "2 and 3 Only / \u0915\u0947\u0935\u0932 2 \u0914\u0930 3",
+        "All 1, 2, and 3 are correct / 1, 2 \u0914\u0930 3 \u0938\u092d\u0940 \u0938\u0939\u0940 \u0939\u0948\u0902",
+        "1 and 2 Only / \u0915\u0947\u0935\u0932 1 \u0914\u0930 2"
+      ],
+      "correctIndex": 3,
+      "explanation": "Statements 1 and 2 are correct. The Gujarat style of Indo-Islamic architecture is famous for its harmonious blend of Islamic forms with indigenous Hindu/Jain temple elements. Mosques often feature exquisitely carved pillars, 'toranas' (gateways), and 'bell-and-chain' motifs. Statement 3 is incorrect because the style actively embraced, rather than avoided, these indigenous decorative influences. / \u0915\u0925\u0928 1 \u0914\u0930 2 \u0938\u0939\u0940 \u0939\u0948\u0902\u0964 \u092d\u093e\u0930\u0924-\u0907\u0938\u094d\u0932\u093e\u092e\u0940 \u0935\u093e\u0938\u094d\u0924\u0941\u0915\u0932\u093e \u0915\u0940 \u0917\u0941\u091c\u0930\u093e\u0924 \u0936\u0948\u0932\u0940 \u0907\u0938\u094d\u0932\u093e\u092e\u0940 \u0930\u0942\u092a\u094b\u0902 \u0914\u0930 \u0938\u094d\u0935\u0926\u0947\u0936\u0940 \u0939\u093f\u0902\u0926\u0942/\u091c\u0948\u0928 \u092e\u0902\u0926\u093f\u0930 \u0924\u0924\u094d\u0935\u094b\u0902 \u0915\u0947 \u0938\u093e\u092e\u0902\u091c\u0938\u094d\u092f\u092a\u0942\u0930\u094d\u0923 \u092e\u093f\u0936\u094d\u0930\u0923 \u0915\u0947 \u0932\u093f\u090f \u092a\u094d\u0930\u0938\u093f\u0926\u094d\u0927 \u0939\u0948\u0964 \u092e\u0938\u094d\u091c\u093f\u0926\u094b\u0902 \u092e\u0947\u0902 \u0905\u0915\u094d\u0938\u0930 \u0909\u0924\u094d\u0915\u0943\u0937\u094d\u091f \u0930\u0942\u092a \u0938\u0947 \u0928\u0915\u094d\u0915\u093e\u0936\u0940\u0926\u093e\u0930 \u0938\u094d\u0924\u0902\u092d, '\u0924\u094b\u0930\u0923' (\u092a\u094d\u0930\u0935\u0947\u0936 \u0926\u094d\u0935\u093e\u0930) \u0914\u0930 '\u0918\u0902\u091f\u0940-\u0914\u0930-\u0936\u094d\u0930\u0943\u0902\u0916\u0932\u093e' \u0930\u0942\u092a\u093e\u0902\u0915\u0928 \u0939\u094b\u0924\u0947 \u0939\u0948\u0902\u0964 \u0915\u0925\u0928 3 \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0907\u0938 \u0936\u0948\u0932\u0940 \u0928\u0947 \u0907\u0928 \u0938\u094d\u0935\u0926\u0947\u0936\u0940 \u0938\u091c\u093e\u0935\u091f\u0940 \u092a\u094d\u0930\u092d\u093e\u0935\u094b\u0902 \u0938\u0947 \u092c\u091a\u0928\u0947 \u0915\u0947 \u092c\u091c\u093e\u092f \u0909\u0928\u094d\u0939\u0947\u0902 \u0938\u0915\u094d\u0930\u093f\u092f \u0930\u0942\u092a \u0938\u0947 \u0905\u092a\u0928\u093e\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q15.</b> What led to the decline of Timurid power in the second half of the 15th century? / 15\u0935\u0940\u0902 \u0936\u0924\u093e\u092c\u094d\u0926\u0940 \u0915\u0947 \u0909\u0924\u094d\u0924\u0930\u093e\u0930\u094d\u0927 \u092e\u0947\u0902 \u0924\u0948\u092e\u0942\u0930 \u0936\u0915\u094d\u0924\u093f \u0915\u0947 \u092a\u0924\u0928 \u0915\u093e \u0915\u094d\u092f\u093e \u0915\u093e\u0930\u0923 \u0925\u093e? [SSC Steno, 08/08/2025, Shift-3]",
+      "options": [
+        "Economic decline due to maritime trade shifts / \u0938\u092e\u0941\u0926\u094d\u0930\u0940 \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u092c\u0926\u0932\u093e\u0935 \u0915\u0947 \u0915\u093e\u0930\u0923 \u0906\u0930\u094d\u0925\u093f\u0915 \u0917\u093f\u0930\u093e\u0935\u091f",
+        "Internal wars due to partitioning / \u0935\u093f\u092d\u093e\u091c\u0928 \u0915\u0947 \u0915\u093e\u0930\u0923 \u0906\u0902\u0924\u0930\u093f\u0915 \u092f\u0941\u0926\u094d\u0927",
+        "Rise of Uzbeks / \u0909\u091c\u094d\u092c\u0947\u0915\u094b\u0902 \u0915\u093e \u0909\u0926\u092f",
+        "Ottoman invasions / \u0913\u091f\u094b\u092e\u0928 \u0906\u0915\u094d\u0930\u092e\u0923"
+      ],
+      "correctIndex": 1,
+      "explanation": "The decline of the Timurid Empire in the late 15th century was primarily driven by internal wars of succession and the custom of partitioning the empire among the princes (patrimonial division). This fragmentation weakened the dynasty, making it unable to resist the pressure from the rising Uzbek tribes (under Shaibani Khan), who eventually drove the Timurids (including Babur) out of Central Asia. / 15\u0935\u0940\u0902 \u0936\u0924\u093e\u092c\u094d\u0926\u0940 \u0915\u0947 \u0909\u0924\u094d\u0924\u0930\u093e\u0930\u094d\u0927 \u092e\u0947\u0902 \u0924\u0948\u092e\u0942\u0930 \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f \u0915\u093e \u092a\u0924\u0928 \u092e\u0941\u0916\u094d\u092f \u0930\u0942\u092a \u0938\u0947 \u0909\u0924\u094d\u0924\u0930\u093e\u0927\u093f\u0915\u093e\u0930 \u0915\u0947 \u0906\u0902\u0924\u0930\u093f\u0915 \u092f\u0941\u0926\u094d\u0927\u094b\u0902 \u0914\u0930 \u0930\u093e\u091c\u0915\u0941\u092e\u093e\u0930\u094b\u0902 \u0915\u0947 \u092c\u0940\u091a \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f \u0915\u0947 \u0935\u093f\u092d\u093e\u091c\u0928 (\u092a\u0948\u0924\u0943\u0915 \u0935\u093f\u092d\u093e\u091c\u0928) \u0915\u0940 \u092a\u094d\u0930\u0925\u093e \u0915\u0947 \u0915\u093e\u0930\u0923 \u0939\u0941\u0906 \u0925\u093e\u0964 \u0907\u0938 \u0935\u093f\u0916\u0902\u0921\u0928 \u0928\u0947 \u0930\u093e\u091c\u0935\u0902\u0936 \u0915\u094b \u0915\u092e\u091c\u094b\u0930 \u0915\u0930 \u0926\u093f\u092f\u093e, \u091c\u093f\u0938\u0938\u0947 \u0935\u0939 \u0909\u092d\u0930\u0924\u0940 \u0939\u0941\u0908 \u0909\u091c\u094d\u092c\u0947\u0915 \u091c\u0928\u091c\u093e\u0924\u093f\u092f\u094b\u0902 (\u0936\u0948\u092c\u093e\u0928\u0940 \u0916\u093e\u0928 \u0915\u0947 \u0924\u0939\u0924) \u0915\u0947 \u0926\u092c\u093e\u0935 \u0915\u093e \u0935\u093f\u0930\u094b\u0927 \u0915\u0930\u0928\u0947 \u092e\u0947\u0902 \u0905\u0938\u092e\u0930\u094d\u0925 \u0939\u094b \u0917\u092f\u093e, \u091c\u093f\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0905\u0902\u0924\u0924\u0903 \u0924\u0948\u092e\u0942\u0930\u093f\u092f\u094b\u0902 (\u092c\u093e\u092c\u0930 \u0938\u0939\u093f\u0924) \u0915\u094b \u092e\u0927\u094d\u092f \u090f\u0936\u093f\u092f\u093e \u0938\u0947 \u092c\u093e\u0939\u0930 \u0928\u093f\u0915\u093e\u0932 \u0926\u093f\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q16.</b> With reference to the economic history of medieval India, the term &#x27;Araghatta&#x27; refers to: / \u092e\u0927\u094d\u092f\u0915\u093e\u0932\u0940\u0928 \u092d\u093e\u0930\u0924 \u0915\u0947 \u0906\u0930\u094d\u0925\u093f\u0915 \u0907\u0924\u093f\u0939\u093e\u0938 \u0915\u0947 \u0938\u0902\u0926\u0930\u094d\u092d \u092e\u0947\u0902, &#x27;\u0905\u0930\u093e\u0918\u091f\u094d\u091f\u093e&#x27; (Araghatta) \u0936\u092c\u094d\u0926 \u0915\u093e \u0905\u0930\u094d\u0925 \u0939\u0948:",
+      "options": [
+        "Bonded labour / \u092c\u0902\u0927\u0941\u0906 \u092e\u091c\u0926\u0942\u0930",
+        "Land grants made to military officers / \u0938\u0948\u0928\u094d\u092f \u0905\u0927\u093f\u0915\u093e\u0930\u093f\u092f\u094b\u0902 \u0915\u094b \u0926\u093f\u090f \u0917\u090f \u092d\u0942\u092e\u093f \u0905\u0928\u0941\u0926\u093e\u0928",
+        "Waterwheel used for irrigation of land / \u092d\u0942\u092e\u093f \u0915\u0940 \u0938\u093f\u0902\u091a\u093e\u0908 \u0915\u0947 \u0932\u093f\u090f \u0907\u0938\u094d\u0924\u0947\u092e\u093e\u0932 \u0915\u093f\u092f\u093e \u091c\u093e\u0928\u0947 \u0935\u093e\u0932\u093e \u091c\u0932\u091a\u0915\u094d\u0930",
+        "Wasteland converted to cultivated land / \u0916\u0947\u0924\u0940 \u092f\u094b\u0917\u094d\u092f \u092d\u0942\u092e\u093f \u092e\u0947\u0902 \u092c\u0926\u0932\u0940 \u0917\u0908 \u092c\u0902\u091c\u0930 \u092d\u0942\u092e\u093f"
+      ],
+      "correctIndex": 2,
+      "explanation": "The term 'Araghatta' (Persian Wheel) refers to a mechanical waterwheel used for irrigation. It employed a system of gears and animal power to lift water from wells, significantly improving agricultural productivity in medieval India. 'Bonded labour' is Vishti; 'Land grants' are Iqta/Madad-i-Maash. / '\u0905\u0930\u093e\u0918\u091f\u094d\u091f\u093e' (\u092a\u0930\u094d\u0936\u093f\u092f\u0928 \u0935\u094d\u0939\u0940\u0932) \u0936\u092c\u094d\u0926 \u0938\u093f\u0902\u091a\u093e\u0908 \u0915\u0947 \u0932\u093f\u090f \u0909\u092a\u092f\u094b\u0917 \u0915\u093f\u090f \u091c\u093e\u0928\u0947 \u0935\u093e\u0932\u0947 \u092f\u093e\u0902\u0924\u094d\u0930\u093f\u0915 \u091c\u0932\u091a\u0915\u094d\u0930 \u0915\u094b \u0938\u0902\u0926\u0930\u094d\u092d\u093f\u0924 \u0915\u0930\u0924\u093e \u0939\u0948\u0964 \u0907\u0938\u0928\u0947 \u0915\u0941\u0913\u0902 \u0938\u0947 \u092a\u093e\u0928\u0940 \u0909\u0920\u093e\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0917\u093f\u092f\u0930 \u0914\u0930 \u092a\u0936\u0941 \u0936\u0915\u094d\u0924\u093f \u0915\u0940 \u090f\u0915 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0915\u093e \u0909\u092a\u092f\u094b\u0917 \u0915\u093f\u092f\u093e, \u091c\u093f\u0938\u0938\u0947 \u092e\u0927\u094d\u092f\u0915\u093e\u0932\u0940\u0928 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u0915\u0943\u0937\u093f \u0909\u0924\u094d\u092a\u093e\u0926\u0915\u0924\u093e \u092e\u0947\u0902 \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0938\u0941\u0927\u093e\u0930 \u0939\u0941\u0906\u0964 '\u092c\u0902\u0927\u0941\u0906 \u092e\u091c\u0926\u0942\u0930' \u0935\u093f\u0937\u094d\u091f\u093f \u0939\u0948; '\u092d\u0942\u092e\u093f \u0905\u0928\u0941\u0926\u093e\u0928' \u0907\u0915\u094d\u0924\u093e/\u092e\u0926\u0926-\u090f-\u092e\u093e\u0936 \u0939\u0948\u0902\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q17.</b> Who among the following established close relations with the French and modernized his army with their help? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938\u0928\u0947 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u093f\u092f\u094b\u0902 \u0915\u0947 \u0938\u093e\u0925 \u0918\u0928\u093f\u0937\u094d\u0920 \u0938\u0902\u092c\u0902\u0927 \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u093f\u090f \u0914\u0930 \u0909\u0928\u0915\u0940 \u092e\u0926\u0926 \u0938\u0947 \u0905\u092a\u0928\u0940 \u0938\u0947\u0928\u093e \u0915\u093e \u0906\u0927\u0941\u0928\u093f\u0915\u0940\u0915\u0930\u0923 \u0915\u093f\u092f\u093e? [SSC CHSL, 27 Nov 2025, Shift-1]",
+      "options": [
+        "Mahadji Shinde / \u092e\u0939\u093e\u0926\u091c\u0940 \u0936\u093f\u0902\u0926\u0947",
+        "Ali Wardi Khan / \u0905\u0932\u0940 \u0935\u0930\u094d\u0926\u0940 \u0916\u093e\u0928",
+        "Tipu Sultan / \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928",
+        "Shah Alam II / \u0936\u093e\u0939 \u0906\u0932\u092e \u0926\u094d\u0935\u093f\u0924\u0940\u092f"
+      ],
+      "correctIndex": 2,
+      "explanation": "Tipu Sultan of Mysore is most famous for establishing close diplomatic and military ties with the French to counter the British. He employed French experts to modernize his army, manufacture arms, and even became a member of the French Jacobin Club, planting a 'Tree of Liberty' at Seringapatam. While other rulers like Mahadji Shinde also used French generals, Tipu's alliance was a central pillar of his foreign policy. / \u092e\u0948\u0938\u0942\u0930 \u0915\u0947 \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0915\u093e \u092e\u0941\u0915\u093e\u092c\u0932\u093e \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u093f\u092f\u094b\u0902 \u0915\u0947 \u0938\u093e\u0925 \u0918\u0928\u093f\u0937\u094d\u0920 \u0930\u093e\u091c\u0928\u092f\u093f\u0915 \u0914\u0930 \u0938\u0948\u0928\u094d\u092f \u0938\u0902\u092c\u0902\u0927 \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0938\u092c\u0938\u0947 \u092a\u094d\u0930\u0938\u093f\u0926\u094d\u0927 \u0939\u0948\u0902\u0964 \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0905\u092a\u0928\u0940 \u0938\u0947\u0928\u093e \u0915\u0947 \u0906\u0927\u0941\u0928\u093f\u0915\u0940\u0915\u0930\u0923, \u0939\u0925\u093f\u092f\u093e\u0930\u094b\u0902 \u0915\u0947 \u0928\u093f\u0930\u094d\u092e\u093e\u0923 \u0915\u0947 \u0932\u093f\u090f \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u0935\u093f\u0936\u0947\u0937\u091c\u094d\u091e\u094b\u0902 \u0915\u094b \u0928\u093f\u092f\u0941\u0915\u094d\u0924 \u0915\u093f\u092f\u093e \u0914\u0930 \u092f\u0939\u093e\u0902 \u0924\u0915 \u0915\u093f \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u091c\u0948\u0915\u094b\u092c\u093f\u0928 \u0915\u094d\u0932\u092c \u0915\u0947 \u0938\u0926\u0938\u094d\u092f \u092c\u0928 \u0917\u090f, \u0936\u094d\u0930\u0940\u0930\u0902\u0917\u092a\u091f\u094d\u091f\u0928\u092e \u092e\u0947\u0902 '\u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930\u0924\u093e \u0915\u093e \u0935\u0943\u0915\u094d\u0937' (Tree of Liberty) \u0932\u0917\u093e\u092f\u093e\u0964 \u091c\u092c\u0915\u093f \u092e\u0939\u093e\u0926\u091c\u0940 \u0936\u093f\u0902\u0926\u0947 \u091c\u0948\u0938\u0947 \u0905\u0928\u094d\u092f \u0936\u093e\u0938\u0915\u094b\u0902 \u0928\u0947 \u092d\u0940 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u091c\u0928\u0930\u0932\u094b\u0902 \u0915\u093e \u0909\u092a\u092f\u094b\u0917 \u0915\u093f\u092f\u093e \u0925\u093e, \u091f\u0940\u092a\u0942 \u0915\u093e \u0917\u0920\u092c\u0902\u0927\u0928 \u0909\u0928\u0915\u0940 \u0935\u093f\u0926\u0947\u0936 \u0928\u0940\u0924\u093f \u0915\u093e \u090f\u0915 \u0915\u0947\u0902\u0926\u094d\u0930\u0940\u092f \u0938\u094d\u0924\u0902\u092d \u0925\u093e\u0964",
+      "reference": ""
+    }
+  ],
+  "leaderboard": {
+    "rankings": [],
+    "question_stats": {
+      "0": {
+        "correct": 0,
+        "total": 0
+      },
+      "1": {
+        "correct": 0,
+        "total": 0
+      },
+      "2": {
+        "correct": 0,
+        "total": 0
+      },
+      "3": {
+        "correct": 0,
+        "total": 0
+      },
+      "4": {
+        "correct": 0,
+        "total": 0
+      },
+      "5": {
+        "correct": 0,
+        "total": 0
+      },
+      "6": {
+        "correct": 0,
+        "total": 0
+      },
+      "7": {
+        "correct": 0,
+        "total": 0
+      },
+      "8": {
+        "correct": 0,
+        "total": 0
+      },
+      "9": {
+        "correct": 0,
+        "total": 0
+      },
+      "10": {
+        "correct": 0,
+        "total": 0
+      },
+      "11": {
+        "correct": 0,
+        "total": 0
+      },
+      "12": {
+        "correct": 0,
+        "total": 0
+      },
+      "13": {
+        "correct": 0,
+        "total": 0
+      },
+      "14": {
+        "correct": 0,
+        "total": 0
+      },
+      "15": {
+        "correct": 0,
+        "total": 0
+      },
+      "16": {
+        "correct": 0,
+        "total": 0
+      }
+    }
+  }
+};
+
+(function(){
+  // ----- Config from quizData.settings -----
+  const TOTAL_TIME = (quizData.settings && quizData.settings.totalTimeSec) || 20*60;
+  const NEGATIVE = (quizData.settings && quizData.settings.negativeMarkPerWrong) || (1/3);
+
+  // ----- State -----
+  const state = {
+    current: 0,
+    answers: Array(quizData.questions.length).fill(null),
+    markedForReview: Array(quizData.questions.length).fill(false),
+    startTime: new Date(),
+    timePerQ: Array(quizData.questions.length).fill(0),
+    submitted: false,
+    inReviewMode: false,
+    darkMode: false,
+    totalTime: TOTAL_TIME,
+    negativeMark: NEGATIVE,
+    avgTime: 0,
+    timerInterval: null,
+    qTimerInterval: null,
+    lastSoundIdx: -1,
+    currentLang: 'both', // 'both', 'hn', 'en'
+    rootFontSize: 16
+  };
+
+  // ----- Elements -----
+  const questionArea = document.getElementById('questionArea');
+  const resultsContainer = document.getElementById('resultsContainer');
+  const submitBtn = document.getElementById('submitBtn');
+  const qListGrid = document.getElementById('qList');
+  const themeToggle = document.getElementById('themeToggle');
+  const clickSound = document.getElementById('clickSound');
+  const correctSound = document.getElementById('correctSound');
+  const wrongSound = document.getElementById('wrongSound');
+  const quizNav = document.getElementById('quizNav');
+  const langToggleBtn = document.getElementById('langToggleBtn');
+
+  // ----- Init -----
+  document.addEventListener('DOMContentLoaded', () => {
+    setupHomePage();
+    document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+  });
+
+  function setupHomePage() {
+    const totalQuestions = quizData.questions.length;
+    const totalTimeMinutes = Math.floor(quizData.settings.totalTimeSec / 60);
+    const negativeMark = quizData.settings.negativeMarkPerWrong;
+
+    // Linkify Topic Name logic
+    let rawTopic = quizData.settings.topic || "General Knowledge";
+
+    // Sanitize HTML entities to prevent XSS
+    rawTopic = rawTopic.replace(/&/g, "&amp;")
+                       .replace(/</g, "&lt;")
+                       .replace(/>/g, "&gt;")
+                       .replace(/"/g, "&quot;")
+                       .replace(/'/g, "&#039;");
+
+    // Regex to detect URLs and convert to <a> tags
+    const topicWithLinks = rawTopic.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+        return `<a href="${url}" target="_blank" style="color: var(--primary); text-decoration: underline; font-weight: bold; position: relative; z-index: 10;">${url}</a>`;
+    });
+
+    document.getElementById('homeTopic').innerHTML = topicWithLinks;
+    document.getElementById('homeQuestions').textContent = totalQuestions;
+    document.getElementById('homeTime').textContent = `${totalTimeMinutes} Minutes`;
+    document.getElementById('homeNegative').textContent = negativeMark > 0 ? `-${negativeMark} per wrong answer` : "No negative marking";
+
+    initTheme(); // Init theme on home page as well
+  }
+
+  function startQuiz() {
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    initQuiz();
+  }
+
+  function initQuiz() {
+    buildQuestionTiles();
+    renderQuestion(0);
+    initTimer();
+    initNav();
+    initFullscreen();
+    initFontSizeControls();
+    initLanguageSwitcher();
+    initSwipeNavigation();
+    updateStats();
+    quizNav.style.display = 'flex';
+  }
+
+  function initNav(){
+    submitBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to submit the quiz?')) {
+            submitQuiz();
+        }
+    });
+
+    // Mobile Sidebar Toggles
+    const infoSidebar = document.getElementById('infoSidebar');
+    const paletteSidebar = document.getElementById('paletteSidebar');
+    const overlay = document.getElementById('overlay');
+    const openInfo = document.getElementById('openInfoSidebar');
+    const closeInfo = document.getElementById('closeInfoSidebar');
+    const openPalette = document.getElementById('openPaletteSidebar');
+    const closePalette = document.getElementById('closePaletteSidebar');
+
+    const toggleSidebar = (sidebar, action) => {
+        sidebar.classList[action]('show');
+        overlay.classList[action]('show');
+    };
+
+    openInfo.addEventListener('click', () => toggleSidebar(infoSidebar, 'add'));
+    closeInfo.addEventListener('click', () => toggleSidebar(infoSidebar, 'remove'));
+    openPalette.addEventListener('click', () => toggleSidebar(paletteSidebar, 'add'));
+    closePalette.addEventListener('click', () => toggleSidebar(paletteSidebar, 'remove'));
+    overlay.addEventListener('click', () => {
+        toggleSidebar(infoSidebar, 'remove');
+        toggleSidebar(paletteSidebar, 'remove');
+    });
+
+    // keyboard
+    document.addEventListener('keydown',(e)=>{
+      if(e.target.tagName === 'INPUT') return;
+      if(e.key==='ArrowLeft') go(-1);
+      if(e.key==='ArrowRight') go(1);
+    });
+  }
+
+  function initTheme(){
+    const saved = localStorage.getItem('qa_theme');
+    if(saved==='dark'){ 
+        document.body.classList.add('dark-mode'); 
+        state.darkMode=true; 
+    }
+    updateThemeIcon();
+    themeToggle.addEventListener('click', ()=>{
+      state.darkMode = !state.darkMode;
+      document.body.classList.toggle('dark-mode', state.darkMode);
+      localStorage.setItem('qa_theme', state.darkMode?'dark':'light');
+      updateThemeIcon();
+      if(state.submitted) buildCharts(state.lastResultData);
+    });
+  }
+  function updateThemeIcon(){
+    const i = themeToggle.querySelector('i');
+    i.classList.toggle('fa-moon', !state.darkMode);
+    i.classList.toggle('fa-sun',  state.darkMode);
+  }
+
+  function initFullscreen() {
+    const toggleBtn = document.getElementById('fullscreenToggle');
+    if (!toggleBtn) return;
+
+    toggleBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+        const icon = toggleBtn.querySelector('i');
+        if (document.fullscreenElement) {
+            icon.classList.remove('fa-expand');
+            icon.classList.add('fa-compress');
+        } else {
+            icon.classList.remove('fa-compress');
+            icon.classList.add('fa-expand');
+        }
+    });
+  }
+
+  function initFontSizeControls() {
+      const increaseBtn = document.getElementById('fontIncreaseBtn');
+      const decreaseBtn = document.getElementById('fontDecreaseBtn');
+      const docEl = document.documentElement;
+
+      increaseBtn.addEventListener('click', () => {
+          state.rootFontSize = Math.min(22, state.rootFontSize + 1);
+          docEl.style.fontSize = state.rootFontSize + 'px';
+      });
+
+      decreaseBtn.addEventListener('click', () => {
+          state.rootFontSize = Math.max(12, state.rootFontSize - 1);
+          docEl.style.fontSize = state.rootFontSize + 'px';
+      });
+  }
+
+  function initLanguageSwitcher() {
+      // Toggle order: Both -> Hindi -> English -> Both
+      const langOrder = ['both', 'hn', 'en'];
+
+      langToggleBtn.addEventListener('click', () => {
+          const currentIndex = langOrder.indexOf(state.currentLang);
+          const nextIndex = (currentIndex + 1) % langOrder.length;
+          state.currentLang = langOrder[nextIndex];
+
+          updateLangButton();
+          renderQuestion(state.current);
+      });
+  }
+
+  function updateLangButton() {
+      let label = 'BILI';
+      if (state.currentLang === 'hn') label = 'HIN';
+      if (state.currentLang === 'en') label = 'ENG';
+      langToggleBtn.textContent = label;
+  }
+
+  function translateText(text) {
+      if (!text) return text;
+      if (state.currentLang === 'both') return text;
+
+      // Check if string has HTML tags to decide between simple split and DOM traversal
+      const hasTags = /<[a-z][\s\S]*>/i.test(text);
+
+      if (hasTags) {
+          const div = document.createElement('div');
+          div.innerHTML = text;
+          walkAndTranslate(div);
+          return div.innerHTML;
+      } else {
+          // Plain text path
+          if (text.includes(' / ')) {
+              const parts = text.split(' / ');
+              if (parts.length >= 2) {
+                  const en = parts[0];
+                  const hn = parts.slice(1).join(' / ');
+                  return state.currentLang === 'hn' ? hn.trim() : en.trim();
+              }
+          }
+          return text;
+      }
+  }
+
+  function walkAndTranslate(node) {
+      if (node.nodeType === 3) { // Text node
+          const val = node.nodeValue;
+          if (val && val.includes(' / ')) {
+              const parts = val.split(' / ');
+              if (parts.length >= 2) {
+                  const en = parts[0];
+                  const hn = parts.slice(1).join(' / ');
+                  node.nodeValue = state.currentLang === 'hn' ? hn.trim() : en.trim();
+              }
+          }
+      } else if (node.nodeType === 1) { // Element node
+          for (let i = 0; i < node.childNodes.length; i++) {
+              walkAndTranslate(node.childNodes[i]);
+          }
+      }
+  }
+
+
+  function initSwipeNavigation() {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const swipeThreshold = 50; // Minimum distance for a swipe
+    const swipeRatio = 0.5; // Vertical distance should be less than half of horizontal
+
+    const swipeArea = document.querySelector('.quiz-main');
+
+    swipeArea.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    swipeArea.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        if (state.submitted && !state.inReviewMode) return;
+
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+
+        if (Math.abs(dx) > swipeThreshold && Math.abs(dy) < Math.abs(dx) * swipeRatio) {
+            if (dx < 0) {
+                go(1); // Swiped left
+            } else {
+                go(-1); // Swiped right
+            }
+        }
+    }
+  }
+
+  // ----- Timer -----
+  function initTimer(){
+    const start = Date.now();
+    const duration = state.totalTime*1000;
+    const end = start + duration;
+    tick(); state.timerInterval = setInterval(tick, 1000);
+    function tick(){
+      const now = Date.now();
+      const left = Math.max(0, end-now);
+      const m = String(Math.floor(left/60000)).padStart(2,'0');
+      const s = String(Math.floor((left%60000)/1000)).padStart(2,'0');
+
+      // Sidebar timer
+      document.getElementById('minutes').textContent = m;
+      document.getElementById('seconds').textContent = s;
+
+      // Header timer (NEW)
+      const headerTimer = document.getElementById('headerTimerDisp');
+      if(headerTimer) headerTimer.textContent = `${m}:${s}`;
+
+      const pct = (left/duration)*100;
+      const bar = document.getElementById('timeProgress');
+      bar.style.width = pct + '%';
+      if(left<=0){ clearInterval(state.timerInterval); submitQuiz(); }
+      else if(pct<25) bar.className='progress-bar bg-danger';
+      else if(pct<50) bar.className='progress-bar bg-warning';
+      else bar.className='progress-bar bg-primary';
+    }
+  }
+
+  // ----- Sidebar tiles -----
+  function buildQuestionTiles(){
+    qListGrid.innerHTML = '';
+    quizData.questions.forEach((_,i)=>{
+      const d = document.createElement('div');
+      d.className='q-tile'; d.textContent=i+1;
+      d.addEventListener('click', ()=>{
+        if(!state.submitted) updateTime();
+        renderQuestion(i);
+        document.getElementById('paletteSidebar').classList.remove('show');
+        document.getElementById('overlay').classList.remove('show');
+      });
+      qListGrid.appendChild(d);
+    });
+  }
+
+  function updateTiles(){
+    document.querySelectorAll('.q-tile').forEach((el,idx)=>{
+      el.className='q-tile'; // Reset
+      if(state.submitted){
+          if(state.answers[idx] === quizData.questions[idx].correctIndex) el.classList.add('review-correct');
+          else if(state.answers[idx] !== null) el.classList.add('review-incorrect');
+          else el.classList.add('review-unattempted');
+      } else {
+        if(state.answers[idx] !== null) el.classList.add('answered');
+        if(state.markedForReview[idx]) el.classList.add('marked');
+      }
+      if(idx === state.current) el.classList.add('current');
+    });
+  }
+
+  // ----- Render question -----
+  function renderQuestion(idx){
+    if (idx < 0 || idx >= quizData.questions.length) return;
+
+    // Stop previous Question Timer
+    if (state.qTimerInterval) clearInterval(state.qTimerInterval);
+
+    state.current=idx;
+    const q=quizData.questions[idx];
+
+    // Live Accuracy Calculation
+    let accuracyBadge = '';
+    if (quizData.leaderboard && quizData.leaderboard.question_stats && quizData.leaderboard.question_stats[idx]) {
+        const stats = quizData.leaderboard.question_stats[idx];
+        if(stats.total > 0) {
+            const acc = Math.round((stats.correct / stats.total) * 100);
+            accuracyBadge = `<span class="q-accuracy ms-2" title="Based on ${stats.total} Telegram users"><i class="fas fa-bullseye me-1"></i>${acc}%</span>`;
+        }
+    }
+
+    // Question Card HTML
+    let questionHtml=`
+      <div class="card-ui">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="q-meta-container">
+                <h5 class="fw-bold m-0">Question ${idx+1}</h5>
+                <span class="q-timer"><i class="fas fa-stopwatch me-1"></i><span id="qTimerDisp">0s</span></span>
+                ${accuracyBadge}
+            </div>
+            ${q.reference ? `<div class="small opacity-75">${q.reference}</div>` : ''}
+        </div>
+        <div class="q-text">${translateText(q.text)}</div>
+        <div class="options">`;
+    q.options.forEach((opt,i)=>{
+      let cls='option-btn';
+      if(state.answers[idx]===i) cls+=' selected';
+      if(state.submitted){
+        if(i===q.correctIndex) cls+=' correct';
+        else if(state.answers[idx]===i) cls+=' incorrect';
+      }
+      questionHtml += `<button class="${cls}" data-i="${i}">${translateText(opt)}</button>`;
+    });
+    const translatedExplanation = translateText(q.explanation || 'Not available.');
+    questionHtml += `</div>
+        ${state.submitted ? `<div class="explanation mt-3"><strong>Explanation:</strong> ${translatedExplanation}</div>` : ''}
+      </div>
+    `;
+    questionArea.innerHTML = questionHtml;
+
+    // Start per-question timer logic (Visual only)
+    if (!state.submitted) {
+        // Start from time already spent
+        let secondsSpent = Math.floor(state.timePerQ[idx] || 0);
+        const timerEl = document.getElementById('qTimerDisp');
+        if(timerEl) {
+            timerEl.textContent = secondsSpent + 's';
+            state.qTimerInterval = setInterval(() => {
+                secondsSpent++;
+                timerEl.textContent = secondsSpent + 's';
+            }, 1000);
+        }
+    } else {
+        // Show static time if submitted
+         const timerEl = document.getElementById('qTimerDisp');
+         if(timerEl) timerEl.textContent = Math.floor(state.timePerQ[idx] || 0) + 's';
+    }
+
+
+    // Navigation Buttons HTML
+    let buttonsHtml = `
+      <button id="prevBtn" class="btn btn-outline-secondary btn-nav"><i class="fas fa-chevron-left me-2"></i>Previous</button>
+      <button id="markBtn" class="btn btn-outline-info btn-nav">
+          ${state.markedForReview[idx] ? '<i class="fas fa-bookmark me-2"></i>Unmark' : '<i class="far fa-bookmark me-2"></i>Mark for Review'}
+      </button>
+      <button id="nextBtn" class="btn btn-primary btn-nav">Next<i class="fas fa-chevron-right ms-2"></i></button>
+    `;
+    quizNav.innerHTML = buttonsHtml;
+
+
+    // Add event listeners to new elements
+    document.getElementById('prevBtn').addEventListener('click', () => go(-1));
+    document.getElementById('nextBtn').addEventListener('click', () => go(1));
+    document.getElementById('markBtn').addEventListener('click', toggleMark);
+
+    if(state.submitted) {
+        document.getElementById('markBtn').style.display = 'none';
+    }
+
+    document.querySelectorAll('.option-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        if(state.submitted) return;
+        clickSound.currentTime=0; clickSound.play();
+        const i = parseInt(btn.dataset.i);
+        state.answers[state.current] = (state.answers[state.current] === i) ? null : i; // Allow un-selecting
+        renderQuestion(state.current); // Re-render to show selection change
+        updateStats();
+        updateTiles();
+      });
+    });
+
+    updateTiles();
+    updateProgress();
+
+    // Sound for review mode
+    if(state.inReviewMode && state.lastSoundIdx!==idx){
+      state.lastSoundIdx=idx;
+      const isAttempted = state.answers[idx]!==null;
+      const isCorrect = isAttempted && state.answers[idx]===q.correctIndex;
+      if(isAttempted){
+        setTimeout(()=>{ (isCorrect?correctSound:wrongSound).play(); }, 250);
+      }
+    }
+  }
+
+  function go(dir){
+    const i = state.current + dir;
+    if(i>=0 && i<quizData.questions.length){
+      if(!state.submitted) updateTime();
+      renderQuestion(i);
+    }
+  }
+
+  function toggleMark() {
+    state.markedForReview[state.current] = !state.markedForReview[state.current];
+    renderQuestion(state.current); // Re-render to update button text
+    updateTiles();
+    updateStats();
+  }
+
+  function updateTime(){
+    const now = new Date();
+    state.timePerQ[state.current] += (now - state.startTime)/1000;
+    state.startTime = now;
+  }
+
+  function updateStats() {
+    const answeredCount = state.answers.filter(a => a !== null).length;
+    const markedCount = state.markedForReview.filter(m => m).length;
+    const totalCount = quizData.questions.length;
+    document.getElementById('statAnswered').textContent = answeredCount;
+    document.getElementById('statUnanswered').textContent = totalCount - answeredCount;
+    document.getElementById('statMarked').textContent = markedCount;
+    document.getElementById('statTotal').textContent = totalCount;
+  }
+
+  function updateProgress() {
+      const answeredCount = state.answers.filter(a => a !== null).length;
+      const totalCount = quizData.questions.length;
+      const percent = totalCount > 0 ? (answeredCount / totalCount) * 100 : 0;
+      const progressBar = document.getElementById('thinProgressBarInner');
+      if (progressBar) {
+          progressBar.style.width = `${percent}%`;
+      }
+  }
+
+  // ----- Submit & Results -----
+  function submitQuiz(){
+    if(state.submitted) return;
+    clearInterval(state.timerInterval);
+    if(state.qTimerInterval) clearInterval(state.qTimerInterval); // Stop question timer
+
+    updateTime();
+    state.submitted=true;
+
+    let correct=0, incorrect=0, unattempted=0, score=0, neg=0;
+    state.answers.forEach((a,i)=>{
+      if(a===null){ unattempted++; }
+      else if(a===quizData.questions[i].correctIndex){ correct++; score+=1; }
+      else { incorrect++; score-=state.negativeMark; neg+=state.negativeMark; }
+    });
+
+    state.avgTime = state.timePerQ.reduce((s,t)=>s+t,0)/quizData.questions.length;
+    const pct = (score/quizData.questions.length)*100;
+
+    questionArea.style.display = 'none';
+    quizNav.style.display = 'none';
+    submitBtn.style.display = 'none';
+    document.querySelector('.quiz-main-header').style.display = 'none';
+
+    renderResults({correct, incorrect, unattempted, score, neg, pct});
+    resultsContainer.style.display = 'block';
+
+    updateTiles();
+
+    if(pct>=70){ confetti(); correctSound.play(); }
+    else if(pct<50){ wrongSound.play(); }
+  }
+
+  function renderResults(resData) {
+      const { correct, incorrect, unattempted, score, neg, pct } = resData;
+      const total = quizData.questions.length;
+      state.lastResultData = resData; // Save for redrawing charts on theme change
+
+      let html = `
+        <div class="results-container card-ui text-start">
+            <div class="text-center">
+                <h2 class="fw-bold">Quiz Completed!</h2>
+                <p>Here is your performance summary.</p>
+                <div class="final-score">${pct.toFixed(1)}%</div>
+                <div class="fs-4 fw-bold mb-4">${score.toFixed(2)} / ${total}</div>
+            </div>
+
+            <ul class="nav nav-pills justify-content-center mb-3 results-tabs" id="pills-tab" role="tablist">
+              <li class="nav-item" role="presentation"><button class="nav-link active" id="pills-summary-tab" data-bs-toggle="pill" data-bs-target="#pills-summary" type="button" role="tab">Summary</button></li>
+              <li class="nav-item" role="presentation"><button class="nav-link" id="pills-analysis-tab" data-bs-toggle="pill" data-bs-target="#pills-analysis" type="button" role="tab">Analysis</button></li>
+            </ul>
+
+            <div class="tab-content" id="pills-tabContent">
+              <div class="tab-pane fade show active" id="pills-summary" role="tabpanel">
+                <div class="row g-3">
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Total Questions</span><span class="fw-bold">${total}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Correct</span><span class="fw-bold text-success">${correct}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Incorrect</span><span class="fw-bold text-danger">${incorrect}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Unattempted</span><span class="fw-bold text-warning">${unattempted}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Negative Marks</span><span class="fw-bold text-danger">-${neg.toFixed(2)}</span></div></div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="pills-analysis" role="tabpanel">
+                <div class="chart-container mb-3"><canvas id="performanceChart"></canvas></div>
+                <div class="chart-container" style="height: 300px;"><canvas id="timeAnalysisChart"></canvas></div>
+
+                <h5 class="fw-bold mt-5 mb-3 text-center">Telegram Leaderboard</h5>
+                <div id="leaderboardSection"></div>
+              </div>
+            </div>
+            <div class="text-center mt-4">
+                <button id="reviewBtn" class="btn btn-primary btn-lg"><i class="fas fa-search me-2"></i>Review Answers</button>
+            </div>
+        </div>
+      `;
+      resultsContainer.innerHTML = html;
+
+      document.getElementById('reviewBtn').addEventListener('click', reviewMode);
+
+      // Render Leaderboard
+      const lbSection = document.getElementById('leaderboardSection');
+      if (quizData.leaderboard && quizData.leaderboard.rankings && quizData.leaderboard.rankings.length > 0) {
+          let lbHtml = `<table class="leaderboard-table">
+              <thead><tr><th>Rank</th><th>User</th><th>Score</th><th>Acc</th></tr></thead>
+              <tbody>`;
+
+          quizData.leaderboard.rankings.forEach((rank, i) => {
+              const rankClass = i < 3 ? `rank-${i+1}` : '';
+              lbHtml += `<tr>
+                  <td class="${rankClass}">#${i+1}</td>
+                  <td>${rank.name}</td>
+                  <td>${rank.score.toFixed(1)}</td>
+                  <td>${rank.accuracy.toFixed(0)}%</td>
+              </tr>`;
+          });
+
+          lbHtml += `</tbody></table>`;
+          lbSection.innerHTML = lbHtml;
+      } else {
+          lbSection.innerHTML = `<div class="text-muted small text-center p-3">No Telegram comparison data available yet.</div>`;
+      }
+
+      // Trigger chart build after tab is shown
+      const analysisTab = document.getElementById('pills-analysis-tab');
+      analysisTab.addEventListener('shown.bs.tab', () => buildCharts(resData), { once: true });
+  }
+
+  let performanceChartInstance, timeAnalysisChartInstance;
+  function buildCharts(res){
+    const {correct, incorrect, unattempted} = res;
+    Chart.defaults.color = state.darkMode ? '#e8eaed' : '#6c757d';
+
+    if (performanceChartInstance) performanceChartInstance.destroy();
+    performanceChartInstance = new Chart(document.getElementById('performanceChart').getContext('2d'),{
+      type:'doughnut',
+      data:{ labels:['Correct','Incorrect','Unattempted'],
+        datasets:[{ data:[correct,incorrect,unattempted],
+          backgroundColor:['#20c997','#e63946','#ffb703'], borderWidth: 0 }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+    });
+
+    const labels = Array.from({length:quizData.questions.length},(_,i)=>`Q${i+1}`);
+    const correctTimes = state.timePerQ.map((t,i) => state.answers[i] === quizData.questions[i].correctIndex ? t : 0);
+    const incorrectTimes = state.timePerQ.map((t,i) => (state.answers[i] !== null && state.answers[i] !== quizData.questions[i].correctIndex) ? t : 0);
+
+    if(timeAnalysisChartInstance) timeAnalysisChartInstance.destroy();
+    timeAnalysisChartInstance = new Chart(document.getElementById('timeAnalysisChart').getContext('2d'),{
+      type:'bar',
+      data:{ labels,
+        datasets:[
+          {label:'Correct', data:correctTimes, backgroundColor:'rgba(32, 201, 151, 0.7)'},
+          {label:'Incorrect', data:incorrectTimes, backgroundColor:'rgba(230, 57, 70, 0.7)'}
+        ]},
+      options:{ responsive:true, maintainAspectRatio:false, indexAxis: 'x',
+        scales:{ x:{stacked:true, grid: {color: state.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}},
+                 y:{stacked:true, title:{display:true,text:'Time (s)'}, grid: {color: state.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}} },
+      }
+    });
+  }
+
+  function reviewMode(){
+    state.inReviewMode=true; state.lastSoundIdx=-1;
+    questionArea.style.display='block';
+    quizNav.style.display = 'flex';
+    resultsContainer.style.display='none';
+    document.querySelector('.quiz-main-header').style.display = 'flex';
+    renderQuestion(0);
+  }
+
+  function confetti(){
+    const colors=['#6a5af9','#f72585','#20c997','#ffb703'];
+    for(let i=0;i<100;i++){
+      const d=document.createElement('div');
+      d.style.cssText=`position:fixed;width:10px;height:10px;top:-10px;left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};z-index:1300;`;
+      document.body.appendChild(d);
+      const dy = Math.random()*500+500, rot = Math.random()*360;
+      const anim = d.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:`translateY(${dy}px) rotate(${rot}deg)`,opacity:0}],
+        {duration:Math.random()*2000+2000, easing:'ease-out'});
+      anim.onfinish=()=>d.remove();
+    }
+  }
+})();
+</script>
+</body>
+</html>

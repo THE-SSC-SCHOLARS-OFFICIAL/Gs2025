@@ -1,0 +1,1657 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Night-NewBie</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #6a5af9; --secondary: #5041d5; --accent: #f72585;
+    --bg-light: #f4f7fc; --bg-dark: #161925;
+    --surface-light: #ffffff; --surface-dark: #232a40;
+    --text-light: #212529; --text-dark: #e8eaed;
+    --border-light: rgba(0, 0, 0, 0.1); --border-dark: rgba(255, 255, 255, 0.1);
+    --glass-light: rgba(255, 255, 255, 0.7); --glass-dark: rgba(35, 42, 64, 0.7);
+    --success: #20c997; --danger: #e63946; --warning: #ffb703; --info: #0096c7;
+  }
+
+  html {
+      font-size: 14px; /* Reduced base font size */
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    margin: 0;
+    transition: background-color 0.3s, color 0.3s;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body.dark-mode {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+
+  /* --- Home Screen --- */
+  #home-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100vh;
+    padding: 20px;
+  }
+  .home-header {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 2rem;
+  }
+  .home-card {
+    max-width: 500px;
+    width: 100%;
+    padding: 2rem;
+  }
+  .home-card h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+  }
+  .test-details p {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 1rem;
+  }
+  body.dark-mode .test-details p {
+      border-bottom-color: var(--border-dark);
+  }
+  .test-details p span:first-child {
+      font-weight: 500;
+      opacity: 0.8;
+      white-space: nowrap;
+      margin-right: 15px;
+  }
+  .test-details p span:last-child {
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word; /* Ensure long URLs wrap */
+  }
+  #startQuizBtn {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+  }
+   #startQuizBtn:hover {
+      background-color: var(--secondary);
+   }
+  .home-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 40px;
+      font-weight: 600;
+      opacity: 0.9;
+  }
+  /* Updated Home Footer Links */
+  .home-footer a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+  }
+  .home-footer a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+  }
+
+
+  /* --- Main Layout --- */
+  .quiz-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .quiz-sidebar, .quiz-main, .quiz-palette {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .quiz-main {
+    padding: 20px 20px 0 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .quiz-sidebar {
+    background-color: var(--surface-light);
+    border-right: 1px solid var(--border-light);
+  }
+  body.dark-mode .quiz-sidebar {
+    background-color: var(--surface-dark);
+    border-right-color: var(--border-dark);
+  }
+
+  .quiz-palette {
+    background-color: var(--surface-light);
+    border-left: 1px solid var(--border-light);
+  }
+  body.dark-mode .quiz-palette {
+    background-color: var(--surface-dark);
+    border-left-color: var(--border-dark);
+  }
+
+  /* --- Shared Card Style --- */
+  .card-ui {
+    background-color: var(--surface-light);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    margin-bottom: 20px;
+    padding: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+  body.dark-mode .card-ui {
+    background-color: var(--surface-dark);
+    border-color: var(--border-dark);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* --- Left Sidebar: Timer & Info --- */
+  .quiz-brand { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+  .timer-box { text-align: center; }
+  .timer-display { font-size: 3rem; font-weight: 700; letter-spacing: 2px; }
+  #timeProgress { height: 6px; border-radius: 3px; }
+
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-item { text-align: center; background: rgba(0,0,0,0.03); padding: 8px; border-radius: 8px; }
+  body.dark-mode .stat-item { background: rgba(255,255,255,0.05); }
+  .stat-item .value { font-weight: 700; font-size: 1.25rem; }
+  .stat-item .label { font-size: 0.75rem; opacity: 0.7; }
+  .value.correct { color: var(--success); }
+  .value.incorrect { color: var(--danger); }
+  .value.marked { color: var(--info); }
+  .value.unattempted { color: var(--warning); }
+
+
+  /* --- Main Content Area --- */
+  .quiz-main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  /* New Header Timer Style */
+  .header-timer {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-left: 15px;
+      margin-right: auto; /* Pushes subsequent items to the right */
+      letter-spacing: 1px;
+      font-variant-numeric: tabular-nums;
+  }
+
+  .mobile-menu-toggle { display: none; background: none; border: none; font-size: 1.375rem; color: var(--text-light); }
+  body.dark-mode .mobile-menu-toggle { color: var(--text-dark); }
+
+  .quiz-content-area {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      margin: 0 -20px;
+      padding: 0 20px 20px 20px;
+  }
+
+  .thin-progress-bar {
+    height: 4px;
+    background-color: var(--border-light);
+    border-radius: 2px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  body.dark-mode .thin-progress-bar {
+      background-color: var(--border-dark);
+  }
+  .thin-progress-bar-inner {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      border-radius: 2px;
+      transition: width 0.3s ease-in-out;
+  }
+
+  .q-text { font-size: 1.25rem; font-weight: 500; margin: 12px 0; line-height: 1.6; }
+
+  .option-btn {
+    width: 100%; text-align: left;
+    border: 1px solid var(--border-light);
+    background: transparent; color: inherit;
+    border-radius: 10px; padding: 14px 18px;
+    margin: 8px 0; transition: .2s ease all; font-size: 1rem;
+  }
+  body.dark-mode .option-btn { border-color: var(--border-dark); }
+  .option-btn:hover { border-color: var(--primary); background: rgba(106,90,249, 0.05); transform: translateY(-2px); }
+  .option-btn.selected { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+  .option-btn.correct { background: var(--success) !important; color: #fff; border-color: var(--success) !important; }
+  .option-btn.incorrect { background: var(--danger) !important; color: #fff; border-color: var(--danger) !important; }
+
+  .explanation {
+    background: rgba(106,90,249, 0.05);
+    border-left: 4px solid var(--primary);
+    border-radius: 8px; padding: 14px; margin-top: 16px;
+    font-size: 0.9rem;
+  }
+
+  /* Question Timer Styling & Accuracy Badge */
+  .q-meta-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+  }
+  .q-timer {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: rgba(106,90,249, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+  }
+  .q-accuracy {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--success);
+      background: rgba(32, 201, 151, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+  }
+  body.dark-mode .q-timer { color: #9d8fff; background: rgba(106,90,249, 0.2); }
+  body.dark-mode .q-accuracy { color: #4ade80; background: rgba(32, 201, 151, 0.2); }
+
+  .quiz-nav-buttons { 
+      display: flex; 
+      justify-content: space-between; 
+      margin: 0 -20px;
+      padding: 15px 20px;
+      border-top: 1px solid var(--border-light);
+      background: var(--surface-light);
+      transition: background-color 0.3s, border-color 0.3s;
+  }
+  body.dark-mode .quiz-nav-buttons {
+      border-top-color: var(--border-dark);
+      background: var(--surface-dark);
+  }
+  .btn-nav { padding: 10px 20px; border-radius: 8px; font-weight: 600; }
+
+  /* --- Right Sidebar: Question Palette --- */
+  .palette-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 8px; }
+  .q-tile {
+    width: 100%; aspect-ratio: 1 / 1;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border-light);
+    border-radius: 8px; font-weight: 600; cursor: pointer;
+    transition: .2s ease all;
+  }
+  body.dark-mode .q-tile { border-color: var(--border-dark); }
+  .q-tile:hover { transform: scale(1.08); }
+  .q-tile.current { background-color: var(--primary); color: #fff; border-color: var(--primary); }
+  .q-tile.answered { background-color: var(--success); color: #fff; border-color: var(--success); }
+  .q-tile.marked { box-shadow: 0 0 0 2px var(--info) inset; }
+  .q-tile.review-correct { background-color: var(--success); color: #fff; border-color: transparent; }
+  .q-tile.review-incorrect { background-color: var(--danger); color: #fff; border-color: transparent; }
+  .q-tile.review-unattempted { background-color: var(--warning); color: #fff; border-color: transparent; }
+
+  /* --- Results View --- */
+  .results-container { text-align: center; }
+  .final-score { font-size: 5rem; font-weight: 800; color: var(--primary); }
+  .results-tabs .nav-link { color: inherit; opacity: 0.7; }
+  .results-tabs .nav-link.active { color: var(--primary); font-weight: 600; opacity: 1; border-bottom: 2px solid var(--primary); border-radius: 0; background: none; }
+  .chart-container { height: 250px; }
+
+  /* Leaderboard Styles */
+  .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
+  .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-light); }
+  body.dark-mode .leaderboard-table th, body.dark-mode .leaderboard-table td { border-bottom-color: var(--border-dark); }
+  .leaderboard-table th { font-weight: 600; opacity: 0.8; }
+  .rank-1 { color: #FFD700; font-weight: bold; }
+  .rank-2 { color: #C0C0C0; font-weight: bold; }
+  .rank-3 { color: #CD7F32; font-weight: bold; }
+
+  /* --- Header Action Buttons --- */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1;
+    gap: 8px;
+  }
+  .action-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+  .action-btn:hover {
+    transform: scale(1.1);
+    background-color: rgba(0,0,0,0.05);
+  }
+  body.dark-mode .action-btn {
+    color: var(--text-dark);
+  }
+  body.dark-mode .action-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+  }
+
+  #languageSwitch button {
+    font-weight: 700;
+    min-width: 55px;
+    padding: 0 8px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--text-light);
+    box-shadow: none;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+  body.dark-mode #languageSwitch button {
+    background-color: transparent;
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+  }
+  #languageSwitch button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+  }
+
+  /* --- Responsive Design --- */
+  @media (max-width: 992px) {
+    .quiz-layout { grid-template-columns: 1fr; }
+    .quiz-sidebar, .quiz-palette {
+      position: fixed; top: 0;
+      width: 280px; height: 100%;
+      z-index: 1100;
+      transition: transform 0.3s ease;
+      box-shadow: 0 0 40px rgba(0,0,0,0.2);
+    }
+    .quiz-sidebar { transform: translateX(-100%); left: 0; border-right: none; }
+    .quiz-palette { transform: translateX(100%); right: 0; border-left: none; }
+    .quiz-sidebar.show, .quiz-palette.show { transform: translateX(0); }
+
+    .mobile-menu-toggle { display: block; }
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 1090; opacity: 0; visibility: hidden; transition: .3s;
+    }
+    .overlay.show { opacity: 1; visibility: visible; }
+
+    /* Adjust header timer on mobile */
+    .header-timer { font-size: 1.1rem; margin-left: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="home-screen">
+    <h1 class="home-header">TEST</h1>
+    <div class="card-ui home-card">
+        <h2>Test</h2>
+        <div class="test-details">
+            <p><span>Topic</span> <span id="homeTopic">Topic Name Here</span></p>
+            <p><span>Q.</span> <span id="homeQuestions">0</span></p>
+            <p><span>Timer</span> <span id="homeTime">0 Minutes</span></p>
+            <p><span>N.Mark</span> <span id="homeNegative">0</span></p>
+        </div>
+        <button id="startQuizBtn">Start</button>
+    </div>
+    <footer class="home-footer">
+        <!-- Clickable Links -->
+        <a href="https://t.me/AI_quiz_bot_pro" target="_blank">@AI_quiz_bot_pro</a>
+        <a href="https://t.me/elite_quiz_bot" target="_blank">@elite_quiz_bot</a>
+    </footer>
+</div>
+
+
+<div id="quiz-screen" style="display: none;">
+    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/269/269.wav" preload="auto"></audio>
+    <audio id="swipeSound" src="https://assets.mixkit.co/active_storage/sfx/1897/1897.wav" preload="auto"></audio>
+    <audio id="correctSound" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav" preload="auto"></audio>
+    <audio id="wrongSound" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav" preload="auto"></audio>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="quiz-layout">
+      <aside class="quiz-sidebar" id="infoSidebar">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="quiz-brand">@elite_quiz_bot</div>
+            <button class="mobile-menu-toggle" id="closeInfoSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="card-ui timer-box">
+            <div class="timer-display"><span id="minutes">00</span>:<span id="seconds">00</span></div>
+            <div class="progress mt-2">
+              <div id="timeProgress" class="progress-bar bg-primary" style="width:100%"></div>
+            </div>
+        </div>
+        <div class="card-ui">
+            <h5 class="fw-bold mb-3">Quiz Stats</h5>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="value correct" id="statAnswered">0</div>
+                    <div class="label">Answered</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value unattempted" id="statUnanswered">0</div>
+                    <div class="label">Unanswered</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value marked" id="statMarked">0</div>
+                    <div class="label">Marked</div>
+                </div>
+                 <div class="stat-item">
+                    <div class="value" id="statTotal">0</div>
+                    <div class="label">Total</div>
+                </div>
+            </div>
+        </div>
+         <button id="submitBtn" class="btn btn-primary w-100 py-2 fw-bold">
+            <i class="fas fa-paper-plane me-2"></i>Submit Quiz
+         </button>
+      </aside>
+
+      <main class="quiz-main">
+        <div class="quiz-main-header">
+          <button class="mobile-menu-toggle" id="openInfoSidebar"><i class="fas fa-bars"></i></button>
+
+          <!-- MAIN HEADER TIMER ADDED HERE -->
+          <div class="header-timer" id="headerTimerDisp">00:00</div>
+
+          <div class="header-actions">
+              <div id="languageSwitch">
+                  <button id="langToggleBtn">BILI</button>
+              </div>
+              <button class="action-btn" id="fontDecreaseBtn" aria-label="Decrease font size"><i class="fas fa-minus"></i></button>
+              <button class="action-btn" id="fontIncreaseBtn" aria-label="Increase font size"><i class="fas fa-plus"></i></button>
+              <button class="action-btn" id="fullscreenToggle" aria-label="Toggle fullscreen"><i class="fas fa-expand"></i></button>
+              <button class="action-btn" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+          </div>
+
+          <button class="mobile-menu-toggle" id="openPaletteSidebar"><i class="fas fa-th-large"></i></button>
+        </div>
+
+        <div class="quiz-content-area">
+            <div class="thin-progress-bar">
+                <div id="thinProgressBarInner" class="thin-progress-bar-inner"></div>
+            </div>
+            <div id="questionArea"></div>
+            <div id="resultsContainer" style="display: none;"></div>
+        </div>
+
+        <div id="quizNav" class="quiz-nav-buttons" style="display: none;"></div>
+
+      </main>
+
+      <aside class="quiz-palette" id="paletteSidebar">
+         <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold m-0">Question Palette</h5>
+            <button class="mobile-menu-toggle" id="closePaletteSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="palette-grid" id="qList"></div>
+        <div class="mt-4">
+            <h6 class="fw-bold">Legend</h6>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile me-2" style="width: 25px; height: 25px;"></div> Not Visited</div>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile answered me-2" style="width: 25px; height: 25px;"></div> Answered</div>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile marked me-2" style="width: 25px; height: 25px;"></div> Marked for Review</div>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile current me-2" style="width: 25px; height: 25px;"></div> Current Question</div>
+        </div>
+      </aside>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Placeholder quizData, will be replaced by Python
+const quizData = {
+  "settings": {
+    "topic": "Modern history \n\nBritish adminstration and economic policy \n\ud83c\udfaf Discussion & quiz:-https://t.me/+jLBCSC40twkyNWZl \n\ud83d\udccc Quiz collection:-  https://t.me/+_sXRuzxAFGwzMWE1\n\ud83c\udfaf other than warbook quizzes link :- https://t.me/quizz_whizz/130",
+    "totalTimeSec": 520,
+    "negativeMarkPerWrong": 0.33
+  },
+  "questions": [
+    {
+      "text": "<b>Q1.</b> The Regulating Act of 1773 primarily introduced changes in the Company&#x27;s administration in which two distinct areas? / 1773 \u0915\u0947 \u0930\u0947\u0917\u0941\u0932\u0947\u091f\u093f\u0902\u0917 \u090f\u0915\u094d\u091f \u0928\u0947 \u092e\u0941\u0916\u094d\u092f \u0930\u0942\u092a \u0938\u0947 \u0915\u0902\u092a\u0928\u0940 \u0915\u0947 \u092a\u094d\u0930\u0936\u093e\u0938\u0928 \u092e\u0947\u0902 \u0915\u093f\u0928 \u0926\u094b \u0905\u0932\u0917-\u0905\u0932\u0917 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u094b\u0902 \u092e\u0947\u0902 \u092c\u0926\u0932\u093e\u0935 \u092a\u0947\u0936 \u0915\u093f\u090f? [SSC CGL Tier 1, 12 Sep 2025, Shift-2]",
+      "options": [
+        "Judicial system and revenue / \u0928\u094d\u092f\u093e\u092f\u093f\u0915 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0914\u0930 \u0930\u093e\u091c\u0938\u094d\u0935",
+        "Military strategy and trade / \u0938\u0948\u0928\u094d\u092f \u0930\u0923\u0928\u0940\u0924\u093f \u0914\u0930 \u0935\u094d\u092f\u093e\u092a\u093e\u0930",
+        "Constitution at home and territorial / \u0917\u0943\u0939 \u0938\u0902\u0935\u093f\u0927\u093e\u0928 \u0914\u0930 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u0940\u092f \u092a\u094d\u0930\u0936\u093e\u0938\u0928",
+        "Princely states and foreign policy / \u0930\u093f\u092f\u093e\u0938\u0924\u0947\u0902 \u0914\u0930 \u0935\u093f\u0926\u0947\u0936 \u0928\u0940\u0924\u093f"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Regulating Act of 1773 was the first step by the British government to control the East India Company. It introduced changes in the \"Constitution at home\" by reforming the Court of Directors (governing body in England) and in the \"Territorial administration\" by creating the post of Governor-General of Bengal with a four-member council. Option (a) and (b) are incorrect as the primary structural changes were political and constitutional. A key fact is that this Act also established the Supreme Court at Calcutta (1774) with Sir Elijah Impey as the first Chief Justice. / 1773 \u0915\u093e \u0930\u0947\u0917\u0941\u0932\u0947\u091f\u093f\u0902\u0917 \u090f\u0915\u094d\u091f \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0930\u0915\u093e\u0930 \u0926\u094d\u0935\u093e\u0930\u093e \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0915\u094b \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u093f\u0924 \u0915\u0930\u0928\u0947 \u0915\u0940 \u0926\u093f\u0936\u093e \u092e\u0947\u0902 \u092a\u0939\u0932\u093e \u0915\u0926\u092e \u0925\u093e\u0964 \u0907\u0938\u0928\u0947 \u0915\u094b\u0930\u094d\u091f \u0911\u092b \u0921\u093e\u092f\u0930\u0947\u0915\u094d\u091f\u0930\u094d\u0938 (\u0907\u0902\u0917\u094d\u0932\u0948\u0902\u0921 \u092e\u0947\u0902 \u0936\u093e\u0938\u0940 \u0928\u093f\u0915\u093e\u092f) \u092e\u0947\u0902 \u0938\u0941\u0927\u093e\u0930 \u0915\u0930\u0915\u0947 \"\u0917\u0943\u0939 \u0938\u0902\u0935\u093f\u0927\u093e\u0928\" \u092e\u0947\u0902 \u0914\u0930 \u091a\u093e\u0930 \u0938\u0926\u0938\u094d\u092f\u0940\u092f \u092a\u0930\u093f\u0937\u0926 \u0915\u0947 \u0938\u093e\u0925 \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 \u0915\u0947 \u092a\u0926 \u0915\u093e \u0938\u0943\u091c\u0928 \u0915\u0930\u0915\u0947 \"\u0915\u094d\u0937\u0947\u0924\u094d\u0930\u0940\u092f \u092a\u094d\u0930\u0936\u093e\u0938\u0928\" \u092e\u0947\u0902 \u092c\u0926\u0932\u093e\u0935 \u0915\u093f\u090f\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0914\u0930 (b) \u0917\u0932\u0924 \u0939\u0948\u0902 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u092a\u094d\u0930\u093e\u0925\u092e\u093f\u0915 \u0938\u0902\u0930\u091a\u0928\u093e\u0924\u094d\u092e\u0915 \u092a\u0930\u093f\u0935\u0930\u094d\u0924\u0928 \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u0914\u0930 \u0938\u0902\u0935\u0948\u0927\u093e\u0928\u093f\u0915 \u0925\u0947\u0964 \u090f\u0915 \u092e\u0941\u0916\u094d\u092f \u0924\u0925\u094d\u092f \u092f\u0939 \u0939\u0948 \u0915\u093f \u0907\u0938 \u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0928\u0947 \u0915\u0932\u0915\u0924\u094d\u0924\u093e (1774) \u092e\u0947\u0902 \u0938\u0930\u094d\u0935\u094b\u091a\u094d\u091a \u0928\u094d\u092f\u093e\u092f\u093e\u0932\u092f \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u092d\u0940 \u0915\u0940, \u091c\u093f\u0938\u0915\u0947 \u092a\u0939\u0932\u0947 \u092e\u0941\u0916\u094d\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936 \u0938\u0930 \u090f\u0932\u093f\u091c\u093e \u0907\u092e\u094d\u092a\u0947 \u0925\u0947\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q2.</b> What change did the Regulating Act bring to the post of the Governor of Bengal? / \u0930\u0947\u0917\u0941\u0932\u0947\u091f\u093f\u0902\u0917 \u090f\u0915\u094d\u091f \u0928\u0947 \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u0917\u0935\u0930\u094d\u0928\u0930 \u0915\u0947 \u092a\u0926 \u092e\u0947\u0902 \u0915\u094d\u092f\u093e \u092c\u0926\u0932\u093e\u0935 \u0915\u093f\u092f\u093e? [SSC CGL Tier 1, 13 Sep 2025, Shift-1]",
+      "options": [
+        "Report directly to British Crown / \u0938\u0940\u0927\u0947 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0915\u094d\u0930\u093e\u0909\u0928 \u0915\u094b \u0930\u093f\u092a\u094b\u0930\u094d\u091f \u0915\u0930\u0928\u093e",
+        "Reduced to ceremonial position / \u0914\u092a\u091a\u093e\u0930\u093f\u0915 \u092a\u0926 \u0924\u0915 \u0938\u0940\u092e\u093f\u0924 \u0939\u094b\u0928\u093e",
+        "Elevated to Gov-Gen with council / \u092a\u0930\u093f\u0937\u0926 \u0915\u0947 \u0938\u093e\u0925 \u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 \u0915\u0947 \u092a\u0926 \u092a\u0930 \u092a\u0926\u094b\u0928\u094d\u0928\u0924",
+        "Transferred to Madras Presidency / \u092e\u0926\u094d\u0930\u093e\u0938 \u092a\u094d\u0930\u0947\u0938\u0940\u0921\u0947\u0902\u0938\u0940 \u092e\u0947\u0902 \u0938\u094d\u0925\u093e\u0928\u093e\u0902\u0924\u0930\u093f\u0924"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Regulating Act of 1773 elevated the Governor of Bengal to the position of Governor-General of Bengal and provided him with an Executive Council of four members to assist in administration. This centralized power, making the presidencies of Bombay and Madras subordinate to Bengal in matters of war and peace. Option (a) is incorrect as he still reported to the Court of Directors. Option (b) is wrong as his powers were increased, not reduced. Warren Hastings became the first person to hold this elevated title. / 1773 \u0915\u0947 \u0930\u0947\u0917\u0941\u0932\u0947\u091f\u093f\u0902\u0917 \u090f\u0915\u094d\u091f \u0928\u0947 \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u0917\u0935\u0930\u094d\u0928\u0930 \u0915\u094b \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 \u0915\u0947 \u092a\u0926 \u092a\u0930 \u092a\u0926\u094b\u0928\u094d\u0928\u0924 \u0915\u093f\u092f\u093e \u0914\u0930 \u092a\u094d\u0930\u0936\u093e\u0938\u0928 \u092e\u0947\u0902 \u0938\u0939\u093e\u092f\u0924\u093e \u0915\u0947 \u0932\u093f\u090f \u0909\u0928\u094d\u0939\u0947\u0902 \u091a\u093e\u0930 \u0938\u0926\u0938\u094d\u092f\u094b\u0902 \u0915\u0940 \u090f\u0915 \u0915\u093e\u0930\u094d\u092f\u0915\u093e\u0930\u0940 \u092a\u0930\u093f\u0937\u0926 \u092a\u094d\u0930\u0926\u093e\u0928 \u0915\u0940\u0964 \u0907\u0938\u0928\u0947 \u0938\u0924\u094d\u0924\u093e \u0915\u093e \u0915\u0947\u0902\u0926\u094d\u0930\u0940\u0915\u0930\u0923 \u0915\u093f\u092f\u093e, \u091c\u093f\u0938\u0938\u0947 \u092c\u0949\u092e\u094d\u092c\u0947 \u0914\u0930 \u092e\u0926\u094d\u0930\u093e\u0938 \u0915\u0940 \u092a\u094d\u0930\u0947\u0938\u0940\u0921\u0947\u0902\u0938\u0940 \u092f\u0941\u0926\u094d\u0927 \u0914\u0930 \u0936\u093e\u0902\u0924\u093f \u0915\u0947 \u092e\u093e\u092e\u0932\u094b\u0902 \u092e\u0947\u0902 \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u0905\u0927\u0940\u0928 \u0939\u094b \u0917\u0908\u0902\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0935\u0947 \u0905\u092d\u0940 \u092d\u0940 \u0915\u094b\u0930\u094d\u091f \u0911\u092b \u0921\u093e\u092f\u0930\u0947\u0915\u094d\u091f\u0930\u094d\u0938 \u0915\u094b \u0930\u093f\u092a\u094b\u0930\u094d\u091f \u0915\u0930\u0924\u0947 \u0925\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0909\u0928\u0915\u0940 \u0936\u0915\u094d\u0924\u093f\u092f\u093e\u0901 \u092c\u0922\u093c\u093e\u0908 \u0917\u0908\u0902, \u0915\u092e \u0928\u0939\u0940\u0902 \u0915\u0940 \u0917\u0908\u0902\u0964 \u0935\u0949\u0930\u0947\u0928 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 \u0907\u0938 \u0909\u0928\u094d\u0928\u0924 \u0909\u092a\u093e\u0927\u093f \u0915\u094b \u0927\u093e\u0930\u0923 \u0915\u0930\u0928\u0947 \u0935\u093e\u0932\u0947 \u092a\u0939\u0932\u0947 \u0935\u094d\u092f\u0915\u094d\u0924\u093f \u092c\u0928\u0947\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q3.</b> Who among the following was the Governor-General of British India from 1773 to 1785? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 1773 \u0938\u0947 1785 \u0924\u0915 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u092d\u093e\u0930\u0924 \u0915\u093e \u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 \u0925\u093e? [SSC CHSL, 29 Nov 2025, Shift-3]",
+      "options": [
+        "Warren Hastings / \u0935\u0949\u0930\u0947\u0928 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938",
+        "Lord Wellesley / \u0932\u0949\u0930\u094d\u0921 \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940",
+        "Lord Dalhousie / \u0932\u0949\u0930\u094d\u0921 \u0921\u0932\u0939\u094c\u091c\u0940",
+        "Lord Cornwallis / \u0932\u0949\u0930\u094d\u0921 \u0915\u0949\u0930\u094d\u0928\u0935\u093e\u0932\u093f\u0938"
+      ],
+      "correctIndex": 0,
+      "explanation": "Warren Hastings served as the first Governor-General of Bengal from 1773 to 1785. His tenure saw the foundations of British administration in India, including the First Anglo-Maratha War and the Second Anglo-Mysore War. Option (b), (c), and (d) are incorrect as Wellesley, Dalhousie, and Cornwallis served much later. An interesting fact is that after returning to England, Hastings faced a famous seven-year impeachment trial for corruption, though he was eventually acquitted. / \u0935\u0949\u0930\u0947\u0928 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 \u0928\u0947 1773 \u0938\u0947 1785 \u0924\u0915 \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u092a\u0939\u0932\u0947 \u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0915\u093e\u0930\u094d\u092f \u0915\u093f\u092f\u093e\u0964 \u0909\u0928\u0915\u0947 \u0915\u093e\u0930\u094d\u092f\u0915\u093e\u0932 \u092e\u0947\u0902 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u092a\u094d\u0930\u0936\u093e\u0938\u0928 \u0915\u0940 \u0928\u0940\u0902\u0935 \u092a\u0921\u093c\u0940, \u091c\u093f\u0938\u092e\u0947\u0902 \u092a\u094d\u0930\u0925\u092e \u0906\u0902\u0917\u094d\u0932-\u092e\u0930\u093e\u0920\u093e \u092f\u0941\u0926\u094d\u0927 \u0914\u0930 \u0926\u094d\u0935\u093f\u0924\u0940\u092f \u0906\u0902\u0917\u094d\u0932-\u092e\u0948\u0938\u0942\u0930 \u092f\u0941\u0926\u094d\u0927 \u0936\u093e\u092e\u093f\u0932 \u0925\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b), (c) \u0914\u0930 (d) \u0917\u0932\u0924 \u0939\u0948\u0902 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940, \u0921\u0932\u0939\u094c\u091c\u0940 \u0914\u0930 \u0915\u0949\u0930\u094d\u0928\u0935\u093e\u0932\u093f\u0938 \u0928\u0947 \u092c\u0939\u0941\u0924 \u092c\u093e\u0926 \u092e\u0947\u0902 \u0938\u0947\u0935\u093e \u0915\u0940\u0964 \u090f\u0915 \u0926\u093f\u0932\u091a\u0938\u094d\u092a \u0924\u0925\u094d\u092f \u092f\u0939 \u0939\u0948 \u0915\u093f \u0907\u0902\u0917\u094d\u0932\u0948\u0902\u0921 \u0932\u094c\u091f\u0928\u0947 \u0915\u0947 \u092c\u093e\u0926, \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 \u0915\u094b \u092d\u094d\u0930\u0937\u094d\u091f\u093e\u091a\u093e\u0930 \u0915\u0947 \u0932\u093f\u090f \u0938\u093e\u0924 \u0938\u093e\u0932 \u0915\u0947 \u092a\u094d\u0930\u0938\u093f\u0926\u094d\u0927 \u092e\u0939\u093e\u092d\u093f\u092f\u094b\u0917 \u092e\u0941\u0915\u0926\u092e\u0947 \u0915\u093e \u0938\u093e\u092e\u0928\u093e \u0915\u0930\u0928\u093e \u092a\u0921\u093c\u093e, \u0939\u093e\u0932\u093e\u0902\u0915\u093f \u0905\u0902\u0924\u0924\u0903 \u0909\u0928\u094d\u0939\u0947\u0902 \u092c\u0930\u0940 \u0915\u0930 \u0926\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q4.</b> What was the function of the Board of Control established by Pitt&#x27;s India Act? / \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 \u0915\u093e \u0915\u094d\u092f\u093e \u0915\u093e\u0930\u094d\u092f \u0925\u093e? [SSC CGL Tier 1, 15 Sep 2025, Shift-2]",
+      "options": [
+        "Manage only military operations / \u0915\u0947\u0935\u0932 \u0938\u0948\u0928\u094d\u092f \u0905\u092d\u093f\u092f\u093e\u0928\u094b\u0902 \u0915\u093e \u092a\u094d\u0930\u092c\u0902\u0927\u0928 \u0915\u0930\u0928\u093e",
+        "Oversee taxation and local revenue / \u0915\u0930\u093e\u0927\u093e\u0928 \u0914\u0930 \u0938\u094d\u0925\u093e\u0928\u0940\u092f \u0930\u093e\u091c\u0938\u094d\u0935 \u0915\u0940 \u0926\u0947\u0916\u0930\u0947\u0916 \u0915\u0930\u0928\u093e",
+        "Control civil and military affairs / \u0928\u093e\u0917\u0930\u093f\u0915 \u0914\u0930 \u0938\u0948\u0928\u094d\u092f \u092e\u093e\u092e\u0932\u094b\u0902 \u0915\u094b \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u093f\u0924 \u0915\u0930\u0928\u093e",
+        "Regulate trade between India/China / \u092d\u093e\u0930\u0924/\u091a\u0940\u0928 \u0915\u0947 \u092c\u0940\u091a \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u0915\u094b \u0935\u093f\u0928\u093f\u092f\u092e\u093f\u0924 \u0915\u0930\u0928\u093e"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Board of Control, established by Pitt's India Act of 1784, was a body of six commissioners designed to supervise and control all civil, military, and revenue affairs of the East India Company. This created a system of \"Double Government\" where the Court of Directors managed commercial affairs, while the Board of Control managed political affairs. Options (a) and (b) are too limited, and (d) refers to commercial functions retained by the Directors. The President of this Board was effectively the Minister for Indian Affairs. / 1784 \u0915\u0947 \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 \u091b\u0939 \u0906\u092f\u0941\u0915\u094d\u0924\u094b\u0902 \u0915\u093e \u090f\u0915 \u0928\u093f\u0915\u093e\u092f \u0925\u093e \u091c\u093f\u0938\u0947 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0915\u0947 \u0938\u092d\u0940 \u0928\u093e\u0917\u0930\u093f\u0915, \u0938\u0948\u0928\u094d\u092f \u0914\u0930 \u0930\u093e\u091c\u0938\u094d\u0935 \u092e\u093e\u092e\u0932\u094b\u0902 \u0915\u0940 \u0928\u093f\u0917\u0930\u093e\u0928\u0940 \u0914\u0930 \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u0923 \u0915\u0947 \u0932\u093f\u090f \u0921\u093f\u091c\u093c\u093e\u0907\u0928 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0907\u0938\u0928\u0947 \"\u0926\u094b\u0939\u0930\u0940 \u0938\u0930\u0915\u093e\u0930\" \u0915\u0940 \u090f\u0915 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u092c\u0928\u093e\u0908 \u091c\u0939\u093e\u0901 \u0915\u094b\u0930\u094d\u091f \u0911\u092b \u0921\u093e\u092f\u0930\u0947\u0915\u094d\u091f\u0930\u094d\u0938 \u0928\u0947 \u0935\u093e\u0923\u093f\u091c\u094d\u092f\u093f\u0915 \u092e\u093e\u092e\u0932\u094b\u0902 \u0915\u093e \u092a\u094d\u0930\u092c\u0902\u0927\u0928 \u0915\u093f\u092f\u093e, \u091c\u092c\u0915\u093f \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 \u0928\u0947 \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u092e\u093e\u092e\u0932\u094b\u0902 \u0915\u093e \u092a\u094d\u0930\u092c\u0902\u0927\u0928 \u0915\u093f\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0914\u0930 (b) \u092c\u0939\u0941\u0924 \u0938\u0940\u092e\u093f\u0924 \u0939\u0948\u0902, \u0914\u0930 (d) \u0928\u093f\u0930\u094d\u0926\u0947\u0936\u0915\u094b\u0902 \u0926\u094d\u0935\u093e\u0930\u093e \u092c\u0928\u093e\u090f \u0930\u0916\u0947 \u0917\u090f \u0935\u093e\u0923\u093f\u091c\u094d\u092f\u093f\u0915 \u0915\u093e\u0930\u094d\u092f\u094b\u0902 \u0915\u094b \u0938\u0902\u0926\u0930\u094d\u092d\u093f\u0924 \u0915\u0930\u0924\u093e \u0939\u0948\u0964 \u0907\u0938 \u092c\u094b\u0930\u094d\u0921 \u0915\u093e \u0905\u0927\u094d\u092f\u0915\u094d\u0937 \u092a\u094d\u0930\u092d\u093e\u0935\u0940 \u0930\u0942\u092a \u0938\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u092e\u093e\u092e\u0932\u094b\u0902 \u0915\u093e \u092e\u0902\u0924\u094d\u0930\u0940 \u0939\u094b\u0924\u093e \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q5.</b> Fill in the blank: Pitt&#x27;s India Act 1784 created a six-member body called the ______ to supervise Company politics. / \u0930\u093f\u0915\u094d\u0924 \u0938\u094d\u0925\u093e\u0928 \u092d\u0930\u0947\u0902: \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f 1784 \u0928\u0947 \u0915\u0902\u092a\u0928\u0940 \u0915\u0940 \u0930\u093e\u091c\u0928\u0940\u0924\u093f \u0915\u0940 \u0928\u093f\u0917\u0930\u093e\u0928\u0940 \u0915\u0947 \u0932\u093f\u090f ______ \u0928\u093e\u092e\u0915 \u091b\u0939 \u0938\u0926\u0938\u094d\u092f\u0940\u092f \u0928\u093f\u0915\u093e\u092f \u0915\u093e \u0928\u093f\u0930\u094d\u092e\u093e\u0923 \u0915\u093f\u092f\u093e\u0964 [SSC CGL Tier 1, 23 Sep 2025, Shift-3]",
+      "options": [
+        "Board of Control / \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 (\u0928\u093f\u092f\u0902\u0924\u094d\u0930\u0923 \u092c\u094b\u0930\u094d\u0921)",
+        "Council of India / \u0915\u093e\u0909\u0902\u0938\u093f\u0932 \u0911\u092b \u0907\u0902\u0921\u093f\u092f\u093e (\u092d\u093e\u0930\u0924 \u092a\u0930\u093f\u0937\u0926)",
+        "Privy Council / \u092a\u094d\u0930\u093f\u0935\u0940 \u0915\u093e\u0909\u0902\u0938\u093f\u0932",
+        "Bureau of Revenue / \u092c\u094d\u092f\u0942\u0930\u094b \u0911\u092b \u0930\u0947\u0935\u0947\u0928\u094d\u092f\u0942"
+      ],
+      "correctIndex": 0,
+      "explanation": "Pitt's India Act of 1784 created the Board of Control to oversee the political activities of the East India Company. This body included the Chancellor of the Exchequer, a Secretary of State, and four Privy Councillors. Option (b) Council of India was created later by the Act of 1858. Option (c) refers to the advisor to the Monarch. Option (d) is a fabricated term. This Board subordinated the Company to the British Government, a structure that lasted until 1858. / 1784 \u0915\u0947 \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0928\u0947 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0915\u0940 \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u0917\u0924\u093f\u0935\u093f\u0927\u093f\u092f\u094b\u0902 \u0915\u0940 \u0926\u0947\u0916\u0930\u0947\u0916 \u0915\u0947 \u0932\u093f\u090f \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u0923 \u092c\u094b\u0930\u094d\u0921 (\u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932) \u0915\u093e \u0917\u0920\u0928 \u0915\u093f\u092f\u093e\u0964 \u0907\u0938 \u0928\u093f\u0915\u093e\u092f \u092e\u0947\u0902 \u0930\u093e\u091c\u0915\u094b\u0937 \u0915\u093e \u091a\u093e\u0902\u0938\u0932\u0930, \u090f\u0915 \u0930\u093e\u091c\u094d\u092f \u0938\u091a\u093f\u0935 \u0914\u0930 \u091a\u093e\u0930 \u092a\u094d\u0930\u093f\u0935\u0940 \u0915\u093e\u0909\u0902\u0938\u0932\u0930 \u0936\u093e\u092e\u093f\u0932 \u0925\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0915\u093e\u0909\u0902\u0938\u093f\u0932 \u0911\u092b \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u093e \u0917\u0920\u0928 \u092c\u093e\u0926 \u092e\u0947\u0902 1858 \u0915\u0947 \u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0926\u094d\u0935\u093e\u0930\u093e \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0938\u092e\u094d\u0930\u093e\u091f \u0915\u0947 \u0938\u0932\u093e\u0939\u0915\u093e\u0930 \u0915\u094b \u0938\u0902\u0926\u0930\u094d\u092d\u093f\u0924 \u0915\u0930\u0924\u093e \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u090f\u0915 \u092e\u0928\u0917\u0922\u093c\u0902\u0924 \u0936\u092c\u094d\u0926 \u0939\u0948\u0964 \u0907\u0938 \u092c\u094b\u0930\u094d\u0921 \u0928\u0947 \u0915\u0902\u092a\u0928\u0940 \u0915\u094b \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0930\u0915\u093e\u0930 \u0915\u0947 \u0905\u0927\u0940\u0928 \u0915\u0930 \u0926\u093f\u092f\u093e, \u092f\u0939 \u0938\u0902\u0930\u091a\u0928\u093e 1858 \u0924\u0915 \u092c\u0928\u0940 \u0930\u0939\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q6.</b> Under Pitt&#x27;s India Act, what restriction was placed on the Governor General and Council? / \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0915\u0947 \u0924\u0939\u0924 \u0917\u0935\u0930\u094d\u0928\u0930 \u091c\u0928\u0930\u0932 \u0914\u0930 \u092a\u0930\u093f\u0937\u0926 \u092a\u0930 \u0915\u094d\u092f\u093e \u092a\u094d\u0930\u0924\u093f\u092c\u0902\u0927 \u0932\u0917\u093e\u092f\u093e \u0917\u092f\u093e \u0925\u093e? [SSC CGL Tier 1, 16 Sep 2025, Shift-2]",
+      "options": [
+        "Could not pass civil law / \u0928\u093e\u0917\u0930\u093f\u0915 \u0915\u093e\u0928\u0942\u0928 \u092a\u093e\u0930\u093f\u0924 \u0928\u0939\u0940\u0902 \u0915\u0930 \u0938\u0915\u0924\u0947 \u0925\u0947",
+        "Could not issue orders w/o majority / \u092c\u0939\u0941\u092e\u0924 \u0915\u0947 \u092c\u093f\u0928\u093e \u0906\u0926\u0947\u0936 \u091c\u093e\u0930\u0940 \u0928\u0939\u0940\u0902 \u0915\u0930 \u0938\u0915\u0924\u0947 \u0925\u0947",
+        "Forbidden to declare war w/o approval / \u092c\u093f\u0928\u093e \u092e\u0902\u091c\u0942\u0930\u0940 \u0915\u0947 \u092f\u0941\u0926\u094d\u0927 \u0915\u0940 \u0918\u094b\u0937\u0923\u093e \u0915\u0930\u0928\u093e \u0935\u0930\u094d\u091c\u093f\u0924",
+        "Resign after 5 years / 5 \u0938\u093e\u0932 \u092c\u093e\u0926 \u0907\u0938\u094d\u0924\u0940\u092b\u093e \u0926\u0947\u0928\u093e"
+      ],
+      "correctIndex": 2,
+      "explanation": "Pitt's India Act (and supplementary acts) restricted the Governor-General from declaring war or entering into treaties without the express permission of the Court of Directors or the Board of Control. This was intended to curb the aggressive expansionist policies and corruption that had characterized the Company's earlier years. Option (b) is partially true regarding internal voting, but the war restriction was the major political constraint. This reflected the British Parliament's desire for a policy of non-intervention, though it was frequently violated in practice. / \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0928\u0947 \u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 \u0915\u094b \u0915\u094b\u0930\u094d\u091f \u0911\u092b \u0921\u093e\u092f\u0930\u0947\u0915\u094d\u091f\u0930\u094d\u0938 \u092f\u093e \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 \u0915\u0940 \u0938\u094d\u092a\u0937\u094d\u091f \u0905\u0928\u0941\u092e\u0924\u093f \u0915\u0947 \u092c\u093f\u0928\u093e \u092f\u0941\u0926\u094d\u0927 \u0915\u0940 \u0918\u094b\u0937\u0923\u093e \u0915\u0930\u0928\u0947 \u092f\u093e \u0938\u0902\u0927\u093f\u092f\u093e\u0901 \u0915\u0930\u0928\u0947 \u0938\u0947 \u092a\u094d\u0930\u0924\u093f\u092c\u0902\u0927\u093f\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e \u0925\u093e\u0964 \u0907\u0938\u0915\u093e \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0909\u0928 \u0906\u0915\u094d\u0930\u093e\u092e\u0915 \u0935\u093f\u0938\u094d\u0924\u093e\u0930\u0935\u093e\u0926\u0940 \u0928\u0940\u0924\u093f\u092f\u094b\u0902 \u0914\u0930 \u092d\u094d\u0930\u0937\u094d\u091f\u093e\u091a\u093e\u0930 \u092a\u0930 \u0905\u0902\u0915\u0941\u0936 \u0932\u0917\u093e\u0928\u093e \u0925\u093e \u091c\u093f\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0915\u0902\u092a\u0928\u0940 \u0915\u0947 \u0936\u0941\u0930\u0941\u0906\u0924\u0940 \u0935\u0930\u094d\u0937\u094b\u0902 \u0915\u094b \u091a\u093f\u0939\u094d\u0928\u093f\u0924 \u0915\u093f\u092f\u093e \u0925\u093e\u0964 \u0906\u0902\u0924\u0930\u093f\u0915 \u092e\u0924\u0926\u093e\u0928 \u0915\u0947 \u0938\u0902\u092c\u0902\u0927 \u092e\u0947\u0902 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0906\u0902\u0936\u093f\u0915 \u0930\u0942\u092a \u0938\u0947 \u0938\u0924\u094d\u092f \u0939\u0948, \u0932\u0947\u0915\u093f\u0928 \u092f\u0941\u0926\u094d\u0927 \u092a\u094d\u0930\u0924\u093f\u092c\u0902\u0927 \u092a\u094d\u0930\u092e\u0941\u0916 \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u092c\u093e\u0927\u093e \u0925\u0940\u0964 \u092f\u0939 \u0917\u0948\u0930-\u0939\u0938\u094d\u0924\u0915\u094d\u0937\u0947\u092a \u0915\u0940 \u0928\u0940\u0924\u093f \u0915\u0947 \u0932\u093f\u090f \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0902\u0938\u0926 \u0915\u0940 \u0907\u091a\u094d\u091b\u093e \u0915\u094b \u0926\u0930\u094d\u0936\u093e\u0924\u093e \u0925\u093e, \u0939\u093e\u0932\u093e\u0902\u0915\u093f \u0935\u094d\u092f\u0935\u0939\u093e\u0930 \u092e\u0947\u0902 \u0907\u0938\u0915\u093e \u0905\u0915\u094d\u0938\u0930 \u0909\u0932\u094d\u0932\u0902\u0918\u0928 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q7.</b> What was one major provision introduced by the Pitt&#x27;s India Act of 1784 concerning the Court of Directors? / \u0915\u094b\u0930\u094d\u091f \u0911\u092b \u0921\u093e\u092f\u0930\u0947\u0915\u094d\u091f\u0930\u094d\u0938 \u0915\u0947 \u0938\u0902\u092c\u0902\u0927 \u092e\u0947\u0902 1784 \u0915\u0947 \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0926\u094d\u0935\u093e\u0930\u093e \u092a\u0947\u0936 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u090f\u0915 \u092a\u094d\u0930\u092e\u0941\u0916 \u092a\u094d\u0930\u093e\u0935\u0927\u093e\u0928 \u0915\u094d\u092f\u093e \u0925\u093e? [SSC CGL Tier 1, 25 Sep 2025, Shift-2]",
+      "options": [
+        "Authority to make laws for states / \u0930\u093e\u091c\u094d\u092f\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u0915\u093e\u0928\u0942\u0928 \u092c\u0928\u093e\u0928\u0947 \u0915\u093e \u0905\u0927\u093f\u0915\u093e\u0930",
+        "Dissolve provincial courts / \u092a\u094d\u0930\u093e\u0902\u0924\u0940\u092f \u0905\u0926\u093e\u0932\u0924\u094b\u0902 \u0915\u094b \u092d\u0902\u0917 \u0915\u0930\u0928\u093e",
+        "Accountable to Govt in civil/military / \u0928\u093e\u0917\u0930\u093f\u0915/\u0938\u0948\u0928\u094d\u092f \u092e\u093e\u092e\u0932\u094b\u0902 \u092e\u0947\u0902 \u0938\u0930\u0915\u093e\u0930 \u0915\u0947 \u092a\u094d\u0930\u0924\u093f \u091c\u0935\u093e\u092c\u0926\u0947\u0939",
+        "Merged with Board of Control / \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 \u0915\u0947 \u0938\u093e\u0925 \u0935\u093f\u0932\u092f"
+      ],
+      "correctIndex": 2,
+      "explanation": "Pitt's India Act made the Court of Directors accountable to the British Government by placing their civil and military policy decisions under the review of the newly formed Board of Control. The Directors had to submit all dispatches to the Board for approval. Option (d) is incorrect as the two bodies remained distinct (Dual Government). Option (a) is incorrect as they couldn't legislate for princely states. This Act solidified the British Crown's sovereignty over the Company's territories in India. / \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0928\u0947 \u0915\u094b\u0930\u094d\u091f \u0911\u092b \u0921\u093e\u092f\u0930\u0947\u0915\u094d\u091f\u0930\u094d\u0938 \u0915\u0947 \u0928\u093e\u0917\u0930\u093f\u0915 \u0914\u0930 \u0938\u0948\u0928\u094d\u092f \u0928\u0940\u0924\u093f \u0928\u093f\u0930\u094d\u0923\u092f\u094b\u0902 \u0915\u094b \u0928\u0935\u0917\u0920\u093f\u0924 \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 \u0915\u0940 \u0938\u092e\u0940\u0915\u094d\u0937\u093e \u0915\u0947 \u0905\u0927\u0940\u0928 \u0930\u0916\u0915\u0930 \u0909\u0928\u094d\u0939\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0930\u0915\u093e\u0930 \u0915\u0947 \u092a\u094d\u0930\u0924\u093f \u091c\u0935\u093e\u092c\u0926\u0947\u0939 \u092c\u0928\u093e \u0926\u093f\u092f\u093e\u0964 \u0928\u093f\u0930\u094d\u0926\u0947\u0936\u0915\u094b\u0902 \u0915\u094b \u0905\u0928\u0941\u092e\u094b\u0926\u0928 \u0915\u0947 \u0932\u093f\u090f \u092c\u094b\u0930\u094d\u0921 \u0915\u094b \u0938\u092d\u0940 \u092a\u094d\u0930\u0947\u0937\u0923 \u092a\u094d\u0930\u0938\u094d\u0924\u0941\u0924 \u0915\u0930\u0928\u0947 \u092a\u0921\u093c\u0924\u0947 \u0925\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0926\u094b\u0928\u094b\u0902 \u0928\u093f\u0915\u093e\u092f \u0905\u0932\u0917-\u0905\u0932\u0917 \u0930\u0939\u0947 (\u0926\u094b\u0939\u0930\u0940 \u0938\u0930\u0915\u093e\u0930)\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0935\u0947 \u0930\u093f\u092f\u093e\u0938\u0924\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u0915\u093e\u0928\u0942\u0928 \u0928\u0939\u0940\u0902 \u092c\u0928\u093e \u0938\u0915\u0924\u0947 \u0925\u0947\u0964 \u0907\u0938 \u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0928\u0947 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u0915\u0902\u092a\u0928\u0940 \u0915\u0947 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u094b\u0902 \u092a\u0930 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0915\u094d\u0930\u093e\u0909\u0928 \u0915\u0940 \u0938\u0902\u092a\u094d\u0930\u092d\u0941\u0924\u093e \u0915\u094b \u092e\u091c\u092c\u0942\u0924 \u0915\u093f\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q8.</b> How did Pitt&#x27;s India Act contribute to unifying British administration in India? / \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0928\u0947 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u092a\u094d\u0930\u0936\u093e\u0938\u0928 \u0915\u094b \u090f\u0915\u0940\u0915\u0943\u0924 \u0915\u0930\u0928\u0947 \u092e\u0947\u0902 \u0915\u0948\u0938\u0947 \u092f\u094b\u0917\u0926\u093e\u0928 \u0926\u093f\u092f\u093e? [SSC CGL Tier 1, 19 Sep 2025, Shift-3]",
+      "options": [
+        "Allowing Governors independence / \u0917\u0935\u0930\u094d\u0928\u0930\u094b\u0902 \u0915\u094b \u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930\u0924\u093e \u0926\u0947\u0928\u093e",
+        "Dissolving Court of Directors / \u0915\u094b\u0930\u094d\u091f \u0911\u092b \u0921\u093e\u092f\u0930\u0947\u0915\u094d\u091f\u0930\u094d\u0938 \u0915\u094b \u092d\u0902\u0917 \u0915\u0930\u0928\u093e",
+        "Gov Gen supreme over Presidencies / \u092a\u094d\u0930\u0947\u0938\u0940\u0921\u0947\u0902\u0938\u093f\u092f\u094b\u0902 \u092a\u0930 \u0917\u0935\u0930\u094d\u0928\u0930 \u091c\u0928\u0930\u0932 \u0915\u094b \u0938\u0930\u094d\u0935\u094b\u091a\u094d\u091a \u092c\u0928\u093e\u0928\u093e",
+        "Merging civil/military departments / \u0928\u093e\u0917\u0930\u093f\u0915/\u0938\u0948\u0928\u094d\u092f \u0935\u093f\u092d\u093e\u0917\u094b\u0902 \u0915\u093e \u0935\u093f\u0932\u092f \u0915\u0930\u0928\u093e"
+      ],
+      "correctIndex": 2,
+      "explanation": "Pitt's India Act significantly strengthened the central authority by making the Governor-General of Bengal supreme over the subordinate Presidencies of Bombay and Madras. The Governors of Bombay and Madras could not declare war or make peace without Bengal's approval. Option (a) is the opposite of the truth. Option (b) is wrong as the Court persisted. This centralization was crucial for creating a unified British Indian empire rather than a collection of loose trading outposts. / \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0928\u0947 \u092c\u0949\u092e\u094d\u092c\u0947 \u0914\u0930 \u092e\u0926\u094d\u0930\u093e\u0938 \u0915\u0940 \u0905\u0927\u0940\u0928\u0938\u094d\u0925 \u092a\u094d\u0930\u0947\u0938\u0940\u0921\u0947\u0902\u0938\u093f\u092f\u094b\u0902 \u092a\u0930 \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 \u0915\u094b \u0938\u0930\u094d\u0935\u094b\u091a\u094d\u091a \u092c\u0928\u093e\u0915\u0930 \u0915\u0947\u0902\u0926\u094d\u0930\u0940\u092f \u092a\u094d\u0930\u093e\u0927\u093f\u0915\u0930\u0923 \u0915\u094b \u0915\u093e\u092b\u0940 \u092e\u091c\u092c\u0942\u0924 \u0915\u093f\u092f\u093e\u0964 \u092c\u0949\u092e\u094d\u092c\u0947 \u0914\u0930 \u092e\u0926\u094d\u0930\u093e\u0938 \u0915\u0947 \u0917\u0935\u0930\u094d\u0928\u0930 \u092c\u0902\u0917\u093e\u0932 \u0915\u0940 \u092e\u0902\u091c\u0942\u0930\u0940 \u0915\u0947 \u092c\u093f\u0928\u093e \u092f\u0941\u0926\u094d\u0927 \u0915\u0940 \u0918\u094b\u0937\u0923\u093e \u092f\u093e \u0936\u093e\u0902\u0924\u093f \u0928\u0939\u0940\u0902 \u0915\u0930 \u0938\u0915\u0924\u0947 \u0925\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0938\u091a\u094d\u091a\u093e\u0908 \u0915\u0947 \u0935\u093f\u092a\u0930\u0940\u0924 \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0915\u094b\u0930\u094d\u091f \u092c\u0928\u093e \u0930\u0939\u093e\u0964 \u092f\u0939 \u0915\u0947\u0902\u0926\u094d\u0930\u0940\u0915\u0930\u0923 \u0922\u0940\u0932\u0947 \u0935\u094d\u092f\u093e\u092a\u093e\u0930\u093f\u0915 \u091a\u094c\u0915\u093f\u092f\u094b\u0902 \u0915\u0947 \u0938\u0902\u0917\u094d\u0930\u0939 \u0915\u0947 \u092c\u091c\u093e\u092f \u090f\u0915 \u090f\u0915\u0940\u0915\u0943\u0924 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u092d\u093e\u0930\u0924\u0940\u092f \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f \u092c\u0928\u093e\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q9.</b> What long-term administrative outcome is attributed to Pitt&#x27;s India Act? / \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0915\u093e \u0936\u094d\u0930\u0947\u092f \u0915\u093f\u0938 \u0926\u0940\u0930\u094d\u0918\u0915\u093e\u0932\u093f\u0915 \u092a\u094d\u0930\u0936\u093e\u0938\u0928\u093f\u0915 \u092a\u0930\u093f\u0923\u093e\u092e \u0915\u094b \u0926\u093f\u092f\u093e \u091c\u093e\u0924\u093e \u0939\u0948? [SSC CGL Tier 1, 14 Oct 2025]",
+      "options": [
+        "Divided India into military zones / \u092d\u093e\u0930\u0924 \u0915\u094b \u0938\u0948\u0928\u094d\u092f \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u094b\u0902 \u092e\u0947\u0902 \u0935\u093f\u092d\u093e\u091c\u093f\u0924 \u0915\u093f\u092f\u093e",
+        "Absolute independence to Company / \u0915\u0902\u092a\u0928\u0940 \u0915\u094b \u092a\u0942\u0930\u094d\u0923 \u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930\u0924\u093e \u0926\u0940",
+        "Placed Company under British Parliament / \u0915\u0902\u092a\u0928\u0940 \u0915\u094b \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0902\u0938\u0926 \u0915\u0947 \u0905\u0927\u0940\u0928 \u0930\u0916\u093e",
+        "Dissolved post of Governor General / \u0917\u0935\u0930\u094d\u0928\u0930 \u091c\u0928\u0930\u0932 \u0915\u093e \u092a\u0926 \u0938\u092e\u093e\u092a\u094d\u0924 \u0915\u093f\u092f\u093e"
+      ],
+      "correctIndex": 2,
+      "explanation": "The most significant long-term outcome of Pitt's India Act was that it placed the East India Company under the direct control of the British Parliament. While the Company retained its trade monopoly (until 1813), its political administration was now supervised by the British Cabinet via the Board of Control. Option (b) is incorrect. Option (d) is wrong as the post became more powerful. This structure of \"Dual Government\" continued until the Crown assumed direct rule in 1858. / \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0915\u093e \u0938\u092c\u0938\u0947 \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0926\u0940\u0930\u094d\u0918\u0915\u093e\u0932\u093f\u0915 \u092a\u0930\u093f\u0923\u093e\u092e \u092f\u0939 \u0925\u093e \u0915\u093f \u0907\u0938\u0928\u0947 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0915\u094b \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0902\u0938\u0926 \u0915\u0947 \u0938\u0940\u0927\u0947 \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u0923 \u092e\u0947\u0902 \u0930\u0916 \u0926\u093f\u092f\u093e\u0964 \u091c\u092c\u0915\u093f \u0915\u0902\u092a\u0928\u0940 \u0928\u0947 \u0905\u092a\u0928\u093e \u0935\u094d\u092f\u093e\u092a\u093e\u0930\u093f\u0915 \u090f\u0915\u093e\u0927\u093f\u0915\u093e\u0930 (1813 \u0924\u0915) \u092c\u0928\u093e\u090f \u0930\u0916\u093e, \u0909\u0938\u0915\u093e \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u092a\u094d\u0930\u0936\u093e\u0938\u0928 \u0905\u092c \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 \u0915\u0947 \u092e\u093e\u0927\u094d\u092f\u092e \u0938\u0947 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0915\u0948\u092c\u093f\u0928\u0947\u091f \u0926\u094d\u0935\u093e\u0930\u093e \u092a\u0930\u094d\u092f\u0935\u0947\u0915\u094d\u0937\u093f\u0924 \u0915\u093f\u092f\u093e \u091c\u093e\u0924\u093e \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0917\u0932\u0924 \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u092a\u0926 \u0914\u0930 \u0905\u0927\u093f\u0915 \u0936\u0915\u094d\u0924\u093f\u0936\u093e\u0932\u0940 \u0939\u094b \u0917\u092f\u093e\u0964 \"\u0926\u094b\u0939\u0930\u0940 \u0938\u0930\u0915\u093e\u0930\" \u0915\u0940 \u092f\u0939 \u0938\u0902\u0930\u091a\u0928\u093e 1858 \u0924\u0915 \u091c\u093e\u0930\u0940 \u0930\u0939\u0940 \u091c\u092c \u0915\u094d\u0930\u093e\u0909\u0928 \u0928\u0947 \u092a\u094d\u0930\u0924\u094d\u092f\u0915\u094d\u0937 \u0936\u093e\u0938\u0928 \u0938\u0902\u092d\u093e\u0932\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q10.</b> Which of the following pairs (Governor-General - Policy) is correctly matched? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e \u091c\u094b\u0921\u093c\u093e (\u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 - \u0928\u0940\u0924\u093f) \u0938\u0939\u0940 \u0922\u0902\u0917 \u0938\u0947 \u0938\u0941\u092e\u0947\u0932\u093f\u0924 \u0939\u0948? [SSC CGL Tier 1, 19 Sep 2025, Shift-1]",
+      "options": [
+        "Lord Hastings - Anti-expansionist / \u0932\u0949\u0930\u094d\u0921 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 - \u0935\u093f\u0938\u094d\u0924\u093e\u0930 \u0935\u093f\u0930\u094b\u0927\u0940",
+        "Marquis of Hastings - Fiscal conservatism / \u092e\u093e\u0930\u094d\u0915\u093f\u0938 \u0911\u092b \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 - \u0930\u093e\u091c\u0915\u094b\u0937\u0940\u092f \u0930\u0942\u0922\u093c\u093f\u0935\u093e\u0926\u093f\u0924\u093e",
+        "Lord Wellesley - Imperialist conquests / \u0932\u0949\u0930\u094d\u0921 \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940 - \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f\u0935\u093e\u0926\u0940 \u0935\u093f\u091c\u092f",
+        "Henry Dundas - Opposed Charter renewal / \u0939\u0947\u0928\u0930\u0940 \u0921\u0902\u0921\u093e\u0938 - \u091a\u093e\u0930\u094d\u091f\u0930 \u0928\u0935\u0940\u0928\u0940\u0915\u0930\u0923 \u0915\u093e \u0935\u093f\u0930\u094b\u0927 \u0915\u093f\u092f\u093e"
+      ],
+      "correctIndex": 2,
+      "explanation": "The correct match is Lord Wellesley with Imperialist conquests. Wellesley (1798\u20131805) was an aggressive expansionist who used the Subsidiary Alliance system to bring states like Hyderabad, Mysore, and Awadh under British control. Option (a) is incorrect; Lord Hastings (1813\u20131823) was also an expansionist who fought the Gurkhas and Marathas. Option (b) is a mismatch. Wellesley described himself as a \"Bengal Tiger\" and aimed to make the Company the paramount power in India. / \u0938\u0939\u0940 \u092e\u093f\u0932\u093e\u0928 \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f\u0935\u093e\u0926\u0940 \u0935\u093f\u091c\u092f \u0915\u0947 \u0938\u093e\u0925 \u0932\u0949\u0930\u094d\u0921 \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940 \u0939\u0948\u0964 \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940 (1798-1805) \u090f\u0915 \u0906\u0915\u094d\u0930\u093e\u092e\u0915 \u0935\u093f\u0938\u094d\u0924\u093e\u0930\u0935\u093e\u0926\u0940 \u0925\u0947 \u091c\u093f\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0939\u0948\u0926\u0930\u093e\u092c\u093e\u0926, \u092e\u0948\u0938\u0942\u0930 \u0914\u0930 \u0905\u0935\u0927 \u091c\u0948\u0938\u0947 \u0930\u093e\u091c\u094d\u092f\u094b\u0902 \u0915\u094b \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u0923 \u092e\u0947\u0902 \u0932\u093e\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0915\u093e \u0909\u092a\u092f\u094b\u0917 \u0915\u093f\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0917\u0932\u0924 \u0939\u0948; \u0932\u0949\u0930\u094d\u0921 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 (1813-1823) \u092d\u0940 \u090f\u0915 \u0935\u093f\u0938\u094d\u0924\u093e\u0930\u0935\u093e\u0926\u0940 \u0925\u0947 \u091c\u093f\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0917\u094b\u0930\u0916\u093e\u0913\u0902 \u0914\u0930 \u092e\u0930\u093e\u0920\u094b\u0902 \u0938\u0947 \u0932\u0921\u093c\u093e\u0908 \u0932\u0921\u093c\u0940 \u0925\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u092c\u0947\u092e\u0947\u0932 \u0939\u0948\u0964 \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940 \u0928\u0947 \u0916\u0941\u0926 \u0915\u094b \"\u092c\u0902\u0917\u093e\u0932 \u091f\u093e\u0907\u0917\u0930\" \u092c\u0924\u093e\u092f\u093e \u0914\u0930 \u0915\u0902\u092a\u0928\u0940 \u0915\u094b \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u0938\u0930\u094d\u0935\u094b\u092a\u0930\u093f \u0936\u0915\u094d\u0924\u093f \u092c\u0928\u093e\u0928\u0947 \u0915\u093e \u0932\u0915\u094d\u0937\u094d\u092f \u0930\u0916\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q11.</b> Who introduced the Ryotwari System in India? / \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u0930\u0948\u092f\u0924\u0935\u093e\u0921\u093c\u0940 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924 \u0915\u093f\u0938\u0928\u0947 \u0915\u0940 \u0925\u0940? [Selection Post Phase 13, 01/08/2025, Shift-1]",
+      "options": [
+        "Lord Cornwallis / \u0932\u0949\u0930\u094d\u0921 \u0915\u0949\u0930\u094d\u0928\u0935\u093e\u0932\u093f\u0938",
+        "Thomas Munro / \u0925\u0949\u092e\u0938 \u092e\u0941\u0928\u0930\u094b",
+        "Warren Hastings / \u0935\u0949\u0930\u0947\u0928 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938",
+        "Robert Clive / \u0930\u0949\u092c\u0930\u094d\u091f \u0915\u094d\u0932\u093e\u0907\u0935"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Ryotwari System was introduced by Thomas Munro and Captain Alexander Read. It was first tried in the Baramahal district in 1792 and later expanded to the Madras and Bombay Presidencies. Option (a) Cornwallis introduced the Permanent Settlement (Zamindari). Options (c) and (d) are unrelated to Ryotwari. Under this system, the government collected revenue directly from the cultivators (ryots), bypassing intermediaries, which theoretically protected peasants but often led to high tax demands. / \u0930\u0948\u092f\u0924\u0935\u093e\u0921\u093c\u0940 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924 \u0925\u0949\u092e\u0938 \u092e\u0941\u0928\u0930\u094b \u0914\u0930 \u0915\u0948\u092a\u094d\u091f\u0928 \u0905\u0932\u0947\u0915\u094d\u091c\u0947\u0902\u0921\u0930 \u0930\u0940\u0921 \u0928\u0947 \u0915\u0940 \u0925\u0940\u0964 \u0907\u0938\u0947 \u0938\u092c\u0938\u0947 \u092a\u0939\u0932\u0947 1792 \u092e\u0947\u0902 \u092c\u093e\u0930\u093e\u092e\u0939\u0932 \u091c\u093f\u0932\u0947 \u092e\u0947\u0902 \u0906\u091c\u092e\u093e\u092f\u093e \u0917\u092f\u093e \u0914\u0930 \u092c\u093e\u0926 \u092e\u0947\u0902 \u092e\u0926\u094d\u0930\u093e\u0938 \u0914\u0930 \u092c\u0949\u092e\u094d\u092c\u0947 \u092a\u094d\u0930\u0947\u0938\u0940\u0921\u0947\u0902\u0938\u0940 \u0924\u0915 \u0935\u093f\u0938\u094d\u0924\u093e\u0930\u093f\u0924 \u0915\u093f\u092f\u093e \u0917\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0915\u0949\u0930\u094d\u0928\u0935\u093e\u0932\u093f\u0938 \u0928\u0947 \u0938\u094d\u0925\u093e\u092f\u0940 \u092c\u0902\u0926\u094b\u092c\u0938\u094d\u0924 (\u091c\u093c\u092e\u0940\u0902\u0926\u093e\u0930\u0940) \u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924 \u0915\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0914\u0930 (d) \u0930\u0948\u092f\u0924\u0935\u093e\u0921\u093c\u0940 \u0938\u0947 \u0938\u0902\u092c\u0902\u0927\u093f\u0924 \u0928\u0939\u0940\u0902 \u0939\u0948\u0902\u0964 \u0907\u0938 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0915\u0947 \u0924\u0939\u0924, \u0938\u0930\u0915\u093e\u0930 \u092c\u093f\u091a\u094c\u0932\u093f\u092f\u094b\u0902 \u0915\u094b \u091b\u094b\u0921\u093c\u0915\u0930 \u0938\u0940\u0927\u0947 \u0915\u093e\u0936\u094d\u0924\u0915\u093e\u0930\u094b\u0902 (\u0930\u0948\u092f\u0924\u094b\u0902) \u0938\u0947 \u0930\u093e\u091c\u0938\u094d\u0935 \u090f\u0915\u0924\u094d\u0930 \u0915\u0930\u0924\u0940 \u0925\u0940, \u091c\u093f\u0938\u0928\u0947 \u0938\u0948\u0926\u094d\u0927\u093e\u0902\u0924\u093f\u0915 \u0930\u0942\u092a \u0938\u0947 \u0915\u093f\u0938\u093e\u0928\u094b\u0902 \u0915\u0940 \u0930\u0915\u094d\u0937\u093e \u0915\u0940 \u0932\u0947\u0915\u093f\u0928 \u0905\u0915\u094d\u0938\u0930 \u0909\u091a\u094d\u091a \u0915\u0930 \u092e\u093e\u0902\u0917\u094b\u0902 \u0915\u094b \u091c\u0928\u094d\u092e \u0926\u093f\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q12. Which of the following pairs of revenue system &amp; person who devised it is correct? / \u0930\u093e\u091c\u0938\u094d\u0935 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0914\u0930 \u0907\u0938\u0947 \u0924\u0948\u092f\u093e\u0930 \u0915\u0930\u0928\u0947 \u0935\u093e\u0932\u0947 \u0935\u094d\u092f\u0915\u094d\u0924\u093f \u0915\u093e \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e \u091c\u094b\u0921\u093c\u093e \u0938\u0939\u0940 \u0939\u0948?<br>I. Mahalwari settlement - Holt Mackenzie / I. \u092e\u0939\u0932\u0935\u093e\u0921\u093c\u0940 \u092c\u0902\u0926\u094b\u092c\u0938\u094d\u0924 - \u0939\u094b\u0932\u094d\u091f \u092e\u0948\u0915\u0947\u0902\u091c\u0940<br>II. Ryotwari system - Alexander Read and Thomas Munro / II. \u0930\u0948\u092f\u0924\u0935\u093e\u0921\u093c\u0940 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 - \u0905\u0932\u0947\u0915\u094d\u091c\u0947\u0902\u0921\u0930 \u0930\u0940\u0921 \u0914\u0930 \u0925\u0949\u092e\u0938 \u092e\u0941\u0928\u0930\u094b<br>[SSC CHSL, 15 Nov 2025, Shift-2]\n            </div>\n            <b>Q12.</b> Choose the correct option: / \u0938\u0939\u0940 \u0935\u093f\u0915\u0932\u094d\u092a \u091a\u0941\u0928\u0947\u0902:",
+      "options": [
+        "Only I / \u0915\u0947\u0935\u0932 I",
+        "Only II / \u0915\u0947\u0935\u0932 II",
+        "Both I and II / I \u0914\u0930 II \u0926\u094b\u0928\u094b\u0902",
+        "Neither I nor II / \u0928 \u0924\u094b I \u0914\u0930 \u0928 \u0939\u0940 II"
+      ],
+      "correctIndex": 2,
+      "explanation": "Both pairs are correctly matched. The Mahalwari system, where revenue was settled with the village community (Mahal), was devised by Holt Mackenzie (1822). The Ryotwari system, involving direct settlement with peasants, was developed by Alexander Read and Thomas Munro. Therefore, option (c) is correct. These systems varied by region: Permanent Settlement in Bengal, Ryotwari in the South/West, and Mahalwari in the North-West/Punjab. / \u0926\u094b\u0928\u094b\u0902 \u091c\u094b\u0921\u093c\u0947 \u0938\u0939\u0940 \u0938\u0941\u092e\u0947\u0932\u093f\u0924 \u0939\u0948\u0902\u0964 \u092e\u0939\u0932\u0935\u093e\u0921\u093c\u0940 \u092a\u094d\u0930\u0923\u093e\u0932\u0940, \u091c\u0939\u093e\u0901 \u0930\u093e\u091c\u0938\u094d\u0935 \u0917\u094d\u0930\u093e\u092e \u0938\u092e\u0941\u0926\u093e\u092f (\u092e\u0939\u0932) \u0915\u0947 \u0938\u093e\u0925 \u0924\u092f \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e, \u0939\u094b\u0932\u094d\u091f \u092e\u0948\u0915\u0947\u0902\u091c\u0940 (1822) \u0926\u094d\u0935\u093e\u0930\u093e \u0924\u0948\u092f\u093e\u0930 \u0915\u0940 \u0917\u0908 \u0925\u0940\u0964 \u0930\u0948\u092f\u0924\u0935\u093e\u0921\u093c\u0940 \u092a\u094d\u0930\u0923\u093e\u0932\u0940, \u091c\u093f\u0938\u092e\u0947\u0902 \u0915\u093f\u0938\u093e\u0928\u094b\u0902 \u0915\u0947 \u0938\u093e\u0925 \u0938\u0940\u0927\u0947 \u092c\u0902\u0926\u094b\u092c\u0938\u094d\u0924 \u0936\u093e\u092e\u093f\u0932 \u0925\u093e, \u0905\u0932\u0947\u0915\u094d\u091c\u0947\u0902\u0921\u0930 \u0930\u0940\u0921 \u0914\u0930 \u0925\u0949\u092e\u0938 \u092e\u0941\u0928\u0930\u094b \u0926\u094d\u0935\u093e\u0930\u093e \u0935\u093f\u0915\u0938\u093f\u0924 \u0915\u0940 \u0917\u0908 \u0925\u0940\u0964 \u0907\u0938\u0932\u093f\u090f, \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0938\u0939\u0940 \u0939\u0948\u0964 \u092f\u0947 \u092a\u094d\u0930\u0923\u093e\u0932\u093f\u092f\u093e\u0901 \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u0915\u0947 \u0905\u0928\u0941\u0938\u093e\u0930 \u092d\u093f\u0928\u094d\u0928 \u0925\u0940\u0902: \u092c\u0902\u0917\u093e\u0932 \u092e\u0947\u0902 \u0938\u094d\u0925\u093e\u092f\u0940 \u092c\u0902\u0926\u094b\u092c\u0938\u094d\u0924, \u0926\u0915\u094d\u0937\u093f\u0923/\u092a\u0936\u094d\u091a\u093f\u092e \u092e\u0947\u0902 \u0930\u0948\u092f\u0924\u0935\u093e\u0921\u093c\u0940, \u0914\u0930 \u0909\u0924\u094d\u0924\u0930-\u092a\u0936\u094d\u091a\u093f\u092e/\u092a\u0902\u091c\u093e\u092c \u092e\u0947\u0902 \u092e\u0939\u0932\u0935\u093e\u0921\u093c\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q13.</b> In which of the following years the East India Company introduced the Permanent Settlement? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0928\u0947 \u0938\u094d\u0925\u093e\u092f\u0940 \u092c\u0902\u0926\u094b\u092c\u0938\u094d\u0924 (Permanent Settlement) \u0932\u093e\u0917\u0942 \u0915\u093f\u092f\u093e \u0925\u093e? [SSC CHSL, 15 Nov 2025, Shift-3]",
+      "options": [
+        "1765 / 1765",
+        "1775 / 1775",
+        "1793 / 1793",
+        "1801 / 1801"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Permanent Settlement was introduced in 1793 by Lord Cornwallis. It declared the Zamindars as the hereditary owners of the land, provided they paid a fixed revenue to the Company in perpetuity. Option (a) refers to the grant of Diwani. Option (c) is the correct date. This system created a loyal class of landlords but often led to the exploitation of the peasantry and the \"Sunset Law,\" where Zamindars lost their land if payment wasn't made by sunset on the due date. / \u0938\u094d\u0925\u093e\u092f\u0940 \u092c\u0902\u0926\u094b\u092c\u0938\u094d\u0924 \u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924 1793 \u092e\u0947\u0902 \u0932\u0949\u0930\u094d\u0921 \u0915\u0949\u0930\u094d\u0928\u0935\u093e\u0932\u093f\u0938 \u0928\u0947 \u0915\u0940 \u0925\u0940\u0964 \u0907\u0938\u0928\u0947 \u091c\u093c\u092e\u0940\u0902\u0926\u093e\u0930\u094b\u0902 \u0915\u094b \u092d\u0942\u092e\u093f \u0915\u093e \u0935\u0902\u0936\u093e\u0928\u0941\u0917\u0924 \u092e\u093e\u0932\u093f\u0915 \u0918\u094b\u0937\u093f\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e, \u092c\u0936\u0930\u094d\u0924\u0947 \u0935\u0947 \u0915\u0902\u092a\u0928\u0940 \u0915\u094b \u0938\u094d\u0925\u093e\u092f\u0940 \u0930\u0942\u092a \u0938\u0947 \u090f\u0915 \u0928\u093f\u0936\u094d\u091a\u093f\u0924 \u0930\u093e\u091c\u0938\u094d\u0935 \u0915\u093e \u092d\u0941\u0917\u0924\u093e\u0928 \u0915\u0930\u0947\u0902\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0926\u0940\u0935\u093e\u0928\u0940 \u0915\u0947 \u0905\u0928\u0941\u0926\u093e\u0928 \u0915\u094b \u0938\u0902\u0926\u0930\u094d\u092d\u093f\u0924 \u0915\u0930\u0924\u093e \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0938\u0939\u0940 \u0924\u093f\u0925\u093f \u0939\u0948\u0964 \u0907\u0938 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0928\u0947 \u091c\u092e\u0940\u0902\u0926\u093e\u0930\u094b\u0902 \u0915\u093e \u090f\u0915 \u0935\u092b\u093e\u0926\u093e\u0930 \u0935\u0930\u094d\u0917 \u092c\u0928\u093e\u092f\u093e \u0932\u0947\u0915\u093f\u0928 \u0905\u0915\u094d\u0938\u0930 \u0915\u093f\u0938\u093e\u0928\u094b\u0902 \u0915\u0947 \u0936\u094b\u0937\u0923 \u0914\u0930 \"\u0938\u0942\u0930\u094d\u092f\u093e\u0938\u094d\u0924 \u0915\u093e\u0928\u0942\u0928\" \u0915\u094b \u091c\u0928\u094d\u092e \u0926\u093f\u092f\u093e, \u091c\u0939\u093e\u0901 \u092d\u0941\u0917\u0924\u093e\u0928 \u0928\u093f\u092f\u0924 \u0924\u093f\u0925\u093f \u092a\u0930 \u0938\u0942\u0930\u094d\u092f\u093e\u0938\u094d\u0924 \u0924\u0915 \u0928\u0939\u0940\u0902 \u0939\u094b\u0928\u0947 \u092a\u0930 \u091c\u093c\u092e\u0940\u0902\u0926\u093e\u0930 \u0905\u092a\u0928\u0940 \u092d\u0942\u092e\u093f \u0916\u094b \u0926\u0947\u0924\u0947 \u0925\u0947\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q14.</b> The introduction of the Permanent Settlement in Bengal by Lord Cornwallis in 1793 primarily aimed to: / 1793 \u092e\u0947\u0902 \u0932\u0949\u0930\u094d\u0921 \u0915\u0949\u0930\u094d\u0928\u0935\u093e\u0932\u093f\u0938 \u0926\u094d\u0935\u093e\u0930\u093e \u092c\u0902\u0917\u093e\u0932 \u092e\u0947\u0902 \u0938\u094d\u0925\u093e\u092f\u0940 \u092c\u0902\u0926\u094b\u092c\u0938\u094d\u0924 \u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924 \u0915\u093e \u092a\u094d\u0930\u093e\u0925\u092e\u093f\u0915 \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0915\u094d\u092f\u093e \u0925\u093e? [SSC CGL Tier 1, 25 Sep 2025, Shift-3]",
+      "options": [
+        "Ensure welfare of peasants / \u0915\u093f\u0938\u093e\u0928\u094b\u0902 \u0915\u093e \u0915\u0932\u094d\u092f\u093e\u0923 \u0938\u0941\u0928\u093f\u0936\u094d\u091a\u093f\u0924 \u0915\u0930\u0928\u093e",
+        "Create loyal zamindars for revenue / \u0930\u093e\u091c\u0938\u094d\u0935 \u0915\u0947 \u0932\u093f\u090f \u0935\u092b\u093e\u0926\u093e\u0930 \u091c\u093c\u092e\u0940\u0902\u0926\u093e\u0930 \u092c\u0928\u093e\u0928\u093e",
+        "Promote cash crops / \u0928\u0915\u0926\u0940 \u092b\u0938\u0932\u094b\u0902 \u0915\u094b \u092c\u0922\u093c\u093e\u0935\u093e \u0926\u0947\u0928\u093e",
+        "Abolish zamindari system / \u091c\u093c\u092e\u0940\u0902\u0926\u093e\u0930\u0940 \u092a\u094d\u0930\u0925\u093e \u0915\u094b \u0938\u092e\u093e\u092a\u094d\u0924 \u0915\u0930\u0928\u093e"
+      ],
+      "correctIndex": 1,
+      "explanation": "The primary aim of the Permanent Settlement was to ensure a fixed and stable revenue for the Company and to create a class of loyal Zamindars who would support British rule. Option (a) is incorrect as peasant welfare was largely ignored; they became tenants at will. Option (d) is wrong as it entrenched the Zamindari system. While it did encourage some agricultural extension, the motive was political stability and financial security for the colonial state. / \u0938\u094d\u0925\u093e\u092f\u0940 \u092c\u0902\u0926\u094b\u092c\u0938\u094d\u0924 \u0915\u093e \u092a\u094d\u0930\u093e\u0925\u092e\u093f\u0915 \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0915\u0902\u092a\u0928\u0940 \u0915\u0947 \u0932\u093f\u090f \u090f\u0915 \u0928\u093f\u0936\u094d\u091a\u093f\u0924 \u0914\u0930 \u0938\u094d\u0925\u093f\u0930 \u0930\u093e\u091c\u0938\u094d\u0935 \u0938\u0941\u0928\u093f\u0936\u094d\u091a\u093f\u0924 \u0915\u0930\u0928\u093e \u0914\u0930 \u0935\u092b\u093e\u0926\u093e\u0930 \u091c\u093c\u092e\u0940\u0902\u0926\u093e\u0930\u094b\u0902 \u0915\u093e \u090f\u0915 \u0935\u0930\u094d\u0917 \u092c\u0928\u093e\u0928\u093e \u0925\u093e \u091c\u094b \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0936\u093e\u0938\u0928 \u0915\u093e \u0938\u092e\u0930\u094d\u0925\u0928 \u0915\u0930\u0947\u0902\u0917\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0915\u093f\u0938\u093e\u0928\u094b\u0902 \u0915\u0947 \u0915\u0932\u094d\u092f\u093e\u0923 \u0915\u0940 \u0915\u093e\u092b\u0940 \u0939\u0926 \u0924\u0915 \u0905\u0928\u0926\u0947\u0916\u0940 \u0915\u0940 \u0917\u0908 \u0925\u0940; \u0935\u0947 \u0905\u092a\u0928\u0940 \u092e\u0930\u094d\u091c\u0940 \u0915\u0947 \u0915\u093f\u0930\u093e\u092f\u0947\u0926\u093e\u0930 \u092c\u0928 \u0917\u090f\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0907\u0938\u0928\u0947 \u091c\u093c\u092e\u0940\u0902\u0926\u093e\u0930\u0940 \u092a\u094d\u0930\u0925\u093e \u0915\u094b \u092e\u091c\u092c\u0942\u0924 \u0915\u093f\u092f\u093e\u0964 \u0939\u093e\u0932\u093e\u0902\u0915\u093f \u0907\u0938\u0928\u0947 \u0915\u0941\u091b \u0915\u0943\u0937\u093f \u0935\u093f\u0938\u094d\u0924\u093e\u0930 \u0915\u094b \u092a\u094d\u0930\u094b\u0924\u094d\u0938\u093e\u0939\u093f\u0924 \u0915\u093f\u092f\u093e, \u0932\u0947\u0915\u093f\u0928 \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0914\u092a\u0928\u093f\u0935\u0947\u0936\u093f\u0915 \u0930\u093e\u091c\u094d\u092f \u0915\u0947 \u0932\u093f\u090f \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u0938\u094d\u0925\u093f\u0930\u0924\u093e \u0914\u0930 \u0935\u093f\u0924\u094d\u0924\u0940\u092f \u0938\u0941\u0930\u0915\u094d\u0937\u093e \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q15. Assertion: British capital accumulation in the 18th century was reinvested in industrial development. / \u0905\u092d\u093f\u0915\u0925\u0928: 18\u0935\u0940\u0902 \u0936\u0924\u093e\u092c\u094d\u0926\u0940 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u092a\u0942\u0902\u091c\u0940 \u0938\u0902\u091a\u092f \u0915\u094b \u0914\u0926\u094d\u092f\u094b\u0917\u093f\u0915 \u0935\u093f\u0915\u093e\u0938 \u092e\u0947\u0902 \u092a\u0941\u0928\u0930\u094d\u0928\u093f\u0935\u0947\u0936 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964<br>Reason: The capital was largely controlled by merchants and industrialists instead of the feudal aristocracy. / \u0915\u093e\u0930\u0923: \u092a\u0942\u0902\u091c\u0940 \u0915\u093e\u092b\u0940 \u0939\u0926 \u0924\u0915 \u0938\u093e\u092e\u0902\u0924\u0940 \u0905\u092d\u093f\u091c\u093e\u0924 \u0935\u0930\u094d\u0917 \u0915\u0947 \u092c\u091c\u093e\u092f \u0935\u094d\u092f\u093e\u092a\u093e\u0930\u093f\u092f\u094b\u0902 \u0914\u0930 \u0909\u0926\u094d\u092f\u094b\u0917\u092a\u0924\u093f\u092f\u094b\u0902 \u0926\u094d\u0935\u093e\u0930\u093e \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u093f\u0924 \u0925\u0940\u0964<br>[SSC Steno, 07/08/2025, Shift-2]\n            </div>\n            <b>Q15.</b> Choose the correct option: / \u0938\u0939\u0940 \u0935\u093f\u0915\u0932\u094d\u092a \u091a\u0941\u0928\u0947\u0902:",
+      "options": [
+        "A is true, but R is false. / A \u0938\u0924\u094d\u092f \u0939\u0948, \u0932\u0947\u0915\u093f\u0928 R \u0917\u0932\u0924 \u0939\u0948\u0964",
+        "Both A and R are true, and R is not the correct explanation of A. / A \u0914\u0930 R \u0926\u094b\u0928\u094b\u0902 \u0938\u0924\u094d\u092f \u0939\u0948\u0902, \u0914\u0930 R, A \u0915\u0940 \u0938\u0939\u0940 \u0935\u094d\u092f\u093e\u0916\u094d\u092f\u093e \u0928\u0939\u0940\u0902 \u0939\u0948\u0964",
+        "Both A and R are true, and R is the correct explanation of A. / A \u0914\u0930 R \u0926\u094b\u0928\u094b\u0902 \u0938\u0924\u094d\u092f \u0939\u0948\u0902, \u0914\u0930 R, A \u0915\u0940 \u0938\u0939\u0940 \u0935\u094d\u092f\u093e\u0916\u094d\u092f\u093e \u0939\u0948\u0964",
+        "A is false, but R is true. / A \u0917\u0932\u0924 \u0939\u0948, \u0932\u0947\u0915\u093f\u0928 R \u0938\u0924\u094d\u092f \u0939\u0948\u0964"
+      ],
+      "correctIndex": 2,
+      "explanation": "Both statements are true and related. The immense wealth drained from India (Battle of Plassey onwards) contributed to capital accumulation in Britain (Assertion). Unlike feudal lords who spent on luxury and land, the rising merchant and industrial class controlled this capital and reinvested it into new technologies and factories (Reason), directly fueling the Industrial Revolution. Therefore, the nature of the class controlling the capital explains why it led to industrial development rather than stagnation. / \u0926\u094b\u0928\u094b\u0902 \u0915\u0925\u0928 \u0938\u0924\u094d\u092f \u0914\u0930 \u0938\u0902\u092c\u0902\u0927\u093f\u0924 \u0939\u0948\u0902\u0964 \u092d\u093e\u0930\u0924 \u0938\u0947 \u0928\u093f\u0915\u093e\u0932\u0947 \u0917\u090f \u0905\u092a\u093e\u0930 \u0927\u0928 (\u092a\u094d\u0932\u093e\u0938\u0940 \u0915\u0947 \u092f\u0941\u0926\u094d\u0927 \u0915\u0947 \u092c\u093e\u0926 \u0938\u0947) \u0928\u0947 \u092c\u094d\u0930\u093f\u091f\u0947\u0928 \u092e\u0947\u0902 \u092a\u0942\u0902\u091c\u0940 \u0938\u0902\u091a\u092f \u092e\u0947\u0902 \u092f\u094b\u0917\u0926\u093e\u0928 \u0926\u093f\u092f\u093e (\u0905\u092d\u093f\u0915\u0925\u0928)\u0964 \u0938\u093e\u092e\u0902\u0924\u0940 \u092a\u094d\u0930\u092d\u0941\u0913\u0902 \u0915\u0947 \u0935\u093f\u092a\u0930\u0940\u0924, \u091c\u094b \u0935\u093f\u0932\u093e\u0938\u093f\u0924\u093e \u0914\u0930 \u092d\u0942\u092e\u093f \u092a\u0930 \u0916\u0930\u094d\u091a \u0915\u0930\u0924\u0947 \u0925\u0947, \u0909\u092d\u0930\u0924\u0947 \u0939\u0941\u090f \u0935\u094d\u092f\u093e\u092a\u093e\u0930\u0940 \u0914\u0930 \u0914\u0926\u094d\u092f\u094b\u0917\u093f\u0915 \u0935\u0930\u094d\u0917 \u0928\u0947 \u0907\u0938 \u092a\u0942\u0902\u091c\u0940 \u0915\u094b \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u093f\u0924 \u0915\u093f\u092f\u093e \u0914\u0930 \u0907\u0938\u0947 \u0928\u0908 \u0924\u0915\u0928\u0940\u0915\u094b\u0902 \u0914\u0930 \u0915\u093e\u0930\u0916\u093e\u0928\u094b\u0902 \u092e\u0947\u0902 \u092a\u0941\u0928\u0930\u094d\u0928\u093f\u0935\u0947\u0936 \u0915\u093f\u092f\u093e (\u0915\u093e\u0930\u0923), \u091c\u093f\u0938\u0938\u0947 \u0938\u0940\u0927\u0947 \u0924\u094c\u0930 \u092a\u0930 \u0914\u0926\u094d\u092f\u094b\u0917\u093f\u0915 \u0915\u094d\u0930\u093e\u0902\u0924\u093f \u0915\u094b \u092c\u0922\u093c\u093e\u0935\u093e \u092e\u093f\u0932\u093e\u0964 \u0907\u0938\u0932\u093f\u090f, \u092a\u0942\u0902\u091c\u0940 \u0915\u094b \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u093f\u0924 \u0915\u0930\u0928\u0947 \u0935\u093e\u0932\u0947 \u0935\u0930\u094d\u0917 \u0915\u0940 \u092a\u094d\u0930\u0915\u0943\u0924\u093f \u092f\u0939 \u092c\u0924\u093e\u0924\u0940 \u0939\u0948 \u0915\u093f \u0915\u094d\u092f\u094b\u0902 \u0907\u0938\u0938\u0947 \u0938\u094d\u0925\u093f\u0930\u0924\u093e \u0915\u0947 \u092c\u091c\u093e\u092f \u0914\u0926\u094d\u092f\u094b\u0917\u093f\u0915 \u0935\u093f\u0915\u093e\u0938 \u0939\u0941\u0906\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q16.</b> During British rule in India, caste data was regularly collected in decennial censuses from 1881 to ______. / \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0936\u093e\u0938\u0928 \u0915\u0947 \u0926\u094c\u0930\u093e\u0928, 1881 \u0938\u0947 ______ \u0924\u0915 \u0926\u0936\u0915\u0940\u092f \u091c\u0928\u0917\u0923\u0928\u093e \u092e\u0947\u0902 \u0928\u093f\u092f\u092e\u093f\u0924 \u0930\u0942\u092a \u0938\u0947 \u091c\u093e\u0924\u093f \u0915\u0947 \u0906\u0902\u0915\u0921\u093c\u0947 \u090f\u0915\u0924\u094d\u0930 \u0915\u093f\u090f \u0917\u090f \u0925\u0947\u0964 [SSC CHSL, 21 Nov 2025, Shift-3]",
+      "options": [
+        "1921 / 1921",
+        "1911 / 1911",
+        "1931 / 1931",
+        "1901 / 1901"
+      ],
+      "correctIndex": 2,
+      "explanation": "Caste data was collected in every decennial census from 1881 up to 1931. The 1941 census collected the data but did not publish it due to WWII administrative constraints. After independence, the Indian government stopped enumerating caste (except for SC/ST) to prevent social fragmentation. Option (c) is the correct answer. The 1931 census, conducted by J.H. Hutton, is still used as a primary reference for caste demographics in historical and legal contexts. / 1881 \u0938\u0947 1931 \u0924\u0915 \u092a\u094d\u0930\u0924\u094d\u092f\u0947\u0915 \u0926\u0936\u0915\u0940\u092f \u091c\u0928\u0917\u0923\u0928\u093e \u092e\u0947\u0902 \u091c\u093e\u0924\u093f \u0915\u0947 \u0906\u0902\u0915\u0921\u093c\u0947 \u090f\u0915\u0924\u094d\u0930 \u0915\u093f\u090f \u0917\u090f \u0925\u0947\u0964 1941 \u0915\u0940 \u091c\u0928\u0917\u0923\u0928\u093e \u0928\u0947 \u0906\u0902\u0915\u0921\u093c\u0947 \u090f\u0915\u0924\u094d\u0930 \u0915\u093f\u090f \u0932\u0947\u0915\u093f\u0928 \u0926\u094d\u0935\u093f\u0924\u0940\u092f \u0935\u093f\u0936\u094d\u0935 \u092f\u0941\u0926\u094d\u0927 \u0915\u0940 \u092a\u094d\u0930\u0936\u093e\u0938\u0928\u093f\u0915 \u092c\u093e\u0927\u093e\u0913\u0902 \u0915\u0947 \u0915\u093e\u0930\u0923 \u0909\u0928\u094d\u0939\u0947\u0902 \u092a\u094d\u0930\u0915\u093e\u0936\u093f\u0924 \u0928\u0939\u0940\u0902 \u0915\u093f\u092f\u093e\u0964 \u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930\u0924\u093e \u0915\u0947 \u092c\u093e\u0926, \u092d\u093e\u0930\u0924\u0940\u092f \u0938\u0930\u0915\u093e\u0930 \u0928\u0947 \u0938\u093e\u092e\u093e\u091c\u093f\u0915 \u0935\u093f\u0916\u0902\u0921\u0928 \u0915\u094b \u0930\u094b\u0915\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u091c\u093e\u0924\u093f \u0915\u0940 \u0917\u0923\u0928\u093e (\u090f\u0938\u0938\u0940/\u090f\u0938\u091f\u0940 \u0915\u094b \u091b\u094b\u0921\u093c\u0915\u0930) \u092c\u0902\u0926 \u0915\u0930 \u0926\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0938\u0939\u0940 \u0909\u0924\u094d\u0924\u0930 \u0939\u0948\u0964 \u091c\u0947.\u090f\u091a. \u0939\u091f\u0928 \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u0902\u091a\u093e\u0932\u093f\u0924 1931 \u0915\u0940 \u091c\u0928\u0917\u0923\u0928\u093e \u0906\u091c \u092d\u0940 \u0910\u0924\u093f\u0939\u093e\u0938\u093f\u0915 \u0914\u0930 \u0915\u093e\u0928\u0942\u0928\u0940 \u0938\u0902\u0926\u0930\u094d\u092d\u094b\u0902 \u092e\u0947\u0902 \u091c\u093e\u0924\u093f \u091c\u0928\u0938\u093e\u0902\u0916\u094d\u092f\u093f\u0915\u0940 \u0915\u0947 \u0932\u093f\u090f \u090f\u0915 \u092a\u094d\u0930\u093e\u0925\u092e\u093f\u0915 \u0938\u0902\u0926\u0930\u094d\u092d \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0909\u092a\u092f\u094b\u0917 \u0915\u0940 \u091c\u093e\u0924\u0940 \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q17. Which of the following statements is correct with reference to the Act passed by the British Parliament in 1858? / 1858 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0902\u0938\u0926 \u0926\u094d\u0935\u093e\u0930\u093e \u092a\u093e\u0930\u093f\u0924 \u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0915\u0947 \u0938\u0902\u0926\u0930\u094d\u092d \u092e\u0947\u0902 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e \u0915\u0925\u0928 \u0938\u0939\u0940 \u0939\u0948?<br>I. The Governor-General of India was given the title of Viceroy. / I. \u092d\u093e\u0930\u0924 \u0915\u0947 \u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 \u0915\u094b \u0935\u093e\u092f\u0938\u0930\u093e\u092f \u0915\u0940 \u0909\u092a\u093e\u0927\u093f \u0926\u0940 \u0917\u0908 \u0925\u0940\u0964<br>II. The British decided to respect the customary religious and social practices of the people in India. / II. \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0928\u0947 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u0932\u094b\u0917\u094b\u0902 \u0915\u0940 \u092a\u093e\u0930\u0902\u092a\u0930\u093f\u0915 \u0927\u093e\u0930\u094d\u092e\u093f\u0915 \u0914\u0930 \u0938\u093e\u092e\u093e\u091c\u093f\u0915 \u092a\u094d\u0930\u0925\u093e\u0913\u0902 \u0915\u093e \u0938\u092e\u094d\u092e\u093e\u0928 \u0915\u0930\u0928\u0947 \u0915\u093e \u0928\u093f\u0930\u094d\u0923\u092f \u0932\u093f\u092f\u093e\u0964<br>[SSC CHSL, 24 Nov 2025, Shift-3]\n            </div>\n            <b>Q17.</b> Choose the correct option: / \u0938\u0939\u0940 \u0935\u093f\u0915\u0932\u094d\u092a \u091a\u0941\u0928\u0947\u0902:",
+      "options": [
+        "Only I / \u0915\u0947\u0935\u0932 I",
+        "Only II / \u0915\u0947\u0935\u0932 II",
+        "Both I and II / I \u0914\u0930 II \u0926\u094b\u0928\u094b\u0902",
+        "Neither I nor II / \u0928 \u0924\u094b I \u0914\u0930 \u0928 \u0939\u0940 II"
+      ],
+      "correctIndex": 2,
+      "explanation": "Both statements are correct. The Government of India Act 1858 transferred power from the Company to the Crown. Lord Canning became the first Viceroy (Statement I). Following the trauma of the 1857 Revolt, Queen Victoria's Proclamation explicitly promised non-interference in Indian religious beliefs and customs to prevent future uprisings (Statement II). This marked a shift from the earlier reformist interventionism to a more conservative policy of appeasement. / \u0926\u094b\u0928\u094b\u0902 \u0915\u0925\u0928 \u0938\u0939\u0940 \u0939\u0948\u0902\u0964 \u092d\u093e\u0930\u0924 \u0938\u0930\u0915\u093e\u0930 \u0905\u0927\u093f\u0928\u093f\u092f\u092e 1858 \u0928\u0947 \u0915\u0902\u092a\u0928\u0940 \u0938\u0947 \u0915\u094d\u0930\u093e\u0909\u0928 \u0915\u094b \u0938\u0924\u094d\u0924\u093e \u0939\u0938\u094d\u0924\u093e\u0902\u0924\u0930\u093f\u0924 \u0915\u0940\u0964 \u0932\u0949\u0930\u094d\u0921 \u0915\u0948\u0928\u093f\u0902\u0917 \u092a\u0939\u0932\u0947 \u0935\u093e\u092f\u0938\u0930\u093e\u092f \u092c\u0928\u0947 (\u0915\u0925\u0928 I)\u0964 1857 \u0915\u0947 \u0935\u093f\u0926\u094d\u0930\u094b\u0939 \u0915\u0947 \u0906\u0918\u093e\u0924 \u0915\u0947 \u092c\u093e\u0926, \u092e\u0939\u093e\u0930\u093e\u0928\u0940 \u0935\u093f\u0915\u094d\u091f\u094b\u0930\u093f\u092f\u093e \u0915\u0940 \u0909\u0926\u094d\u0918\u094b\u0937\u0923\u093e \u0928\u0947 \u092d\u0935\u093f\u0937\u094d\u092f \u0915\u0947 \u0935\u093f\u0926\u094d\u0930\u094b\u0939\u094b\u0902 \u0915\u094b \u0930\u094b\u0915\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092d\u093e\u0930\u0924\u0940\u092f \u0927\u093e\u0930\u094d\u092e\u093f\u0915 \u092e\u093e\u0928\u094d\u092f\u0924\u093e\u0913\u0902 \u0914\u0930 \u0930\u0940\u0924\u093f-\u0930\u093f\u0935\u093e\u091c\u094b\u0902 \u092e\u0947\u0902 \u0917\u0948\u0930-\u0939\u0938\u094d\u0924\u0915\u094d\u0937\u0947\u092a \u0915\u093e \u0938\u094d\u092a\u0937\u094d\u091f \u0930\u0942\u092a \u0938\u0947 \u0935\u093e\u0926\u093e \u0915\u093f\u092f\u093e (\u0915\u0925\u0928 II)\u0964 \u0907\u0938\u0928\u0947 \u092a\u0939\u0932\u0947 \u0915\u0947 \u0938\u0941\u0927\u093e\u0930\u0935\u093e\u0926\u0940 \u0939\u0938\u094d\u0924\u0915\u094d\u0937\u0947\u092a\u0935\u093e\u0926 \u0938\u0947 \u0924\u0941\u0937\u094d\u091f\u0940\u0915\u0930\u0923 \u0915\u0940 \u0905\u0927\u093f\u0915 \u0930\u0942\u0922\u093c\u093f\u0935\u093e\u0926\u0940 \u0928\u0940\u0924\u093f \u0915\u0940 \u0913\u0930 \u092c\u0926\u0932\u093e\u0935 \u0915\u094b \u091a\u093f\u0939\u094d\u0928\u093f\u0924 \u0915\u093f\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q18.</b> What was the role of the India Council established by the Government of India Act, 1858? / \u092d\u093e\u0930\u0924 \u0938\u0930\u0915\u093e\u0930 \u0905\u0927\u093f\u0928\u093f\u092f\u092e, 1858 \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u093e\u0909\u0902\u0938\u093f\u0932 \u0915\u0940 \u0915\u094d\u092f\u093e \u092d\u0942\u092e\u093f\u0915\u093e \u0925\u0940? [SSC CGL Tier 1, 24 Sep 2025, Shift-2]",
+      "options": [
+        "To control trade with India / \u092d\u093e\u0930\u0924 \u0915\u0947 \u0938\u093e\u0925 \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u0915\u094b \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u093f\u0924 \u0915\u0930\u0928\u093e",
+        "To advise the Secretary of State / \u0930\u093e\u091c\u094d\u092f \u0938\u091a\u093f\u0935 \u0915\u094b \u0938\u0932\u093e\u0939 \u0926\u0947\u0928\u093e",
+        "To represent Indian opinion in Britain / \u092c\u094d\u0930\u093f\u091f\u0947\u0928 \u092e\u0947\u0902 \u092d\u093e\u0930\u0924\u0940\u092f \u091c\u0928\u092e\u0924 \u0915\u093e \u092a\u094d\u0930\u0924\u093f\u0928\u093f\u0927\u093f\u0924\u094d\u0935 \u0915\u0930\u0928\u093e",
+        "To review court judgments / \u0905\u0926\u093e\u0932\u0924\u0940 \u092b\u0948\u0938\u0932\u094b\u0902 \u0915\u0940 \u0938\u092e\u0940\u0915\u094d\u0937\u093e \u0915\u0930\u0928\u093e"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Government of India Act, 1858, established a 15-member Council of India to advise the Secretary of State for India. The Secretary of State was a British cabinet minister responsible for Indian affairs. This Council was composed of experienced administrators (mostly retired British officials). Option (c) is incorrect as it did not represent Indian opinion. The Council acted as a check on the Secretary of State, though its role was primarily advisory and was later reduced. / \u092d\u093e\u0930\u0924 \u0938\u0930\u0915\u093e\u0930 \u0905\u0927\u093f\u0928\u093f\u092f\u092e, 1858 \u0928\u0947 \u092d\u093e\u0930\u0924 \u0915\u0947 \u0930\u093e\u091c\u094d\u092f \u0938\u091a\u093f\u0935 \u0915\u094b \u0938\u0932\u093e\u0939 \u0926\u0947\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f 15 \u0938\u0926\u0938\u094d\u092f\u0940\u092f \u092d\u093e\u0930\u0924 \u092a\u0930\u093f\u0937\u0926 (\u0915\u093e\u0909\u0902\u0938\u093f\u0932 \u0911\u092b \u0907\u0902\u0921\u093f\u092f\u093e) \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u0915\u0940\u0964 \u0930\u093e\u091c\u094d\u092f \u0938\u091a\u093f\u0935 \u092d\u093e\u0930\u0924\u0940\u092f \u092e\u093e\u092e\u0932\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u091c\u093f\u092e\u094d\u092e\u0947\u0926\u093e\u0930 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0915\u0948\u092c\u093f\u0928\u0947\u091f \u092e\u0902\u0924\u094d\u0930\u0940 \u0925\u0947\u0964 \u092f\u0939 \u092a\u0930\u093f\u0937\u0926 \u0905\u0928\u0941\u092d\u0935\u0940 \u092a\u094d\u0930\u0936\u093e\u0938\u0915\u094b\u0902 (\u091c\u094d\u092f\u093e\u0926\u093e\u0924\u0930 \u0938\u0947\u0935\u093e\u0928\u093f\u0935\u0943\u0924\u094d\u0924 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0905\u0927\u093f\u0915\u093e\u0930\u0940) \u0938\u0947 \u092c\u0928\u0940 \u0925\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0907\u0938\u0928\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u0930\u093e\u092f \u0915\u093e \u092a\u094d\u0930\u0924\u093f\u0928\u093f\u0927\u093f\u0924\u094d\u0935 \u0928\u0939\u0940\u0902 \u0915\u093f\u092f\u093e\u0964 \u092a\u0930\u093f\u0937\u0926 \u0928\u0947 \u0930\u093e\u091c\u094d\u092f \u0938\u091a\u093f\u0935 \u092a\u0930 \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u0923 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0915\u093e\u0930\u094d\u092f \u0915\u093f\u092f\u093e, \u0939\u093e\u0932\u093e\u0902\u0915\u093f \u0907\u0938\u0915\u0940 \u092d\u0942\u092e\u093f\u0915\u093e \u092e\u0941\u0916\u094d\u092f \u0930\u0942\u092a \u0938\u0947 \u0938\u0932\u093e\u0939\u0915\u093e\u0930 \u0925\u0940 \u0914\u0930 \u092c\u093e\u0926 \u092e\u0947\u0902 \u0907\u0938\u0947 \u0915\u092e \u0915\u0930 \u0926\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q19.</b> Which administrative bodies were abolished after the enactment of the Government of India Act, 1858? / \u092d\u093e\u0930\u0924 \u0938\u0930\u0915\u093e\u0930 \u0905\u0927\u093f\u0928\u093f\u092f\u092e, 1858 \u0915\u0947 \u0932\u093e\u0917\u0942 \u0939\u094b\u0928\u0947 \u0915\u0947 \u092c\u093e\u0926 \u0915\u093f\u0928 \u092a\u094d\u0930\u0936\u093e\u0938\u0928\u093f\u0915 \u0928\u093f\u0915\u093e\u092f\u094b\u0902 \u0915\u094b \u0938\u092e\u093e\u092a\u094d\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e? [SSC CGL Tier 1, 22 Sep 2025, Shift-2]",
+      "options": [
+        "Home Department and Military Board / \u0917\u0943\u0939 \u0935\u093f\u092d\u093e\u0917 \u0914\u0930 \u0938\u0948\u0928\u094d\u092f \u092c\u094b\u0930\u094d\u0921",
+        "Parliament and Crown&#x27;s Council / \u0938\u0902\u0938\u0926 \u0914\u0930 \u0915\u094d\u0930\u093e\u0909\u0928 \u0915\u0940 \u092a\u0930\u093f\u0937\u0926",
+        "Board of Control &amp; Court of Directors / \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 \u0914\u0930 \u0915\u094b\u0930\u094d\u091f \u0911\u092b \u0921\u093e\u092f\u0930\u0947\u0915\u094d\u091f\u0930\u094d\u0938",
+        "Gov General&#x27;s Council &amp; Privy Council / \u0917\u0935\u0930\u094d\u0928\u0930 \u091c\u0928\u0930\u0932 \u0915\u0940 \u092a\u0930\u093f\u0937\u0926 \u0914\u0930 \u092a\u094d\u0930\u093f\u0935\u0940 \u0915\u093e\u0909\u0902\u0938\u093f\u0932"
+      ],
+      "correctIndex": 2,
+      "explanation": "The Act of 1858 abolished the Board of Control and the Court of Directors, thereby ending the system of \"Dual Government\" introduced by Pitt's India Act. Their powers were transferred to the new Secretary of State for India. Option (a), (b), and (d) are incorrect. This simplified the chain of command, placing India directly under the sovereignty of the British Crown and Parliament. / 1858 \u0915\u0947 \u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0928\u0947 \u092c\u094b\u0930\u094d\u0921 \u0911\u092b \u0915\u0902\u091f\u094d\u0930\u094b\u0932 \u0914\u0930 \u0915\u094b\u0930\u094d\u091f \u0911\u092b \u0921\u093e\u092f\u0930\u0947\u0915\u094d\u091f\u0930\u094d\u0938 \u0915\u094b \u0938\u092e\u093e\u092a\u094d\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e, \u091c\u093f\u0938\u0938\u0947 \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f \u0926\u094d\u0935\u093e\u0930\u093e \u0936\u0941\u0930\u0942 \u0915\u0940 \u0917\u0908 \"\u0926\u094b\u0939\u0930\u0940 \u0938\u0930\u0915\u093e\u0930\" \u0915\u0940 \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0938\u092e\u093e\u092a\u094d\u0924 \u0939\u094b \u0917\u0908\u0964 \u0909\u0928\u0915\u0940 \u0936\u0915\u094d\u0924\u093f\u092f\u093e\u0901 \u092d\u093e\u0930\u0924 \u0915\u0947 \u0928\u090f \u0930\u093e\u091c\u094d\u092f \u0938\u091a\u093f\u0935 \u0915\u094b \u0939\u0938\u094d\u0924\u093e\u0902\u0924\u0930\u093f\u0924 \u0915\u0930 \u0926\u0940 \u0917\u0908\u0902\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a), (b) \u0914\u0930 (d) \u0917\u0932\u0924 \u0939\u0948\u0902\u0964 \u0907\u0938\u0928\u0947 \u0906\u0926\u0947\u0936 \u0915\u0940 \u0936\u094d\u0930\u0943\u0902\u0916\u0932\u093e \u0915\u094b \u0938\u0930\u0932 \u092c\u0928\u093e\u092f\u093e, \u092d\u093e\u0930\u0924 \u0915\u094b \u0938\u0940\u0927\u0947 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0915\u094d\u0930\u093e\u0909\u0928 \u0914\u0930 \u0938\u0902\u0938\u0926 \u0915\u0940 \u0938\u0902\u092a\u094d\u0930\u092d\u0941\u0924\u093e \u0915\u0947 \u0905\u0927\u0940\u0928 \u0915\u0930 \u0926\u093f\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q20.</b> The Ilbert Bill controversy of 1883 was related to which issue? / 1883 \u0915\u093e \u0907\u0932\u094d\u092c\u0930\u094d\u091f \u092c\u093f\u0932 \u0935\u093f\u0935\u093e\u0926 \u0915\u093f\u0938 \u092e\u0941\u0926\u094d\u0926\u0947 \u0938\u0947 \u0938\u0902\u092c\u0902\u0927\u093f\u0924 \u0925\u093e? [Selection Post Phase 13, 30/07/2025, Shift-1]",
+      "options": [
+        "Rights of Indian judges / \u092d\u093e\u0930\u0924\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936\u094b\u0902 \u0915\u0947 \u0905\u0927\u093f\u0915\u093e\u0930",
+        "Introduction of income tax / \u0906\u092f\u0915\u0930 \u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924",
+        "Expansion of railways / \u0930\u0947\u0932\u0935\u0947 \u0915\u093e \u0935\u093f\u0938\u094d\u0924\u093e\u0930",
+        "Indianisation of the army / \u0938\u0947\u0928\u093e \u0915\u093e \u092d\u093e\u0930\u0924\u0940\u092f\u0915\u0930\u0923"
+      ],
+      "correctIndex": 0,
+      "explanation": "The Ilbert Bill (1883), introduced during Lord Ripon\u2019s viceroyalty, sought to allow Indian judges and magistrates to try British and European offenders in criminal cases. Before this, only European judges could try Europeans. Option (a) is correct. The bill triggered a massive backlash from the European community (White Mutiny), forcing the government to dilute the bill, which exposed the deep racial bias inherent in British colonial rule. / \u0932\u0949\u0930\u094d\u0921 \u0930\u093f\u092a\u0928 \u0915\u0947 \u0935\u093e\u092f\u0938\u0930\u093e\u092f \u0915\u093e\u0932 \u0915\u0947 \u0926\u094c\u0930\u093e\u0928 \u092a\u0947\u0936 \u0915\u093f\u090f \u0917\u090f \u0907\u0932\u094d\u092c\u0930\u094d\u091f \u092c\u093f\u0932 (1883) \u0928\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936\u094b\u0902 \u0914\u0930 \u092e\u091c\u093f\u0938\u094d\u091f\u094d\u0930\u0947\u091f\u094b\u0902 \u0915\u094b \u0906\u092a\u0930\u093e\u0927\u093f\u0915 \u092e\u093e\u092e\u0932\u094b\u0902 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0914\u0930 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0905\u092a\u0930\u093e\u0927\u093f\u092f\u094b\u0902 \u092a\u0930 \u092e\u0941\u0915\u0926\u092e\u093e \u091a\u0932\u093e\u0928\u0947 \u0915\u0940 \u0905\u0928\u0941\u092e\u0924\u093f \u0926\u0947\u0928\u0947 \u0915\u0940 \u092e\u093e\u0902\u0917 \u0915\u0940 \u0925\u0940\u0964 \u0907\u0938\u0938\u0947 \u092a\u0939\u0932\u0947, \u0915\u0947\u0935\u0932 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936 \u0939\u0940 \u0917\u094b\u0930\u094b\u0902 \u092a\u0930 \u092e\u0941\u0915\u0926\u092e\u093e \u091a\u0932\u093e \u0938\u0915\u0924\u0947 \u0925\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0938\u0939\u0940 \u0939\u0948\u0964 \u092c\u093f\u0932 \u0928\u0947 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0938\u092e\u0941\u0926\u093e\u092f (\u0936\u094d\u0935\u0947\u0924 \u0935\u093f\u0926\u094d\u0930\u094b\u0939) \u0938\u0947 \u092c\u0921\u093c\u0947 \u092a\u0948\u092e\u093e\u0928\u0947 \u092a\u0930 \u092a\u094d\u0930\u0924\u093f\u0915\u094d\u0930\u093f\u092f\u093e \u0926\u0940, \u091c\u093f\u0938\u0938\u0947 \u0938\u0930\u0915\u093e\u0930 \u0915\u094b \u092c\u093f\u0932 \u0915\u094b \u0915\u092e\u091c\u094b\u0930 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092e\u091c\u092c\u0942\u0930 \u0939\u094b\u0928\u093e \u092a\u0921\u093c\u093e, \u091c\u093f\u0938\u0928\u0947 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0914\u092a\u0928\u093f\u0935\u0947\u0936\u093f\u0915 \u0936\u093e\u0938\u0928 \u092e\u0947\u0902 \u0928\u093f\u0939\u093f\u0924 \u0917\u0939\u0930\u0947 \u0928\u0938\u094d\u0932\u0940\u092f \u092a\u0942\u0930\u094d\u0935\u093e\u0917\u094d\u0930\u0939 \u0915\u094b \u0909\u091c\u093e\u0917\u0930 \u0915\u093f\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q21.</b> The Ilbert Bill controversy of 1883-84 was related to: / 1883-84 \u0915\u093e \u0907\u0932\u094d\u092c\u0930\u094d\u091f \u092c\u093f\u0932 \u0935\u093f\u0935\u093e\u0926 \u0915\u093f\u0938\u0938\u0947 \u0938\u0902\u092c\u0902\u0927\u093f\u0924 \u0925\u093e? [SSC CGL Tier 1, 23 Sep 2025, Shift-2]",
+      "options": [
+        "New taxes on agricultural produce / \u0915\u0943\u0937\u093f \u0909\u092a\u091c \u092a\u0930 \u0928\u090f \u0915\u0930",
+        "Indian judges trying European offenders / \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0905\u092a\u0930\u093e\u0927\u093f\u092f\u094b\u0902 \u092a\u0930 \u092e\u0941\u0915\u0926\u092e\u093e \u091a\u0932\u093e\u0928\u0947 \u0935\u093e\u0932\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936",
+        "English as medium of instruction / \u0936\u093f\u0915\u094d\u0937\u093e \u0915\u0947 \u092e\u093e\u0927\u094d\u092f\u092e \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u0940",
+        "Demarcation of boundaries / \u0938\u0940\u092e\u093e\u0913\u0902 \u0915\u093e \u0928\u093f\u0930\u094d\u0927\u093e\u0930\u0923"
+      ],
+      "correctIndex": 1,
+      "explanation": "The controversy centered on the proposal to remove judicial disqualifications based on race, specifically allowing Indian judges to try European offenders. The European community in India vehemently opposed this, arguing that Indian judges were unfit to try \"civilized\" Europeans. Option (b) is the correct answer. The intense opposition taught Indian nationalists the power of organized agitation, influencing the formation of the Indian National Congress in 1885. / \u092f\u0939 \u0935\u093f\u0935\u093e\u0926 \u0928\u0938\u094d\u0932 \u0915\u0947 \u0906\u0927\u093e\u0930 \u092a\u0930 \u0928\u094d\u092f\u093e\u092f\u093f\u0915 \u0905\u092f\u094b\u0917\u094d\u092f\u0924\u093e\u0913\u0902 \u0915\u094b \u0926\u0942\u0930 \u0915\u0930\u0928\u0947 \u0915\u0947 \u092a\u094d\u0930\u0938\u094d\u0924\u093e\u0935 \u092a\u0930 \u0915\u0947\u0902\u0926\u094d\u0930\u093f\u0924 \u0925\u093e, \u0935\u093f\u0936\u0947\u0937 \u0930\u0942\u092a \u0938\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936\u094b\u0902 \u0915\u094b \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0905\u092a\u0930\u093e\u0927\u093f\u092f\u094b\u0902 \u092a\u0930 \u092e\u0941\u0915\u0926\u092e\u093e \u091a\u0932\u093e\u0928\u0947 \u0915\u0940 \u0905\u0928\u0941\u092e\u0924\u093f \u0926\u0947\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f\u0964 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0938\u092e\u0941\u0926\u093e\u092f \u0928\u0947 \u0907\u0938\u0915\u093e \u0915\u0921\u093c\u093e \u0935\u093f\u0930\u094b\u0927 \u0915\u093f\u092f\u093e, \u092f\u0939 \u0924\u0930\u094d\u0915 \u0926\u0947\u0924\u0947 \u0939\u0941\u090f \u0915\u093f \u092d\u093e\u0930\u0924\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936 \"\u0938\u092d\u094d\u092f\" \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0932\u094b\u0917\u094b\u0902 \u092a\u0930 \u092e\u0941\u0915\u0926\u092e\u093e \u091a\u0932\u093e\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0905\u092f\u094b\u0917\u094d\u092f \u0925\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0938\u0939\u0940 \u0909\u0924\u094d\u0924\u0930 \u0939\u0948\u0964 \u0924\u0940\u0935\u094d\u0930 \u0935\u093f\u0930\u094b\u0927 \u0928\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u0930\u093e\u0937\u094d\u091f\u094d\u0930\u0935\u093e\u0926\u093f\u092f\u094b\u0902 \u0915\u094b \u0938\u0902\u0917\u0920\u093f\u0924 \u0906\u0902\u0926\u094b\u0932\u0928 \u0915\u0940 \u0936\u0915\u094d\u0924\u093f \u0938\u093f\u0916\u093e\u0908, \u091c\u093f\u0938\u0938\u0947 1885 \u092e\u0947\u0902 \u092d\u093e\u0930\u0924\u0940\u092f \u0930\u093e\u0937\u094d\u091f\u094d\u0930\u0940\u092f \u0915\u093e\u0902\u0917\u094d\u0930\u0947\u0938 \u0915\u0947 \u0917\u0920\u0928 \u0915\u094b \u092a\u094d\u0930\u092d\u093e\u0935\u093f\u0924 \u0915\u093f\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q22.</b> Which bill/act provided for the trial of British or European persons by Indians, and sought equality between British and Indian judges? / \u0915\u093f\u0938 \u092c\u093f\u0932/\u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0928\u0947 \u092d\u093e\u0930\u0924\u0940\u092f\u094b\u0902 \u0926\u094d\u0935\u093e\u0930\u093e \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u092f\u093e \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0935\u094d\u092f\u0915\u094d\u0924\u093f\u092f\u094b\u0902 \u0915\u0947 \u092e\u0941\u0915\u0926\u092e\u0947 \u0915\u093e \u092a\u094d\u0930\u093e\u0935\u0927\u093e\u0928 \u0915\u093f\u092f\u093e, \u0914\u0930 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0914\u0930 \u092d\u093e\u0930\u0924\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936\u094b\u0902 \u0915\u0947 \u092c\u0940\u091a \u0938\u092e\u093e\u0928\u0924\u093e \u0915\u0940 \u092e\u093e\u0902\u0917 \u0915\u0940? [SSC CHSL, 29 Nov 2025, Shift-2]",
+      "options": [
+        "Regulating Act of 1773 / 1773 \u0915\u093e \u0930\u0947\u0917\u0941\u0932\u0947\u091f\u093f\u0902\u0917 \u090f\u0915\u094d\u091f",
+        "Ilbert Bill of 1883 / 1883 \u0915\u093e \u0907\u0932\u094d\u092c\u0930\u094d\u091f \u092c\u093f\u0932",
+        "Pitt&#x27;s India Act of 1784 / 1784 \u0915\u093e \u092a\u093f\u091f\u094d\u0938 \u0907\u0902\u0921\u093f\u092f\u093e \u090f\u0915\u094d\u091f",
+        "Indian Councils Act of 1892 / 1892 \u0915\u093e \u092d\u093e\u0930\u0924\u0940\u092f \u092a\u0930\u093f\u0937\u0926 \u0905\u0927\u093f\u0928\u093f\u092f\u092e"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Ilbert Bill of 1883 was the legislative measure that sought to establish equality between British and Indian judges by allowing Indian magistrates to try British subjects. It was drafted by Sir C.P. Ilbert, the Law Member of the Viceroy's Council. Options (a), (c), and (d) refer to constitutional acts, not this specific judicial reform. The bill was eventually passed in a compromised form, giving Europeans the right to demand a jury trial with a European majority. / 1883 \u0915\u093e \u0907\u0932\u094d\u092c\u0930\u094d\u091f \u092c\u093f\u0932 \u0935\u0939 \u0935\u093f\u0927\u093e\u092f\u0940 \u0909\u092a\u093e\u092f \u0925\u093e \u091c\u093f\u0938\u0928\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u092e\u091c\u093f\u0938\u094d\u091f\u094d\u0930\u0947\u091f\u094b\u0902 \u0915\u094b \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0935\u093f\u0937\u092f\u094b\u0902 \u092a\u0930 \u092e\u0941\u0915\u0926\u092e\u093e \u091a\u0932\u093e\u0928\u0947 \u0915\u0940 \u0905\u0928\u0941\u092e\u0924\u093f \u0926\u0947\u0915\u0930 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0914\u0930 \u092d\u093e\u0930\u0924\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936\u094b\u0902 \u0915\u0947 \u092c\u0940\u091a \u0938\u092e\u093e\u0928\u0924\u093e \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0930\u0928\u0947 \u0915\u0940 \u092e\u093e\u0902\u0917 \u0915\u0940 \u0925\u0940\u0964 \u0907\u0938\u0947 \u0935\u093e\u092f\u0938\u0930\u093e\u092f \u0915\u0940 \u092a\u0930\u093f\u0937\u0926 \u0915\u0947 \u0915\u093e\u0928\u0942\u0928 \u0938\u0926\u0938\u094d\u092f \u0938\u0930 \u0938\u0940.\u092a\u0940. \u0907\u0932\u094d\u092c\u0930\u094d\u091f \u0926\u094d\u0935\u093e\u0930\u093e \u0924\u0948\u092f\u093e\u0930 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a), (c) \u0914\u0930 (d) \u0938\u0902\u0935\u0948\u0927\u093e\u0928\u093f\u0915 \u0905\u0927\u093f\u0928\u093f\u092f\u092e\u094b\u0902 \u0915\u094b \u0938\u0902\u0926\u0930\u094d\u092d\u093f\u0924 \u0915\u0930\u0924\u0947 \u0939\u0948\u0902, \u0928 \u0915\u093f \u0907\u0938 \u0935\u093f\u0936\u093f\u0937\u094d\u091f \u0928\u094d\u092f\u093e\u092f\u093f\u0915 \u0938\u0941\u0927\u093e\u0930 \u0915\u094b\u0964 \u092c\u093f\u0932 \u0905\u0902\u0924\u0924\u0903 \u090f\u0915 \u0938\u092e\u091d\u094c\u0924\u093e \u0930\u0942\u092a \u092e\u0947\u0902 \u092a\u093e\u0930\u093f\u0924 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e, \u091c\u093f\u0938\u0938\u0947 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0932\u094b\u0917\u094b\u0902 \u0915\u094b \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u092c\u0939\u0941\u092e\u0924 \u0915\u0947 \u0938\u093e\u0925 \u091c\u0942\u0930\u0940 \u091f\u094d\u0930\u093e\u092f\u0932 \u0915\u0940 \u092e\u093e\u0902\u0917 \u0915\u0930\u0928\u0947 \u0915\u093e \u0905\u0927\u093f\u0915\u093e\u0930 \u092e\u093f\u0932 \u0917\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q23. With reference to the Indian Councils Act, 1892, consider the following statements and choose the correct option: / \u092d\u093e\u0930\u0924\u0940\u092f \u092a\u0930\u093f\u0937\u0926 \u0905\u0927\u093f\u0928\u093f\u092f\u092e, 1892 \u0915\u0947 \u0938\u0902\u0926\u0930\u094d\u092d \u092e\u0947\u0902, \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u0915\u0925\u0928\u094b\u0902 \u092a\u0930 \u0935\u093f\u091a\u093e\u0930 \u0915\u0930\u0947\u0902 \u0914\u0930 \u0938\u0939\u0940 \u0935\u093f\u0915\u0932\u094d\u092a \u091a\u0941\u0928\u0947\u0902:<br>1. It significantly increased the number of official members in the Central Legislative Council. / 1. \u0907\u0938\u0928\u0947 \u0915\u0947\u0902\u0926\u094d\u0930\u0940\u092f \u0935\u093f\u0927\u093e\u0928 \u092a\u0930\u093f\u0937\u0926 \u092e\u0947\u0902 \u0906\u0927\u093f\u0915\u093e\u0930\u093f\u0915 \u0938\u0926\u0938\u094d\u092f\u094b\u0902 \u0915\u0940 \u0938\u0902\u0916\u094d\u092f\u093e \u092e\u0947\u0902 \u0915\u093e\u092b\u0940 \u0935\u0943\u0926\u094d\u0927\u093f \u0915\u0940\u0964<br>2. It empowered the legislative councils to discuss the budget and address questions to the executive. / 2. \u0907\u0938\u0928\u0947 \u0935\u093f\u0927\u093e\u0928 \u092a\u0930\u093f\u0937\u0926\u094b\u0902 \u0915\u094b \u092c\u091c\u091f \u092a\u0930 \u091a\u0930\u094d\u091a\u093e \u0915\u0930\u0928\u0947 \u0914\u0930 \u0915\u093e\u0930\u094d\u092f\u092a\u093e\u0932\u093f\u0915\u093e \u0915\u094b \u092a\u094d\u0930\u0936\u094d\u0928 \u0938\u0902\u092c\u094b\u0927\u093f\u0924 \u0915\u0930\u0928\u0947 \u0915\u093e \u0905\u0927\u093f\u0915\u093e\u0930 \u0926\u093f\u092f\u093e\u0964<br>3. It introduced the principle of direct election for non-official members of provincial legislative councils. / 3. \u0907\u0938\u0928\u0947 \u092a\u094d\u0930\u093e\u0902\u0924\u0940\u092f \u0935\u093f\u0927\u093e\u0928 \u092a\u0930\u093f\u0937\u0926\u094b\u0902 \u0915\u0947 \u0917\u0948\u0930-\u0906\u0927\u093f\u0915\u093e\u0930\u093f\u0915 \u0938\u0926\u0938\u094d\u092f\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u092a\u094d\u0930\u0924\u094d\u092f\u0915\u094d\u0937 \u091a\u0941\u0928\u093e\u0935 \u0915\u0947 \u0938\u093f\u0926\u094d\u0927\u093e\u0902\u0924 \u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924 \u0915\u0940\u0964<br>[SSC Steno, 08/08/2025, Shift-3]\n            </div>\n            <b>Q23.</b> Choose the correct option: / \u0938\u0939\u0940 \u0935\u093f\u0915\u0932\u094d\u092a \u091a\u0941\u0928\u0947\u0902:",
+      "options": [
+        "1 only / \u0915\u0947\u0935\u0932 1",
+        "2 only / \u0915\u0947\u0935\u0932 2",
+        "1 and 3 only / \u0915\u0947\u0935\u0932 1 \u0914\u0930 3",
+        "2 and 3 only / \u0915\u0947\u0935\u0932 2 \u0914\u0930 3"
+      ],
+      "correctIndex": 1,
+      "explanation": "Only Statement 2 is correct. The Act empowered councils to discuss the budget (but not vote on it) and ask questions. Statement 1 is incorrect because it increased the number of non-official members, not official ones. Statement 3 is incorrect because it introduced the principle of indirect election (nomination based on recommendation by local bodies), not direct election. Direct elections were only introduced later by the Government of India Act 1919. / \u0915\u0947\u0935\u0932 \u0915\u0925\u0928 2 \u0938\u0939\u0940 \u0939\u0948\u0964 \u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0928\u0947 \u092a\u0930\u093f\u0937\u0926\u094b\u0902 \u0915\u094b \u092c\u091c\u091f \u092a\u0930 \u091a\u0930\u094d\u091a\u093e \u0915\u0930\u0928\u0947 (\u0932\u0947\u0915\u093f\u0928 \u0909\u0938 \u092a\u0930 \u092e\u0924\u0926\u093e\u0928 \u0928\u0939\u0940\u0902 \u0915\u0930\u0928\u0947) \u0914\u0930 \u092a\u094d\u0930\u0936\u094d\u0928 \u092a\u0942\u091b\u0928\u0947 \u0915\u093e \u0905\u0927\u093f\u0915\u093e\u0930 \u0926\u093f\u092f\u093e\u0964 \u0915\u0925\u0928 1 \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0907\u0938\u0928\u0947 \u0906\u0927\u093f\u0915\u093e\u0930\u093f\u0915 \u0938\u0926\u0938\u094d\u092f\u094b\u0902 \u0915\u0947 \u092c\u091c\u093e\u092f \u0917\u0948\u0930-\u0906\u0927\u093f\u0915\u093e\u0930\u093f\u0915 \u0938\u0926\u0938\u094d\u092f\u094b\u0902 \u0915\u0940 \u0938\u0902\u0916\u094d\u092f\u093e \u092c\u0922\u093c\u093e\u0908\u0964 \u0915\u0925\u0928 3 \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0907\u0938\u0928\u0947 \u092a\u094d\u0930\u0924\u094d\u092f\u0915\u094d\u0937 \u091a\u0941\u0928\u093e\u0935 \u0915\u0947 \u092c\u091c\u093e\u092f \u0905\u092a\u094d\u0930\u0924\u094d\u092f\u0915\u094d\u0937 \u091a\u0941\u0928\u093e\u0935 (\u0938\u094d\u0925\u093e\u0928\u0940\u092f \u0928\u093f\u0915\u093e\u092f\u094b\u0902 \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u093f\u092b\u093e\u0930\u093f\u0936 \u0915\u0947 \u0906\u0927\u093e\u0930 \u092a\u0930 \u0928\u093e\u092e\u093e\u0902\u0915\u0928) \u0915\u0947 \u0938\u093f\u0926\u094d\u0927\u093e\u0902\u0924 \u0915\u094b \u092a\u0947\u0936 \u0915\u093f\u092f\u093e\u0964 \u092a\u094d\u0930\u0924\u094d\u092f\u0915\u094d\u0937 \u091a\u0941\u0928\u093e\u0935 \u092c\u0939\u0941\u0924 \u092c\u093e\u0926 \u092e\u0947\u0902 \u092d\u093e\u0930\u0924 \u0938\u0930\u0915\u093e\u0930 \u0905\u0927\u093f\u0928\u093f\u092f\u092e 1919 \u0926\u094d\u0935\u093e\u0930\u093e \u0936\u0941\u0930\u0942 \u0915\u093f\u090f \u0917\u090f \u0925\u0947\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q24.</b> Which policy of Lord Curzon was primarily intended to strengthen British administration and strategic interests? / \u0932\u0949\u0930\u094d\u0921 \u0915\u0930\u094d\u091c\u0928 \u0915\u0940 \u0915\u094c\u0928 \u0938\u0940 \u0928\u0940\u0924\u093f \u092e\u0941\u0916\u094d\u092f \u0930\u0942\u092a \u0938\u0947 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u092a\u094d\u0930\u0936\u093e\u0938\u0928 \u0914\u0930 \u0930\u0923\u0928\u0940\u0924\u093f\u0915 \u0939\u093f\u0924\u094b\u0902 \u0915\u094b \u092e\u091c\u092c\u0942\u0924 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0925\u0940? [SSC CGL Tier 1, 26 Sep 2025, Shift-2]",
+      "options": [
+        "Imperial Dept of Agriculture / \u0915\u0943\u0937\u093f \u0915\u093e \u0936\u093e\u0939\u0940 \u0935\u093f\u092d\u093e\u0917",
+        "Establishment of CID/Police reorganization / \u0938\u0940\u0906\u0908\u0921\u0940 (CID) \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e/\u092a\u0941\u0932\u093f\u0938 \u092a\u0941\u0928\u0930\u094d\u0917\u0920\u0928",
+        "Reforms in education / \u0936\u093f\u0915\u094d\u0937\u093e \u092e\u0947\u0902 \u0938\u0941\u0927\u093e\u0930",
+        "Preservation of monuments / \u0938\u094d\u092e\u093e\u0930\u0915\u094b\u0902 \u0915\u093e \u0938\u0902\u0930\u0915\u094d\u0937\u0923"
+      ],
+      "correctIndex": 1,
+      "explanation": "Lord Curzon established the Criminal Investigation Department (CID) and reorganized the police following the Police Commission of 1902 to strengthen internal security and administration. While he did all the options listed (Agriculture, Education, Monuments), the police reorganization was the measure specifically aimed at strategic control and curbing the rising nationalist movement. Curzon is famous for his efficiency but also for his controversial Partition of Bengal. / \u0932\u0949\u0930\u094d\u0921 \u0915\u0930\u094d\u091c\u0928 \u0928\u0947 \u0906\u0902\u0924\u0930\u093f\u0915 \u0938\u0941\u0930\u0915\u094d\u0937\u093e \u0914\u0930 \u092a\u094d\u0930\u0936\u093e\u0938\u0928 \u0915\u094b \u092e\u091c\u092c\u0942\u0924 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f 1902 \u0915\u0947 \u092a\u0941\u0932\u093f\u0938 \u0906\u092f\u094b\u0917 \u0915\u0947 \u092c\u093e\u0926 \u0906\u092a\u0930\u093e\u0927\u093f\u0915 \u091c\u093e\u0902\u091a \u0935\u093f\u092d\u093e\u0917 (\u0938\u0940\u0906\u0908\u0921\u0940) \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u0915\u0940 \u0914\u0930 \u092a\u0941\u0932\u093f\u0938 \u0915\u093e \u092a\u0941\u0928\u0930\u094d\u0917\u0920\u0928 \u0915\u093f\u092f\u093e\u0964 \u0939\u093e\u0932\u093e\u0902\u0915\u093f \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0938\u0942\u091a\u0940\u092c\u0926\u094d\u0927 \u0938\u092d\u0940 \u0935\u093f\u0915\u0932\u094d\u092a (\u0915\u0943\u0937\u093f, \u0936\u093f\u0915\u094d\u0937\u093e, \u0938\u094d\u092e\u093e\u0930\u0915) \u0915\u093f\u090f, \u0932\u0947\u0915\u093f\u0928 \u092a\u0941\u0932\u093f\u0938 \u092a\u0941\u0928\u0930\u094d\u0917\u0920\u0928 \u0935\u093f\u0936\u0947\u0937 \u0930\u0942\u092a \u0938\u0947 \u0930\u0923\u0928\u0940\u0924\u093f\u0915 \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u0923 \u0914\u0930 \u092c\u0922\u093c\u0924\u0947 \u0930\u093e\u0937\u094d\u091f\u094d\u0930\u0935\u093e\u0926\u0940 \u0906\u0902\u0926\u094b\u0932\u0928 \u092a\u0930 \u0905\u0902\u0915\u0941\u0936 \u0932\u0917\u093e\u0928\u0947 \u0915\u0947 \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0938\u0947 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0909\u092a\u093e\u092f \u0925\u093e\u0964 \u0915\u0930\u094d\u091c\u0928 \u0905\u092a\u0928\u0940 \u0926\u0915\u094d\u0937\u0924\u093e \u0915\u0947 \u0932\u093f\u090f \u092a\u094d\u0930\u0938\u093f\u0926\u094d\u0927 \u0939\u0948\u0902 \u0932\u0947\u0915\u093f\u0928 \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u0905\u092a\u0928\u0947 \u0935\u093f\u0935\u093e\u0926\u093e\u0938\u094d\u092a\u0926 \u0935\u093f\u092d\u093e\u091c\u0928 \u0915\u0947 \u0932\u093f\u090f \u092d\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q25.</b> The Federal Court of India, as provided under the Government of India Act 1935, was established in the year? / \u092d\u093e\u0930\u0924 \u0938\u0930\u0915\u093e\u0930 \u0905\u0927\u093f\u0928\u093f\u092f\u092e 1935 \u0915\u0947 \u0924\u0939\u0924 \u092d\u093e\u0930\u0924 \u0915\u0947 \u0938\u0902\u0918\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0932\u092f (Federal Court) \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u0915\u0940 \u0917\u0908 \u0925\u0940? [SSC CGL Tier 1, 20 Sept 2025, Shift-2]",
+      "options": [
+        "1936 / 1936",
+        "1937 / 1937",
+        "1939 / 1939",
+        "1942 / 1942"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Federal Court of India was inaugurated in 1937 in Delhi, following the provisions of the Government of India Act, 1935. It functioned until the establishment of the Supreme Court of India in 1950. Option (b) is correct. The court had original, appellate, and advisory jurisdiction. Sir Maurice Gwyer was its first Chief Justice. It was the highest court in India, though appeals could still go to the Privy Council in London. / \u092d\u093e\u0930\u0924 \u0938\u0930\u0915\u093e\u0930 \u0905\u0927\u093f\u0928\u093f\u092f\u092e, 1935 \u0915\u0947 \u092a\u094d\u0930\u093e\u0935\u0927\u093e\u0928\u094b\u0902 \u0915\u0947 \u092c\u093e\u0926 1937 \u092e\u0947\u0902 \u0926\u093f\u0932\u094d\u0932\u0940 \u092e\u0947\u0902 \u092d\u093e\u0930\u0924 \u0915\u0947 \u0938\u0902\u0918\u0940\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0932\u092f \u0915\u093e \u0909\u0926\u094d\u0918\u093e\u091f\u0928 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0907\u0938\u0928\u0947 1950 \u092e\u0947\u0902 \u092d\u093e\u0930\u0924 \u0915\u0947 \u0938\u0930\u094d\u0935\u094b\u091a\u094d\u091a \u0928\u094d\u092f\u093e\u092f\u093e\u0932\u092f \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u0924\u0915 \u0915\u093e\u0930\u094d\u092f \u0915\u093f\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0938\u0939\u0940 \u0939\u0948\u0964 \u0928\u094d\u092f\u093e\u092f\u093e\u0932\u092f \u0915\u0947 \u092a\u093e\u0938 \u092a\u094d\u0930\u093e\u0930\u0902\u092d\u093f\u0915, \u0905\u092a\u0940\u0932\u0940\u092f \u0914\u0930 \u0938\u0932\u093e\u0939\u0915\u093e\u0930 \u0905\u0927\u093f\u0915\u093e\u0930 \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u0925\u093e\u0964 \u0938\u0930 \u092e\u094c\u0930\u093f\u0938 \u0917\u094d\u0935\u093e\u092f\u0930 \u0907\u0938\u0915\u0947 \u092a\u0939\u0932\u0947 \u092e\u0941\u0916\u094d\u092f \u0928\u094d\u092f\u093e\u092f\u093e\u0927\u0940\u0936 \u0925\u0947\u0964 \u092f\u0939 \u092d\u093e\u0930\u0924 \u0915\u093e \u0938\u0930\u094d\u0935\u094b\u091a\u094d\u091a \u0928\u094d\u092f\u093e\u092f\u093e\u0932\u092f \u0925\u093e, \u0939\u093e\u0932\u093e\u0902\u0915\u093f \u0905\u092a\u0940\u0932 \u0905\u092d\u0940 \u092d\u0940 \u0932\u0902\u0926\u0928 \u092e\u0947\u0902 \u092a\u094d\u0930\u093f\u0935\u0940 \u0915\u093e\u0909\u0902\u0938\u093f\u0932 \u092e\u0947\u0902 \u091c\u093e \u0938\u0915\u0924\u0940 \u0925\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q26.</b> The Government of India Act of 1935 primarily aimed to: / 1935 \u0915\u0947 \u092d\u093e\u0930\u0924 \u0938\u0930\u0915\u093e\u0930 \u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0915\u093e \u092e\u0941\u0916\u094d\u092f \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0915\u094d\u092f\u093e \u0925\u093e? [SSC CGL Tier 1, 24 Sep 2025, Shift-1]",
+      "options": [
+        "Grant complete independence / \u092a\u0942\u0930\u094d\u0923 \u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930\u0924\u093e \u0926\u0947\u0928\u093e",
+        "Establish a Dominion status / \u0921\u094b\u092e\u093f\u0928\u093f\u092f\u0928 \u0938\u094d\u091f\u0947\u091f\u0938 \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0930\u0928\u093e",
+        "Provide federal structure/prov autonomy / \u0938\u0902\u0918\u0940\u092f \u0938\u0902\u0930\u091a\u0928\u093e/\u092a\u094d\u0930\u093e\u0902\u0924\u0940\u092f \u0938\u094d\u0935\u093e\u092f\u0924\u094d\u0924\u0924\u093e \u092a\u094d\u0930\u0926\u093e\u0928 \u0915\u0930\u0928\u093e",
+        "Introduce universal adult suffrage / \u0938\u093e\u0930\u094d\u0935\u092d\u094c\u092e\u093f\u0915 \u0935\u092f\u0938\u094d\u0915 \u092e\u0924\u093e\u0927\u093f\u0915\u093e\u0930 \u0936\u0941\u0930\u0942 \u0915\u0930\u0928\u093e"
+      ],
+      "correctIndex": 2,
+      "explanation": "The primary aim of the Government of India Act 1935 was to establish an All-India Federation (which never materialized due to princely state opposition) and to grant Provincial Autonomy. Option (c) is correct. It abolished diarchy in the provinces and introduced it at the center. Option (a) is wrong; independence came in 1947. Option (d) is wrong; the franchise was extended but remained limited (about 10% of the population). This Act served as the blueprint for much of the Constitution of independent India. / 1935 \u0915\u0947 \u092d\u093e\u0930\u0924 \u0938\u0930\u0915\u093e\u0930 \u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0915\u093e \u092a\u094d\u0930\u093e\u0925\u092e\u093f\u0915 \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0905\u0916\u093f\u0932 \u092d\u093e\u0930\u0924\u0940\u092f \u0938\u0902\u0918 \u0915\u0940 \u0938\u094d\u0925\u093e\u092a\u0928\u093e \u0915\u0930\u0928\u093e (\u091c\u094b \u0930\u093f\u092f\u093e\u0938\u0924\u094b\u0902 \u0915\u0947 \u0935\u093f\u0930\u094b\u0927 \u0915\u0947 \u0915\u093e\u0930\u0923 \u0915\u092d\u0940 \u0905\u0938\u094d\u0924\u093f\u0924\u094d\u0935 \u092e\u0947\u0902 \u0928\u0939\u0940\u0902 \u0906\u092f\u093e) \u0914\u0930 \u092a\u094d\u0930\u093e\u0902\u0924\u0940\u092f \u0938\u094d\u0935\u093e\u092f\u0924\u094d\u0924\u0924\u093e \u092a\u094d\u0930\u0926\u093e\u0928 \u0915\u0930\u0928\u093e \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0938\u0939\u0940 \u0939\u0948\u0964 \u0907\u0938\u0928\u0947 \u092a\u094d\u0930\u093e\u0902\u0924\u094b\u0902 \u092e\u0947\u0902 \u0926\u094d\u0935\u0948\u0927 \u0936\u093e\u0938\u0928 \u0915\u094b \u0938\u092e\u093e\u092a\u094d\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e \u0914\u0930 \u0907\u0938\u0947 \u0915\u0947\u0902\u0926\u094d\u0930 \u092e\u0947\u0902 \u0932\u093e\u0917\u0942 \u0915\u093f\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0917\u0932\u0924 \u0939\u0948; \u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930\u0924\u093e 1947 \u092e\u0947\u0902 \u092e\u093f\u0932\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0917\u0932\u0924 \u0939\u0948; \u092e\u0924\u093e\u0927\u093f\u0915\u093e\u0930 \u0915\u093e \u0935\u093f\u0938\u094d\u0924\u093e\u0930 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0932\u0947\u0915\u093f\u0928 \u0935\u0939 \u0938\u0940\u092e\u093f\u0924 \u0930\u0939\u093e (\u0906\u092c\u093e\u0926\u0940 \u0915\u093e \u0932\u0917\u092d\u0917 10%)\u0964 \u092f\u0939 \u0905\u0927\u093f\u0928\u093f\u092f\u092e \u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930 \u092d\u093e\u0930\u0924 \u0915\u0947 \u0938\u0902\u0935\u093f\u0927\u093e\u0928 \u0915\u0947 \u0905\u0927\u093f\u0915\u093e\u0902\u0936 \u092d\u093e\u0917 \u0915\u0947 \u0932\u093f\u090f \u092c\u094d\u0932\u0942\u092a\u094d\u0930\u093f\u0902\u091f \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0915\u093e\u0930\u094d\u092f \u0915\u0930\u0924\u093e \u0925\u093e\u0964",
+      "reference": ""
+    }
+  ],
+  "leaderboard": {
+    "rankings": [],
+    "question_stats": {
+      "0": {
+        "correct": 0,
+        "total": 0
+      },
+      "1": {
+        "correct": 0,
+        "total": 0
+      },
+      "2": {
+        "correct": 0,
+        "total": 0
+      },
+      "3": {
+        "correct": 0,
+        "total": 0
+      },
+      "4": {
+        "correct": 0,
+        "total": 0
+      },
+      "5": {
+        "correct": 0,
+        "total": 0
+      },
+      "6": {
+        "correct": 0,
+        "total": 0
+      },
+      "7": {
+        "correct": 0,
+        "total": 0
+      },
+      "8": {
+        "correct": 0,
+        "total": 0
+      },
+      "9": {
+        "correct": 0,
+        "total": 0
+      },
+      "10": {
+        "correct": 0,
+        "total": 0
+      },
+      "11": {
+        "correct": 0,
+        "total": 0
+      },
+      "12": {
+        "correct": 0,
+        "total": 0
+      },
+      "13": {
+        "correct": 0,
+        "total": 0
+      },
+      "14": {
+        "correct": 0,
+        "total": 0
+      },
+      "15": {
+        "correct": 0,
+        "total": 0
+      },
+      "16": {
+        "correct": 0,
+        "total": 0
+      },
+      "17": {
+        "correct": 0,
+        "total": 0
+      },
+      "18": {
+        "correct": 0,
+        "total": 0
+      },
+      "19": {
+        "correct": 0,
+        "total": 0
+      },
+      "20": {
+        "correct": 0,
+        "total": 0
+      },
+      "21": {
+        "correct": 0,
+        "total": 0
+      },
+      "22": {
+        "correct": 0,
+        "total": 0
+      },
+      "23": {
+        "correct": 0,
+        "total": 0
+      },
+      "24": {
+        "correct": 0,
+        "total": 0
+      },
+      "25": {
+        "correct": 0,
+        "total": 0
+      }
+    }
+  }
+};
+
+(function(){
+  // ----- Config from quizData.settings -----
+  const TOTAL_TIME = (quizData.settings && quizData.settings.totalTimeSec) || 20*60;
+  const NEGATIVE = (quizData.settings && quizData.settings.negativeMarkPerWrong) || (1/3);
+
+  // ----- State -----
+  const state = {
+    current: 0,
+    answers: Array(quizData.questions.length).fill(null),
+    markedForReview: Array(quizData.questions.length).fill(false),
+    startTime: new Date(),
+    timePerQ: Array(quizData.questions.length).fill(0),
+    submitted: false,
+    inReviewMode: false,
+    darkMode: false,
+    totalTime: TOTAL_TIME,
+    negativeMark: NEGATIVE,
+    avgTime: 0,
+    timerInterval: null,
+    qTimerInterval: null,
+    lastSoundIdx: -1,
+    currentLang: 'both', // 'both', 'hn', 'en'
+    rootFontSize: 16
+  };
+
+  // ----- Elements -----
+  const questionArea = document.getElementById('questionArea');
+  const resultsContainer = document.getElementById('resultsContainer');
+  const submitBtn = document.getElementById('submitBtn');
+  const qListGrid = document.getElementById('qList');
+  const themeToggle = document.getElementById('themeToggle');
+  const clickSound = document.getElementById('clickSound');
+  const correctSound = document.getElementById('correctSound');
+  const wrongSound = document.getElementById('wrongSound');
+  const quizNav = document.getElementById('quizNav');
+  const langToggleBtn = document.getElementById('langToggleBtn');
+
+  // ----- Init -----
+  document.addEventListener('DOMContentLoaded', () => {
+    setupHomePage();
+    document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+  });
+
+  function setupHomePage() {
+    const totalQuestions = quizData.questions.length;
+    const totalTimeMinutes = Math.floor(quizData.settings.totalTimeSec / 60);
+    const negativeMark = quizData.settings.negativeMarkPerWrong;
+
+    // Linkify Topic Name logic
+    let rawTopic = quizData.settings.topic || "General Knowledge";
+
+    // Sanitize HTML entities to prevent XSS
+    rawTopic = rawTopic.replace(/&/g, "&amp;")
+                       .replace(/</g, "&lt;")
+                       .replace(/>/g, "&gt;")
+                       .replace(/"/g, "&quot;")
+                       .replace(/'/g, "&#039;");
+
+    // Regex to detect URLs and convert to <a> tags
+    const topicWithLinks = rawTopic.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+        return `<a href="${url}" target="_blank" style="color: var(--primary); text-decoration: underline; font-weight: bold; position: relative; z-index: 10;">${url}</a>`;
+    });
+
+    document.getElementById('homeTopic').innerHTML = topicWithLinks;
+    document.getElementById('homeQuestions').textContent = totalQuestions;
+    document.getElementById('homeTime').textContent = `${totalTimeMinutes} Minutes`;
+    document.getElementById('homeNegative').textContent = negativeMark > 0 ? `-${negativeMark} per wrong answer` : "No negative marking";
+
+    initTheme(); // Init theme on home page as well
+  }
+
+  function startQuiz() {
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    initQuiz();
+  }
+
+  function initQuiz() {
+    buildQuestionTiles();
+    renderQuestion(0);
+    initTimer();
+    initNav();
+    initFullscreen();
+    initFontSizeControls();
+    initLanguageSwitcher();
+    initSwipeNavigation();
+    updateStats();
+    quizNav.style.display = 'flex';
+  }
+
+  function initNav(){
+    submitBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to submit the quiz?')) {
+            submitQuiz();
+        }
+    });
+
+    // Mobile Sidebar Toggles
+    const infoSidebar = document.getElementById('infoSidebar');
+    const paletteSidebar = document.getElementById('paletteSidebar');
+    const overlay = document.getElementById('overlay');
+    const openInfo = document.getElementById('openInfoSidebar');
+    const closeInfo = document.getElementById('closeInfoSidebar');
+    const openPalette = document.getElementById('openPaletteSidebar');
+    const closePalette = document.getElementById('closePaletteSidebar');
+
+    const toggleSidebar = (sidebar, action) => {
+        sidebar.classList[action]('show');
+        overlay.classList[action]('show');
+    };
+
+    openInfo.addEventListener('click', () => toggleSidebar(infoSidebar, 'add'));
+    closeInfo.addEventListener('click', () => toggleSidebar(infoSidebar, 'remove'));
+    openPalette.addEventListener('click', () => toggleSidebar(paletteSidebar, 'add'));
+    closePalette.addEventListener('click', () => toggleSidebar(paletteSidebar, 'remove'));
+    overlay.addEventListener('click', () => {
+        toggleSidebar(infoSidebar, 'remove');
+        toggleSidebar(paletteSidebar, 'remove');
+    });
+
+    // keyboard
+    document.addEventListener('keydown',(e)=>{
+      if(e.target.tagName === 'INPUT') return;
+      if(e.key==='ArrowLeft') go(-1);
+      if(e.key==='ArrowRight') go(1);
+    });
+  }
+
+  function initTheme(){
+    const saved = localStorage.getItem('qa_theme');
+    if(saved==='dark'){ 
+        document.body.classList.add('dark-mode'); 
+        state.darkMode=true; 
+    }
+    updateThemeIcon();
+    themeToggle.addEventListener('click', ()=>{
+      state.darkMode = !state.darkMode;
+      document.body.classList.toggle('dark-mode', state.darkMode);
+      localStorage.setItem('qa_theme', state.darkMode?'dark':'light');
+      updateThemeIcon();
+      if(state.submitted) buildCharts(state.lastResultData);
+    });
+  }
+  function updateThemeIcon(){
+    const i = themeToggle.querySelector('i');
+    i.classList.toggle('fa-moon', !state.darkMode);
+    i.classList.toggle('fa-sun',  state.darkMode);
+  }
+
+  function initFullscreen() {
+    const toggleBtn = document.getElementById('fullscreenToggle');
+    if (!toggleBtn) return;
+
+    toggleBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+        const icon = toggleBtn.querySelector('i');
+        if (document.fullscreenElement) {
+            icon.classList.remove('fa-expand');
+            icon.classList.add('fa-compress');
+        } else {
+            icon.classList.remove('fa-compress');
+            icon.classList.add('fa-expand');
+        }
+    });
+  }
+
+  function initFontSizeControls() {
+      const increaseBtn = document.getElementById('fontIncreaseBtn');
+      const decreaseBtn = document.getElementById('fontDecreaseBtn');
+      const docEl = document.documentElement;
+
+      increaseBtn.addEventListener('click', () => {
+          state.rootFontSize = Math.min(22, state.rootFontSize + 1);
+          docEl.style.fontSize = state.rootFontSize + 'px';
+      });
+
+      decreaseBtn.addEventListener('click', () => {
+          state.rootFontSize = Math.max(12, state.rootFontSize - 1);
+          docEl.style.fontSize = state.rootFontSize + 'px';
+      });
+  }
+
+  function initLanguageSwitcher() {
+      // Toggle order: Both -> Hindi -> English -> Both
+      const langOrder = ['both', 'hn', 'en'];
+
+      langToggleBtn.addEventListener('click', () => {
+          const currentIndex = langOrder.indexOf(state.currentLang);
+          const nextIndex = (currentIndex + 1) % langOrder.length;
+          state.currentLang = langOrder[nextIndex];
+
+          updateLangButton();
+          renderQuestion(state.current);
+      });
+  }
+
+  function updateLangButton() {
+      let label = 'BILI';
+      if (state.currentLang === 'hn') label = 'HIN';
+      if (state.currentLang === 'en') label = 'ENG';
+      langToggleBtn.textContent = label;
+  }
+
+  function translateText(text) {
+      if (!text) return text;
+      if (state.currentLang === 'both') return text;
+
+      // Check if string has HTML tags to decide between simple split and DOM traversal
+      const hasTags = /<[a-z][\s\S]*>/i.test(text);
+
+      if (hasTags) {
+          const div = document.createElement('div');
+          div.innerHTML = text;
+          walkAndTranslate(div);
+          return div.innerHTML;
+      } else {
+          // Plain text path
+          if (text.includes(' / ')) {
+              const parts = text.split(' / ');
+              if (parts.length >= 2) {
+                  const en = parts[0];
+                  const hn = parts.slice(1).join(' / ');
+                  return state.currentLang === 'hn' ? hn.trim() : en.trim();
+              }
+          }
+          return text;
+      }
+  }
+
+  function walkAndTranslate(node) {
+      if (node.nodeType === 3) { // Text node
+          const val = node.nodeValue;
+          if (val && val.includes(' / ')) {
+              const parts = val.split(' / ');
+              if (parts.length >= 2) {
+                  const en = parts[0];
+                  const hn = parts.slice(1).join(' / ');
+                  node.nodeValue = state.currentLang === 'hn' ? hn.trim() : en.trim();
+              }
+          }
+      } else if (node.nodeType === 1) { // Element node
+          for (let i = 0; i < node.childNodes.length; i++) {
+              walkAndTranslate(node.childNodes[i]);
+          }
+      }
+  }
+
+
+  function initSwipeNavigation() {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const swipeThreshold = 50; // Minimum distance for a swipe
+    const swipeRatio = 0.5; // Vertical distance should be less than half of horizontal
+
+    const swipeArea = document.querySelector('.quiz-main');
+
+    swipeArea.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    swipeArea.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        if (state.submitted && !state.inReviewMode) return;
+
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+
+        if (Math.abs(dx) > swipeThreshold && Math.abs(dy) < Math.abs(dx) * swipeRatio) {
+            if (dx < 0) {
+                go(1); // Swiped left
+            } else {
+                go(-1); // Swiped right
+            }
+        }
+    }
+  }
+
+  // ----- Timer -----
+  function initTimer(){
+    const start = Date.now();
+    const duration = state.totalTime*1000;
+    const end = start + duration;
+    tick(); state.timerInterval = setInterval(tick, 1000);
+    function tick(){
+      const now = Date.now();
+      const left = Math.max(0, end-now);
+      const m = String(Math.floor(left/60000)).padStart(2,'0');
+      const s = String(Math.floor((left%60000)/1000)).padStart(2,'0');
+
+      // Sidebar timer
+      document.getElementById('minutes').textContent = m;
+      document.getElementById('seconds').textContent = s;
+
+      // Header timer (NEW)
+      const headerTimer = document.getElementById('headerTimerDisp');
+      if(headerTimer) headerTimer.textContent = `${m}:${s}`;
+
+      const pct = (left/duration)*100;
+      const bar = document.getElementById('timeProgress');
+      bar.style.width = pct + '%';
+      if(left<=0){ clearInterval(state.timerInterval); submitQuiz(); }
+      else if(pct<25) bar.className='progress-bar bg-danger';
+      else if(pct<50) bar.className='progress-bar bg-warning';
+      else bar.className='progress-bar bg-primary';
+    }
+  }
+
+  // ----- Sidebar tiles -----
+  function buildQuestionTiles(){
+    qListGrid.innerHTML = '';
+    quizData.questions.forEach((_,i)=>{
+      const d = document.createElement('div');
+      d.className='q-tile'; d.textContent=i+1;
+      d.addEventListener('click', ()=>{
+        if(!state.submitted) updateTime();
+        renderQuestion(i);
+        document.getElementById('paletteSidebar').classList.remove('show');
+        document.getElementById('overlay').classList.remove('show');
+      });
+      qListGrid.appendChild(d);
+    });
+  }
+
+  function updateTiles(){
+    document.querySelectorAll('.q-tile').forEach((el,idx)=>{
+      el.className='q-tile'; // Reset
+      if(state.submitted){
+          if(state.answers[idx] === quizData.questions[idx].correctIndex) el.classList.add('review-correct');
+          else if(state.answers[idx] !== null) el.classList.add('review-incorrect');
+          else el.classList.add('review-unattempted');
+      } else {
+        if(state.answers[idx] !== null) el.classList.add('answered');
+        if(state.markedForReview[idx]) el.classList.add('marked');
+      }
+      if(idx === state.current) el.classList.add('current');
+    });
+  }
+
+  // ----- Render question -----
+  function renderQuestion(idx){
+    if (idx < 0 || idx >= quizData.questions.length) return;
+
+    // Stop previous Question Timer
+    if (state.qTimerInterval) clearInterval(state.qTimerInterval);
+
+    state.current=idx;
+    const q=quizData.questions[idx];
+
+    // Live Accuracy Calculation
+    let accuracyBadge = '';
+    if (quizData.leaderboard && quizData.leaderboard.question_stats && quizData.leaderboard.question_stats[idx]) {
+        const stats = quizData.leaderboard.question_stats[idx];
+        if(stats.total > 0) {
+            const acc = Math.round((stats.correct / stats.total) * 100);
+            accuracyBadge = `<span class="q-accuracy ms-2" title="Based on ${stats.total} Telegram users"><i class="fas fa-bullseye me-1"></i>${acc}%</span>`;
+        }
+    }
+
+    // Question Card HTML
+    let questionHtml=`
+      <div class="card-ui">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="q-meta-container">
+                <h5 class="fw-bold m-0">Question ${idx+1}</h5>
+                <span class="q-timer"><i class="fas fa-stopwatch me-1"></i><span id="qTimerDisp">0s</span></span>
+                ${accuracyBadge}
+            </div>
+            ${q.reference ? `<div class="small opacity-75">${q.reference}</div>` : ''}
+        </div>
+        <div class="q-text">${translateText(q.text)}</div>
+        <div class="options">`;
+    q.options.forEach((opt,i)=>{
+      let cls='option-btn';
+      if(state.answers[idx]===i) cls+=' selected';
+      if(state.submitted){
+        if(i===q.correctIndex) cls+=' correct';
+        else if(state.answers[idx]===i) cls+=' incorrect';
+      }
+      questionHtml += `<button class="${cls}" data-i="${i}">${translateText(opt)}</button>`;
+    });
+    const translatedExplanation = translateText(q.explanation || 'Not available.');
+    questionHtml += `</div>
+        ${state.submitted ? `<div class="explanation mt-3"><strong>Explanation:</strong> ${translatedExplanation}</div>` : ''}
+      </div>
+    `;
+    questionArea.innerHTML = questionHtml;
+
+    // Start per-question timer logic (Visual only)
+    if (!state.submitted) {
+        // Start from time already spent
+        let secondsSpent = Math.floor(state.timePerQ[idx] || 0);
+        const timerEl = document.getElementById('qTimerDisp');
+        if(timerEl) {
+            timerEl.textContent = secondsSpent + 's';
+            state.qTimerInterval = setInterval(() => {
+                secondsSpent++;
+                timerEl.textContent = secondsSpent + 's';
+            }, 1000);
+        }
+    } else {
+        // Show static time if submitted
+         const timerEl = document.getElementById('qTimerDisp');
+         if(timerEl) timerEl.textContent = Math.floor(state.timePerQ[idx] || 0) + 's';
+    }
+
+
+    // Navigation Buttons HTML
+    let buttonsHtml = `
+      <button id="prevBtn" class="btn btn-outline-secondary btn-nav"><i class="fas fa-chevron-left me-2"></i>Previous</button>
+      <button id="markBtn" class="btn btn-outline-info btn-nav">
+          ${state.markedForReview[idx] ? '<i class="fas fa-bookmark me-2"></i>Unmark' : '<i class="far fa-bookmark me-2"></i>Mark for Review'}
+      </button>
+      <button id="nextBtn" class="btn btn-primary btn-nav">Next<i class="fas fa-chevron-right ms-2"></i></button>
+    `;
+    quizNav.innerHTML = buttonsHtml;
+
+
+    // Add event listeners to new elements
+    document.getElementById('prevBtn').addEventListener('click', () => go(-1));
+    document.getElementById('nextBtn').addEventListener('click', () => go(1));
+    document.getElementById('markBtn').addEventListener('click', toggleMark);
+
+    if(state.submitted) {
+        document.getElementById('markBtn').style.display = 'none';
+    }
+
+    document.querySelectorAll('.option-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        if(state.submitted) return;
+        clickSound.currentTime=0; clickSound.play();
+        const i = parseInt(btn.dataset.i);
+        state.answers[state.current] = (state.answers[state.current] === i) ? null : i; // Allow un-selecting
+        renderQuestion(state.current); // Re-render to show selection change
+        updateStats();
+        updateTiles();
+      });
+    });
+
+    updateTiles();
+    updateProgress();
+
+    // Sound for review mode
+    if(state.inReviewMode && state.lastSoundIdx!==idx){
+      state.lastSoundIdx=idx;
+      const isAttempted = state.answers[idx]!==null;
+      const isCorrect = isAttempted && state.answers[idx]===q.correctIndex;
+      if(isAttempted){
+        setTimeout(()=>{ (isCorrect?correctSound:wrongSound).play(); }, 250);
+      }
+    }
+  }
+
+  function go(dir){
+    const i = state.current + dir;
+    if(i>=0 && i<quizData.questions.length){
+      if(!state.submitted) updateTime();
+      renderQuestion(i);
+    }
+  }
+
+  function toggleMark() {
+    state.markedForReview[state.current] = !state.markedForReview[state.current];
+    renderQuestion(state.current); // Re-render to update button text
+    updateTiles();
+    updateStats();
+  }
+
+  function updateTime(){
+    const now = new Date();
+    state.timePerQ[state.current] += (now - state.startTime)/1000;
+    state.startTime = now;
+  }
+
+  function updateStats() {
+    const answeredCount = state.answers.filter(a => a !== null).length;
+    const markedCount = state.markedForReview.filter(m => m).length;
+    const totalCount = quizData.questions.length;
+    document.getElementById('statAnswered').textContent = answeredCount;
+    document.getElementById('statUnanswered').textContent = totalCount - answeredCount;
+    document.getElementById('statMarked').textContent = markedCount;
+    document.getElementById('statTotal').textContent = totalCount;
+  }
+
+  function updateProgress() {
+      const answeredCount = state.answers.filter(a => a !== null).length;
+      const totalCount = quizData.questions.length;
+      const percent = totalCount > 0 ? (answeredCount / totalCount) * 100 : 0;
+      const progressBar = document.getElementById('thinProgressBarInner');
+      if (progressBar) {
+          progressBar.style.width = `${percent}%`;
+      }
+  }
+
+  // ----- Submit & Results -----
+  function submitQuiz(){
+    if(state.submitted) return;
+    clearInterval(state.timerInterval);
+    if(state.qTimerInterval) clearInterval(state.qTimerInterval); // Stop question timer
+
+    updateTime();
+    state.submitted=true;
+
+    let correct=0, incorrect=0, unattempted=0, score=0, neg=0;
+    state.answers.forEach((a,i)=>{
+      if(a===null){ unattempted++; }
+      else if(a===quizData.questions[i].correctIndex){ correct++; score+=1; }
+      else { incorrect++; score-=state.negativeMark; neg+=state.negativeMark; }
+    });
+
+    state.avgTime = state.timePerQ.reduce((s,t)=>s+t,0)/quizData.questions.length;
+    const pct = (score/quizData.questions.length)*100;
+
+    questionArea.style.display = 'none';
+    quizNav.style.display = 'none';
+    submitBtn.style.display = 'none';
+    document.querySelector('.quiz-main-header').style.display = 'none';
+
+    renderResults({correct, incorrect, unattempted, score, neg, pct});
+    resultsContainer.style.display = 'block';
+
+    updateTiles();
+
+    if(pct>=70){ confetti(); correctSound.play(); }
+    else if(pct<50){ wrongSound.play(); }
+  }
+
+  function renderResults(resData) {
+      const { correct, incorrect, unattempted, score, neg, pct } = resData;
+      const total = quizData.questions.length;
+      state.lastResultData = resData; // Save for redrawing charts on theme change
+
+      let html = `
+        <div class="results-container card-ui text-start">
+            <div class="text-center">
+                <h2 class="fw-bold">Quiz Completed!</h2>
+                <p>Here is your performance summary.</p>
+                <div class="final-score">${pct.toFixed(1)}%</div>
+                <div class="fs-4 fw-bold mb-4">${score.toFixed(2)} / ${total}</div>
+            </div>
+
+            <ul class="nav nav-pills justify-content-center mb-3 results-tabs" id="pills-tab" role="tablist">
+              <li class="nav-item" role="presentation"><button class="nav-link active" id="pills-summary-tab" data-bs-toggle="pill" data-bs-target="#pills-summary" type="button" role="tab">Summary</button></li>
+              <li class="nav-item" role="presentation"><button class="nav-link" id="pills-analysis-tab" data-bs-toggle="pill" data-bs-target="#pills-analysis" type="button" role="tab">Analysis</button></li>
+            </ul>
+
+            <div class="tab-content" id="pills-tabContent">
+              <div class="tab-pane fade show active" id="pills-summary" role="tabpanel">
+                <div class="row g-3">
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Total Questions</span><span class="fw-bold">${total}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Correct</span><span class="fw-bold text-success">${correct}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Incorrect</span><span class="fw-bold text-danger">${incorrect}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Unattempted</span><span class="fw-bold text-warning">${unattempted}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Negative Marks</span><span class="fw-bold text-danger">-${neg.toFixed(2)}</span></div></div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="pills-analysis" role="tabpanel">
+                <div class="chart-container mb-3"><canvas id="performanceChart"></canvas></div>
+                <div class="chart-container" style="height: 300px;"><canvas id="timeAnalysisChart"></canvas></div>
+
+                <h5 class="fw-bold mt-5 mb-3 text-center">Telegram Leaderboard</h5>
+                <div id="leaderboardSection"></div>
+              </div>
+            </div>
+            <div class="text-center mt-4">
+                <button id="reviewBtn" class="btn btn-primary btn-lg"><i class="fas fa-search me-2"></i>Review Answers</button>
+            </div>
+        </div>
+      `;
+      resultsContainer.innerHTML = html;
+
+      document.getElementById('reviewBtn').addEventListener('click', reviewMode);
+
+      // Render Leaderboard
+      const lbSection = document.getElementById('leaderboardSection');
+      if (quizData.leaderboard && quizData.leaderboard.rankings && quizData.leaderboard.rankings.length > 0) {
+          let lbHtml = `<table class="leaderboard-table">
+              <thead><tr><th>Rank</th><th>User</th><th>Score</th><th>Acc</th></tr></thead>
+              <tbody>`;
+
+          quizData.leaderboard.rankings.forEach((rank, i) => {
+              const rankClass = i < 3 ? `rank-${i+1}` : '';
+              lbHtml += `<tr>
+                  <td class="${rankClass}">#${i+1}</td>
+                  <td>${rank.name}</td>
+                  <td>${rank.score.toFixed(1)}</td>
+                  <td>${rank.accuracy.toFixed(0)}%</td>
+              </tr>`;
+          });
+
+          lbHtml += `</tbody></table>`;
+          lbSection.innerHTML = lbHtml;
+      } else {
+          lbSection.innerHTML = `<div class="text-muted small text-center p-3">No Telegram comparison data available yet.</div>`;
+      }
+
+      // Trigger chart build after tab is shown
+      const analysisTab = document.getElementById('pills-analysis-tab');
+      analysisTab.addEventListener('shown.bs.tab', () => buildCharts(resData), { once: true });
+  }
+
+  let performanceChartInstance, timeAnalysisChartInstance;
+  function buildCharts(res){
+    const {correct, incorrect, unattempted} = res;
+    Chart.defaults.color = state.darkMode ? '#e8eaed' : '#6c757d';
+
+    if (performanceChartInstance) performanceChartInstance.destroy();
+    performanceChartInstance = new Chart(document.getElementById('performanceChart').getContext('2d'),{
+      type:'doughnut',
+      data:{ labels:['Correct','Incorrect','Unattempted'],
+        datasets:[{ data:[correct,incorrect,unattempted],
+          backgroundColor:['#20c997','#e63946','#ffb703'], borderWidth: 0 }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+    });
+
+    const labels = Array.from({length:quizData.questions.length},(_,i)=>`Q${i+1}`);
+    const correctTimes = state.timePerQ.map((t,i) => state.answers[i] === quizData.questions[i].correctIndex ? t : 0);
+    const incorrectTimes = state.timePerQ.map((t,i) => (state.answers[i] !== null && state.answers[i] !== quizData.questions[i].correctIndex) ? t : 0);
+
+    if(timeAnalysisChartInstance) timeAnalysisChartInstance.destroy();
+    timeAnalysisChartInstance = new Chart(document.getElementById('timeAnalysisChart').getContext('2d'),{
+      type:'bar',
+      data:{ labels,
+        datasets:[
+          {label:'Correct', data:correctTimes, backgroundColor:'rgba(32, 201, 151, 0.7)'},
+          {label:'Incorrect', data:incorrectTimes, backgroundColor:'rgba(230, 57, 70, 0.7)'}
+        ]},
+      options:{ responsive:true, maintainAspectRatio:false, indexAxis: 'x',
+        scales:{ x:{stacked:true, grid: {color: state.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}},
+                 y:{stacked:true, title:{display:true,text:'Time (s)'}, grid: {color: state.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}} },
+      }
+    });
+  }
+
+  function reviewMode(){
+    state.inReviewMode=true; state.lastSoundIdx=-1;
+    questionArea.style.display='block';
+    quizNav.style.display = 'flex';
+    resultsContainer.style.display='none';
+    document.querySelector('.quiz-main-header').style.display = 'flex';
+    renderQuestion(0);
+  }
+
+  function confetti(){
+    const colors=['#6a5af9','#f72585','#20c997','#ffb703'];
+    for(let i=0;i<100;i++){
+      const d=document.createElement('div');
+      d.style.cssText=`position:fixed;width:10px;height:10px;top:-10px;left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};z-index:1300;`;
+      document.body.appendChild(d);
+      const dy = Math.random()*500+500, rot = Math.random()*360;
+      const anim = d.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:`translateY(${dy}px) rotate(${rot}deg)`,opacity:0}],
+        {duration:Math.random()*2000+2000, easing:'ease-out'});
+      anim.onfinish=()=>d.remove();
+    }
+  }
+})();
+</script>
+</body>
+</html>

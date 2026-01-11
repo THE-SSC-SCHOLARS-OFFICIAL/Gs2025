@@ -1,0 +1,1561 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Night-NewBie</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #6a5af9; --secondary: #5041d5; --accent: #f72585;
+    --bg-light: #f4f7fc; --bg-dark: #161925;
+    --surface-light: #ffffff; --surface-dark: #232a40;
+    --text-light: #212529; --text-dark: #e8eaed;
+    --border-light: rgba(0, 0, 0, 0.1); --border-dark: rgba(255, 255, 255, 0.1);
+    --glass-light: rgba(255, 255, 255, 0.7); --glass-dark: rgba(35, 42, 64, 0.7);
+    --success: #20c997; --danger: #e63946; --warning: #ffb703; --info: #0096c7;
+  }
+
+  html {
+      font-size: 14px; /* Reduced base font size */
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    margin: 0;
+    transition: background-color 0.3s, color 0.3s;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body.dark-mode {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+
+  /* --- Home Screen --- */
+  #home-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100vh;
+    padding: 20px;
+  }
+  .home-header {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 2rem;
+  }
+  .home-card {
+    max-width: 500px;
+    width: 100%;
+    padding: 2rem;
+  }
+  .home-card h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+  }
+  .test-details p {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 1rem;
+  }
+  body.dark-mode .test-details p {
+      border-bottom-color: var(--border-dark);
+  }
+  .test-details p span:first-child {
+      font-weight: 500;
+      opacity: 0.8;
+      white-space: nowrap;
+      margin-right: 15px;
+  }
+  .test-details p span:last-child {
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word; /* Ensure long URLs wrap */
+  }
+  #startQuizBtn {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+  }
+   #startQuizBtn:hover {
+      background-color: var(--secondary);
+   }
+  .home-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 40px;
+      font-weight: 600;
+      opacity: 0.9;
+  }
+  /* Updated Home Footer Links */
+  .home-footer a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+  }
+  .home-footer a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+  }
+
+
+  /* --- Main Layout --- */
+  .quiz-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .quiz-sidebar, .quiz-main, .quiz-palette {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .quiz-main {
+    padding: 20px 20px 0 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .quiz-sidebar {
+    background-color: var(--surface-light);
+    border-right: 1px solid var(--border-light);
+  }
+  body.dark-mode .quiz-sidebar {
+    background-color: var(--surface-dark);
+    border-right-color: var(--border-dark);
+  }
+
+  .quiz-palette {
+    background-color: var(--surface-light);
+    border-left: 1px solid var(--border-light);
+  }
+  body.dark-mode .quiz-palette {
+    background-color: var(--surface-dark);
+    border-left-color: var(--border-dark);
+  }
+
+  /* --- Shared Card Style --- */
+  .card-ui {
+    background-color: var(--surface-light);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    margin-bottom: 20px;
+    padding: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+  body.dark-mode .card-ui {
+    background-color: var(--surface-dark);
+    border-color: var(--border-dark);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* --- Left Sidebar: Timer & Info --- */
+  .quiz-brand { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+  .timer-box { text-align: center; }
+  .timer-display { font-size: 3rem; font-weight: 700; letter-spacing: 2px; }
+  #timeProgress { height: 6px; border-radius: 3px; }
+
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-item { text-align: center; background: rgba(0,0,0,0.03); padding: 8px; border-radius: 8px; }
+  body.dark-mode .stat-item { background: rgba(255,255,255,0.05); }
+  .stat-item .value { font-weight: 700; font-size: 1.25rem; }
+  .stat-item .label { font-size: 0.75rem; opacity: 0.7; }
+  .value.correct { color: var(--success); }
+  .value.incorrect { color: var(--danger); }
+  .value.marked { color: var(--info); }
+  .value.unattempted { color: var(--warning); }
+
+
+  /* --- Main Content Area --- */
+  .quiz-main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  /* New Header Timer Style */
+  .header-timer {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-left: 15px;
+      margin-right: auto; /* Pushes subsequent items to the right */
+      letter-spacing: 1px;
+      font-variant-numeric: tabular-nums;
+  }
+
+  .mobile-menu-toggle { display: none; background: none; border: none; font-size: 1.375rem; color: var(--text-light); }
+  body.dark-mode .mobile-menu-toggle { color: var(--text-dark); }
+
+  .quiz-content-area {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      margin: 0 -20px;
+      padding: 0 20px 20px 20px;
+  }
+
+  .thin-progress-bar {
+    height: 4px;
+    background-color: var(--border-light);
+    border-radius: 2px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  body.dark-mode .thin-progress-bar {
+      background-color: var(--border-dark);
+  }
+  .thin-progress-bar-inner {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      border-radius: 2px;
+      transition: width 0.3s ease-in-out;
+  }
+
+  .q-text { font-size: 1.25rem; font-weight: 500; margin: 12px 0; line-height: 1.6; }
+
+  .option-btn {
+    width: 100%; text-align: left;
+    border: 1px solid var(--border-light);
+    background: transparent; color: inherit;
+    border-radius: 10px; padding: 14px 18px;
+    margin: 8px 0; transition: .2s ease all; font-size: 1rem;
+  }
+  body.dark-mode .option-btn { border-color: var(--border-dark); }
+  .option-btn:hover { border-color: var(--primary); background: rgba(106,90,249, 0.05); transform: translateY(-2px); }
+  .option-btn.selected { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+  .option-btn.correct { background: var(--success) !important; color: #fff; border-color: var(--success) !important; }
+  .option-btn.incorrect { background: var(--danger) !important; color: #fff; border-color: var(--danger) !important; }
+
+  .explanation {
+    background: rgba(106,90,249, 0.05);
+    border-left: 4px solid var(--primary);
+    border-radius: 8px; padding: 14px; margin-top: 16px;
+    font-size: 0.9rem;
+  }
+
+  /* Question Timer Styling & Accuracy Badge */
+  .q-meta-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+  }
+  .q-timer {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: rgba(106,90,249, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+  }
+  .q-accuracy {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--success);
+      background: rgba(32, 201, 151, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+  }
+  body.dark-mode .q-timer { color: #9d8fff; background: rgba(106,90,249, 0.2); }
+  body.dark-mode .q-accuracy { color: #4ade80; background: rgba(32, 201, 151, 0.2); }
+
+  .quiz-nav-buttons { 
+      display: flex; 
+      justify-content: space-between; 
+      margin: 0 -20px;
+      padding: 15px 20px;
+      border-top: 1px solid var(--border-light);
+      background: var(--surface-light);
+      transition: background-color 0.3s, border-color 0.3s;
+  }
+  body.dark-mode .quiz-nav-buttons {
+      border-top-color: var(--border-dark);
+      background: var(--surface-dark);
+  }
+  .btn-nav { padding: 10px 20px; border-radius: 8px; font-weight: 600; }
+
+  /* --- Right Sidebar: Question Palette --- */
+  .palette-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 8px; }
+  .q-tile {
+    width: 100%; aspect-ratio: 1 / 1;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border-light);
+    border-radius: 8px; font-weight: 600; cursor: pointer;
+    transition: .2s ease all;
+  }
+  body.dark-mode .q-tile { border-color: var(--border-dark); }
+  .q-tile:hover { transform: scale(1.08); }
+  .q-tile.current { background-color: var(--primary); color: #fff; border-color: var(--primary); }
+  .q-tile.answered { background-color: var(--success); color: #fff; border-color: var(--success); }
+  .q-tile.marked { box-shadow: 0 0 0 2px var(--info) inset; }
+  .q-tile.review-correct { background-color: var(--success); color: #fff; border-color: transparent; }
+  .q-tile.review-incorrect { background-color: var(--danger); color: #fff; border-color: transparent; }
+  .q-tile.review-unattempted { background-color: var(--warning); color: #fff; border-color: transparent; }
+
+  /* --- Results View --- */
+  .results-container { text-align: center; }
+  .final-score { font-size: 5rem; font-weight: 800; color: var(--primary); }
+  .results-tabs .nav-link { color: inherit; opacity: 0.7; }
+  .results-tabs .nav-link.active { color: var(--primary); font-weight: 600; opacity: 1; border-bottom: 2px solid var(--primary); border-radius: 0; background: none; }
+  .chart-container { height: 250px; }
+
+  /* Leaderboard Styles */
+  .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
+  .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-light); }
+  body.dark-mode .leaderboard-table th, body.dark-mode .leaderboard-table td { border-bottom-color: var(--border-dark); }
+  .leaderboard-table th { font-weight: 600; opacity: 0.8; }
+  .rank-1 { color: #FFD700; font-weight: bold; }
+  .rank-2 { color: #C0C0C0; font-weight: bold; }
+  .rank-3 { color: #CD7F32; font-weight: bold; }
+
+  /* --- Header Action Buttons --- */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1;
+    gap: 8px;
+  }
+  .action-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+  .action-btn:hover {
+    transform: scale(1.1);
+    background-color: rgba(0,0,0,0.05);
+  }
+  body.dark-mode .action-btn {
+    color: var(--text-dark);
+  }
+  body.dark-mode .action-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+  }
+
+  #languageSwitch button {
+    font-weight: 700;
+    min-width: 55px;
+    padding: 0 8px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--text-light);
+    box-shadow: none;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+  body.dark-mode #languageSwitch button {
+    background-color: transparent;
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+  }
+  #languageSwitch button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+  }
+
+  /* --- Responsive Design --- */
+  @media (max-width: 992px) {
+    .quiz-layout { grid-template-columns: 1fr; }
+    .quiz-sidebar, .quiz-palette {
+      position: fixed; top: 0;
+      width: 280px; height: 100%;
+      z-index: 1100;
+      transition: transform 0.3s ease;
+      box-shadow: 0 0 40px rgba(0,0,0,0.2);
+    }
+    .quiz-sidebar { transform: translateX(-100%); left: 0; border-right: none; }
+    .quiz-palette { transform: translateX(100%); right: 0; border-left: none; }
+    .quiz-sidebar.show, .quiz-palette.show { transform: translateX(0); }
+
+    .mobile-menu-toggle { display: block; }
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 1090; opacity: 0; visibility: hidden; transition: .3s;
+    }
+    .overlay.show { opacity: 1; visibility: visible; }
+
+    /* Adjust header timer on mobile */
+    .header-timer { font-size: 1.1rem; margin-left: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="home-screen">
+    <h1 class="home-header">TEST</h1>
+    <div class="card-ui home-card">
+        <h2>Test</h2>
+        <div class="test-details">
+            <p><span>Topic</span> <span id="homeTopic">Topic Name Here</span></p>
+            <p><span>Q.</span> <span id="homeQuestions">0</span></p>
+            <p><span>Timer</span> <span id="homeTime">0 Minutes</span></p>
+            <p><span>N.Mark</span> <span id="homeNegative">0</span></p>
+        </div>
+        <button id="startQuizBtn">Start</button>
+    </div>
+    <footer class="home-footer">
+        <!-- Clickable Links -->
+        <a href="https://t.me/AI_quiz_bot_pro" target="_blank">@AI_quiz_bot_pro</a>
+        <a href="https://t.me/elite_quiz_bot" target="_blank">@elite_quiz_bot</a>
+    </footer>
+</div>
+
+
+<div id="quiz-screen" style="display: none;">
+    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/269/269.wav" preload="auto"></audio>
+    <audio id="swipeSound" src="https://assets.mixkit.co/active_storage/sfx/1897/1897.wav" preload="auto"></audio>
+    <audio id="correctSound" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav" preload="auto"></audio>
+    <audio id="wrongSound" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav" preload="auto"></audio>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="quiz-layout">
+      <aside class="quiz-sidebar" id="infoSidebar">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="quiz-brand">@elite_quiz_bot</div>
+            <button class="mobile-menu-toggle" id="closeInfoSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="card-ui timer-box">
+            <div class="timer-display"><span id="minutes">00</span>:<span id="seconds">00</span></div>
+            <div class="progress mt-2">
+              <div id="timeProgress" class="progress-bar bg-primary" style="width:100%"></div>
+            </div>
+        </div>
+        <div class="card-ui">
+            <h5 class="fw-bold mb-3">Quiz Stats</h5>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="value correct" id="statAnswered">0</div>
+                    <div class="label">Answered</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value unattempted" id="statUnanswered">0</div>
+                    <div class="label">Unanswered</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value marked" id="statMarked">0</div>
+                    <div class="label">Marked</div>
+                </div>
+                 <div class="stat-item">
+                    <div class="value" id="statTotal">0</div>
+                    <div class="label">Total</div>
+                </div>
+            </div>
+        </div>
+         <button id="submitBtn" class="btn btn-primary w-100 py-2 fw-bold">
+            <i class="fas fa-paper-plane me-2"></i>Submit Quiz
+         </button>
+      </aside>
+
+      <main class="quiz-main">
+        <div class="quiz-main-header">
+          <button class="mobile-menu-toggle" id="openInfoSidebar"><i class="fas fa-bars"></i></button>
+
+          <!-- MAIN HEADER TIMER ADDED HERE -->
+          <div class="header-timer" id="headerTimerDisp">00:00</div>
+
+          <div class="header-actions">
+              <div id="languageSwitch">
+                  <button id="langToggleBtn">BILI</button>
+              </div>
+              <button class="action-btn" id="fontDecreaseBtn" aria-label="Decrease font size"><i class="fas fa-minus"></i></button>
+              <button class="action-btn" id="fontIncreaseBtn" aria-label="Increase font size"><i class="fas fa-plus"></i></button>
+              <button class="action-btn" id="fullscreenToggle" aria-label="Toggle fullscreen"><i class="fas fa-expand"></i></button>
+              <button class="action-btn" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+          </div>
+
+          <button class="mobile-menu-toggle" id="openPaletteSidebar"><i class="fas fa-th-large"></i></button>
+        </div>
+
+        <div class="quiz-content-area">
+            <div class="thin-progress-bar">
+                <div id="thinProgressBarInner" class="thin-progress-bar-inner"></div>
+            </div>
+            <div id="questionArea"></div>
+            <div id="resultsContainer" style="display: none;"></div>
+        </div>
+
+        <div id="quizNav" class="quiz-nav-buttons" style="display: none;"></div>
+
+      </main>
+
+      <aside class="quiz-palette" id="paletteSidebar">
+         <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold m-0">Question Palette</h5>
+            <button class="mobile-menu-toggle" id="closePaletteSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="palette-grid" id="qList"></div>
+        <div class="mt-4">
+            <h6 class="fw-bold">Legend</h6>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile me-2" style="width: 25px; height: 25px;"></div> Not Visited</div>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile answered me-2" style="width: 25px; height: 25px;"></div> Answered</div>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile marked me-2" style="width: 25px; height: 25px;"></div> Marked for Review</div>
+            <div class="d-flex align-items-center small my-2"><div class="q-tile current me-2" style="width: 25px; height: 25px;"></div> Current Question</div>
+        </div>
+      </aside>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Placeholder quizData, will be replaced by Python
+const quizData = {
+  "settings": {
+    "topic": "Mordern history \n\nAdvent of Europeans\n\n\ud83c\udfaf Discussion & quiz:-https://t.me/+jLBCSC40twkyNWZl \n\ud83d\udccc Quiz collection:-  https://t.me/+_sXRuzxAFGwzMWE1\n\ud83c\udfaf other than warbook quizzes link :- https://t.me/quizz_whizz/130",
+    "totalTimeSec": 400,
+    "negativeMarkPerWrong": 0.33
+  },
+  "questions": [
+    {
+      "text": "<b>Q1.</b> Which of the following best captures the broader geopolitical shift triggered by the decisive defeat of the Nawab of Carnatic&#x27;s forces in their confrontation with European powers? / \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0936\u0915\u094d\u0924\u093f\u092f\u094b\u0902 \u0915\u0947 \u0938\u093e\u0925 \u0909\u0928\u0915\u0947 \u092e\u0941\u0915\u093e\u092c\u0932\u0947 \u092e\u0947\u0902 \u0915\u0930\u094d\u0928\u093e\u091f\u0915 \u0915\u0947 \u0928\u0935\u093e\u092c \u0915\u0940 \u0938\u0947\u0928\u093e\u0913\u0902 \u0915\u0940 \u0928\u093f\u0930\u094d\u0923\u093e\u092f\u0915 \u0939\u093e\u0930 \u0938\u0947 \u0936\u0941\u0930\u0942 \u0939\u0941\u090f \u0935\u094d\u092f\u093e\u092a\u0915 \u092d\u0942-\u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u092c\u0926\u0932\u093e\u0935 \u0915\u094b \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u092c\u0938\u0947 \u0905\u091a\u094d\u091b\u0940 \u0924\u0930\u0939 \u0938\u0947 \u0926\u0930\u094d\u0936\u093e\u0924\u093e \u0939\u0948? [SSC Steno, 07/08/2025, Shift-1]",
+      "options": [
+        "It revealed systemic vulnerabilities in native military structures, prompting European companies to transition from trade to political hegemony. / \u0907\u0938\u0928\u0947 \u0938\u094d\u0935\u0926\u0947\u0936\u0940 \u0938\u0948\u0928\u094d\u092f \u0938\u0902\u0930\u091a\u0928\u093e\u0913\u0902 \u092e\u0947\u0902 \u092a\u094d\u0930\u0923\u093e\u0932\u0940\u0917\u0924 \u0915\u092e\u091c\u094b\u0930\u093f\u092f\u094b\u0902 \u0915\u094b \u0909\u091c\u093e\u0917\u0930 \u0915\u093f\u092f\u093e, \u091c\u093f\u0938\u0938\u0947 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0915\u0902\u092a\u0928\u093f\u092f\u094b\u0902 \u0915\u094b \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u0938\u0947 \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u0935\u0930\u094d\u091a\u0938\u094d\u0935 \u0915\u0940 \u0913\u0930 \u092c\u0922\u093c\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092a\u094d\u0930\u0947\u0930\u093f\u0924 \u0915\u093f\u092f\u093e\u0964",
+        "It disillusioned European companies regarding their military capabilities. / \u0907\u0938\u0928\u0947 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0915\u0902\u092a\u0928\u093f\u092f\u094b\u0902 \u0915\u094b \u0909\u0928\u0915\u0940 \u0938\u0948\u0928\u094d\u092f \u0915\u094d\u0937\u092e\u0924\u093e\u0913\u0902 \u0915\u0947 \u092c\u093e\u0930\u0947 \u092e\u0947\u0902 \u0928\u093f\u0930\u093e\u0936 \u0915\u093f\u092f\u093e\u0964",
+        "It consolidated indigenous authority over coastal trade. / \u0907\u0938\u0928\u0947 \u0924\u091f\u0940\u092f \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u092a\u0930 \u0938\u094d\u0935\u0926\u0947\u0936\u0940 \u0905\u0927\u093f\u0915\u093e\u0930 \u0915\u094b \u092e\u091c\u092c\u0942\u0924 \u0915\u093f\u092f\u093e\u0964",
+        "It established a stable dual-administrative system. / \u0907\u0938\u0928\u0947 \u090f\u0915 \u0938\u094d\u0925\u093f\u0930 \u0926\u094b\u0939\u0930\u0940 \u092a\u094d\u0930\u0936\u093e\u0938\u0928\u093f\u0915 \u0935\u094d\u092f\u0935\u0938\u094d\u0925\u093e \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0940\u0964"
+      ],
+      "correctIndex": 0,
+      "explanation": "The defeat of the Nawab of Carnatic\u2019s massive army by a small French force at the Battle of St. Thome (1746) exposed the weakness of traditional Indian cavalry against disciplined European infantry and artillery. This realization emboldened European companies, particularly the British and French, to shift from mere trading entities to political powers interfering in local successions, making option (a) correct. Option (b) is the opposite of reality, as their confidence soared. Options (c) and (d) are incorrect because indigenous authority weakened, and the dual system came much later in Bengal. This battle is often cited as the first time a small European force defeated a large Indian army on Indian soil. / 1746 \u092e\u0947\u0902 \u0938\u0947\u0902\u091f \u0925\u094b\u092e \u0915\u0947 \u092f\u0941\u0926\u094d\u0927 \u092e\u0947\u0902 \u090f\u0915 \u091b\u094b\u091f\u0940 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u0938\u0947\u0928\u093e \u0926\u094d\u0935\u093e\u0930\u093e \u0915\u0930\u094d\u0928\u093e\u091f\u0915 \u0915\u0947 \u0928\u0935\u093e\u092c \u0915\u0940 \u0935\u093f\u0936\u093e\u0932 \u0938\u0947\u0928\u093e \u0915\u0940 \u0939\u093e\u0930 \u0928\u0947 \u0905\u0928\u0941\u0936\u093e\u0938\u093f\u0924 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u092a\u0948\u0926\u0932 \u0938\u0947\u0928\u093e \u0914\u0930 \u0924\u094b\u092a\u0916\u093e\u0928\u0947 \u0915\u0947 \u0938\u093e\u092e\u0928\u0947 \u092a\u093e\u0930\u0902\u092a\u0930\u093f\u0915 \u092d\u093e\u0930\u0924\u0940\u092f \u0918\u0941\u0921\u093c\u0938\u0935\u093e\u0930 \u0938\u0947\u0928\u093e \u0915\u0940 \u0915\u092e\u091c\u094b\u0930\u0940 \u0915\u094b \u0909\u091c\u093e\u0917\u0930 \u0915\u0930 \u0926\u093f\u092f\u093e\u0964 \u0907\u0938 \u0905\u0939\u0938\u093e\u0938 \u0928\u0947 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0915\u0902\u092a\u0928\u093f\u092f\u094b\u0902, \u0935\u093f\u0936\u0947\u0937 \u0930\u0942\u092a \u0938\u0947 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0914\u0930 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u0915\u094b \u0915\u0947\u0935\u0932 \u0935\u094d\u092f\u093e\u092a\u093e\u0930\u093f\u0915 \u0938\u0902\u0938\u094d\u0925\u093e\u0913\u0902 \u0938\u0947 \u0938\u094d\u0925\u093e\u0928\u0940\u092f \u0909\u0924\u094d\u0924\u0930\u093e\u0927\u093f\u0915\u093e\u0930 \u092e\u0947\u0902 \u0939\u0938\u094d\u0924\u0915\u094d\u0937\u0947\u092a \u0915\u0930\u0928\u0947 \u0935\u093e\u0932\u0940 \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u0936\u0915\u094d\u0924\u093f\u092f\u094b\u0902 \u092e\u0947\u0902 \u092c\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092a\u094d\u0930\u094b\u0924\u094d\u0938\u093e\u0939\u093f\u0924 \u0915\u093f\u092f\u093e, \u091c\u093f\u0938\u0938\u0947 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0938\u0939\u0940 \u0939\u094b \u0917\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0935\u093e\u0938\u094d\u0924\u0935\u093f\u0915\u0924\u093e \u0915\u0947 \u0935\u093f\u092a\u0930\u0940\u0924 \u0939\u0948, \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0909\u0928\u0915\u093e \u0906\u0924\u094d\u092e\u0935\u093f\u0936\u094d\u0935\u093e\u0938 \u092c\u0922\u093c \u0917\u092f\u093e \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0914\u0930 (d) \u0917\u0932\u0924 \u0939\u0948\u0902 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0938\u094d\u0935\u0926\u0947\u0936\u0940 \u0905\u0927\u093f\u0915\u093e\u0930 \u0915\u092e\u091c\u094b\u0930 \u0939\u094b \u0917\u090f \u0925\u0947 \u0914\u0930 \u092c\u0902\u0917\u093e\u0932 \u092e\u0947\u0902 \u0926\u094b\u0939\u0930\u0940 \u0935\u094d\u092f\u0935\u0938\u094d\u0925\u093e \u092c\u0939\u0941\u0924 \u092c\u093e\u0926 \u092e\u0947\u0902 \u0906\u0908 \u0925\u0940\u0964 \u0907\u0938 \u092f\u0941\u0926\u094d\u0927 \u0915\u094b \u0905\u0915\u094d\u0938\u0930 \u092a\u0939\u0932\u0940 \u092c\u093e\u0930 \u0909\u0926\u094d\u0927\u0943\u0924 \u0915\u093f\u092f\u093e \u091c\u093e\u0924\u093e \u0939\u0948 \u091c\u092c \u090f\u0915 \u091b\u094b\u091f\u0940 \u092f\u0942\u0930\u094b\u092a\u0940\u092f \u0938\u0947\u0928\u093e \u0928\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u0927\u0930\u0924\u0940 \u092a\u0930 \u090f\u0915 \u092c\u0921\u093c\u0940 \u092d\u093e\u0930\u0924\u0940\u092f \u0938\u0947\u0928\u093e \u0915\u094b \u0939\u0930\u093e\u092f\u093e \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q2. Assertion: The Treaty of Paris (1763) limited French settlements in India to trading posts only. / \u0905\u092d\u093f\u0915\u0925\u0928: \u092a\u0947\u0930\u093f\u0938 \u0915\u0940 \u0938\u0902\u0927\u093f (1763) \u0928\u0947 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u092c\u0938\u094d\u0924\u093f\u092f\u094b\u0902 \u0915\u094b \u0915\u0947\u0935\u0932 \u0935\u094d\u092f\u093e\u092a\u093e\u0930\u093f\u0915 \u0915\u0947\u0902\u0926\u094d\u0930\u094b\u0902 \u0924\u0915 \u0938\u0940\u092e\u093f\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e\u0964<br>Reason: The French could no longer station troops or fortify their factories after the treaty. / \u0915\u093e\u0930\u0923: \u0938\u0902\u0927\u093f \u0915\u0947 \u092c\u093e\u0926 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u0905\u092c \u0938\u0948\u0928\u093f\u0915\u094b\u0902 \u0915\u094b \u0924\u0948\u0928\u093e\u0924 \u0928\u0939\u0940\u0902 \u0915\u0930 \u0938\u0915\u0924\u0947 \u0925\u0947 \u092f\u093e \u0905\u092a\u0928\u0947 \u0915\u093e\u0930\u0916\u093e\u0928\u094b\u0902 \u0915\u0940 \u0915\u093f\u0932\u0947\u092c\u0902\u0926\u0940 \u0928\u0939\u0940\u0902 \u0915\u0930 \u0938\u0915\u0924\u0947 \u0925\u0947\u0964<br>[SSC Steno, 07/08/2025, Shift-2]\n            </div>\n            <b>Q2.</b> Choose the correct option: / \u0938\u0939\u0940 \u0935\u093f\u0915\u0932\u094d\u092a \u091a\u0941\u0928\u0947\u0902:",
+      "options": [
+        "Both A and R are true, and R is not the correct explanation of A. / A \u0914\u0930 R \u0926\u094b\u0928\u094b\u0902 \u0938\u0924\u094d\u092f \u0939\u0948\u0902, \u0914\u0930 R, A \u0915\u0940 \u0938\u0939\u0940 \u0935\u094d\u092f\u093e\u0916\u094d\u092f\u093e \u0928\u0939\u0940\u0902 \u0939\u0948\u0964",
+        "Both A and R are true, and R is the correct explanation of A. / A \u0914\u0930 R \u0926\u094b\u0928\u094b\u0902 \u0938\u0924\u094d\u092f \u0939\u0948\u0902, \u0914\u0930 R, A \u0915\u0940 \u0938\u0939\u0940 \u0935\u094d\u092f\u093e\u0916\u094d\u092f\u093e \u0939\u0948\u0964",
+        "A is true, but R is false. / A \u0938\u0924\u094d\u092f \u0939\u0948, \u0932\u0947\u0915\u093f\u0928 R \u0917\u0932\u0924 \u0939\u0948\u0964",
+        "A is false, but R is true. / A \u0917\u0932\u0924 \u0939\u0948, \u0932\u0947\u0915\u093f\u0928 R \u0938\u0924\u094d\u092f \u0939\u0948\u0964"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Treaty of Paris (1763) ended the Seven Years' War and restored French factories in India but explicitly forbade them from fortifying these settlements or maintaining troops (Reason). This military restriction effectively reduced the French to mere commercial traders without political power, which directly explains why their settlements were limited to trading posts (Assertion). Therefore, both statements are true, and the reason correctly explains the assertion. Options (a), (c), and (d) are incorrect because the military ban was the direct cause of their reduced status. This treaty marked the definitive end of French ambitions to build an empire in India. / \u092a\u0947\u0930\u093f\u0938 \u0915\u0940 \u0938\u0902\u0927\u093f (1763) \u0928\u0947 \u0938\u093e\u0924 \u0938\u093e\u0932 \u0915\u0947 \u092f\u0941\u0926\u094d\u0927 \u0915\u094b \u0938\u092e\u093e\u092a\u094d\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e \u0914\u0930 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u0915\u093e\u0930\u0916\u093e\u0928\u094b\u0902 \u0915\u094b \u092c\u0939\u093e\u0932 \u0915\u0930 \u0926\u093f\u092f\u093e \u0932\u0947\u0915\u093f\u0928 \u0938\u094d\u092a\u0937\u094d\u091f \u0930\u0942\u092a \u0938\u0947 \u0909\u0928\u094d\u0939\u0947\u0902 \u0907\u0928 \u092c\u0938\u094d\u0924\u093f\u092f\u094b\u0902 \u0915\u094b \u092e\u091c\u092c\u0942\u0924 \u0915\u0930\u0928\u0947 \u092f\u093e \u0938\u0948\u0928\u093f\u0915\u094b\u0902 \u0915\u094b \u0930\u0916\u0928\u0947 \u0938\u0947 \u092e\u0928\u093e \u0915\u0930 \u0926\u093f\u092f\u093e (\u0915\u093e\u0930\u0923)\u0964 \u0907\u0938 \u0938\u0948\u0928\u094d\u092f \u092a\u094d\u0930\u0924\u093f\u092c\u0902\u0927 \u0928\u0947 \u092a\u094d\u0930\u092d\u093e\u0935\u0940 \u0930\u0942\u092a \u0938\u0947 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u093f\u092f\u094b\u0902 \u0915\u094b \u092c\u093f\u0928\u093e \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u0936\u0915\u094d\u0924\u093f \u0915\u0947 \u0915\u0947\u0935\u0932 \u0935\u093e\u0923\u093f\u091c\u094d\u092f\u093f\u0915 \u0935\u094d\u092f\u093e\u092a\u093e\u0930\u093f\u092f\u094b\u0902 \u0924\u0915 \u0938\u0940\u092e\u093f\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e, \u091c\u094b \u0938\u0940\u0927\u0947 \u0924\u094c\u0930 \u092a\u0930 \u092c\u0924\u093e\u0924\u093e \u0939\u0948 \u0915\u093f \u0909\u0928\u0915\u0940 \u092c\u0938\u094d\u0924\u093f\u092f\u093e\u0902 \u0935\u094d\u092f\u093e\u092a\u093e\u0930\u093f\u0915 \u0915\u0947\u0902\u0926\u094d\u0930\u094b\u0902 \u0924\u0915 \u0939\u0940 \u0938\u0940\u092e\u093f\u0924 \u0915\u094d\u092f\u094b\u0902 \u0925\u0940\u0902 (\u0905\u092d\u093f\u0915\u0925\u0928)\u0964 \u0907\u0938\u0932\u093f\u090f, \u0926\u094b\u0928\u094b\u0902 \u0915\u0925\u0928 \u0938\u0924\u094d\u092f \u0939\u0948\u0902, \u0914\u0930 \u0915\u093e\u0930\u0923 \u0905\u092d\u093f\u0915\u0925\u0928 \u0915\u0940 \u0938\u0939\u0940 \u0935\u094d\u092f\u093e\u0916\u094d\u092f\u093e \u0915\u0930\u0924\u093e \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a), (c) \u0914\u0930 (d) \u0917\u0932\u0924 \u0939\u0948\u0902 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0938\u0948\u0928\u094d\u092f \u092a\u094d\u0930\u0924\u093f\u092c\u0902\u0927 \u0909\u0928\u0915\u0940 \u0915\u092e \u0938\u094d\u0925\u093f\u0924\u093f \u0915\u093e \u092a\u094d\u0930\u0924\u094d\u092f\u0915\u094d\u0937 \u0915\u093e\u0930\u0923 \u0925\u093e\u0964 \u0907\u0938 \u0938\u0902\u0927\u093f \u0928\u0947 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f \u092c\u0928\u093e\u0928\u0947 \u0915\u0940 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u092e\u0939\u0924\u094d\u0935\u093e\u0915\u093e\u0902\u0915\u094d\u0937\u093e\u0913\u0902 \u0915\u0947 \u0928\u093f\u0936\u094d\u091a\u093f\u0924 \u0905\u0902\u0924 \u0915\u094b \u091a\u093f\u0939\u094d\u0928\u093f\u0924 \u0915\u093f\u092f\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q3.</b> On the bank of which river was the first English factory established? / \u0915\u093f\u0938 \u0928\u0926\u0940 \u0915\u0947 \u0924\u091f \u092a\u0930 \u092a\u0939\u0932\u0940 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u0940 \u092b\u0948\u0915\u094d\u091f\u094d\u0930\u0940 \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0940 \u0917\u0908 \u0925\u0940? [SSC CHSL, 22 Nov 2025, Shift-3]",
+      "options": [
+        "Ganga / \u0917\u0902\u0917\u093e",
+        "Kaveri / \u0915\u093e\u0935\u0947\u0930\u0940",
+        "Mahanadi / \u092e\u0939\u093e\u0928\u0926\u0940",
+        "Hugli / \u0939\u0941\u0917\u0932\u0940"
+      ],
+      "correctIndex": 3,
+      "explanation": "The first English factory in Bengal was established on the banks of the river Hugli in 1651. While the very first English factory in India was at Surat (1613), SSC exams frequently ask this question in the context of East India or Bengal trade expansion, making Hugli the intended answer. Options (a) and (b) are incorrect as no initial factories were on the main Ganga or Kaveri. Option (c) is incorrect, although a factory was established at Hariharpur (Mahanadi delta) in 1633, Hugli remains the primary answer for river-bank questions in this context. A key fact is that Dr. Gabriel Boughton, a surgeon, helped secure the firman for this trade privilege after treating a royal lady. / 1651 \u092e\u0947\u0902 \u0939\u0941\u0917\u0932\u0940 \u0928\u0926\u0940 \u0915\u0947 \u0924\u091f \u092a\u0930 \u092c\u0902\u0917\u093e\u0932 \u092e\u0947\u0902 \u092a\u0939\u0932\u0940 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u0940 \u092b\u0948\u0915\u094d\u091f\u094d\u0930\u0940 \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0940 \u0917\u0908 \u0925\u0940\u0964 \u091c\u092c\u0915\u093f \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092a\u0939\u0932\u0940 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u0940 \u092b\u0948\u0915\u094d\u091f\u094d\u0930\u0940 \u0938\u0942\u0930\u0924 (1613) \u092e\u0947\u0902 \u0925\u0940, SSC \u092a\u0930\u0940\u0915\u094d\u0937\u093e \u0905\u0915\u094d\u0938\u0930 \u092a\u0942\u0930\u094d\u0935\u0940 \u092d\u093e\u0930\u0924 \u092f\u093e \u092c\u0902\u0917\u093e\u0932 \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u0935\u093f\u0938\u094d\u0924\u093e\u0930 \u0915\u0947 \u0938\u0902\u0926\u0930\u094d\u092d \u092e\u0947\u0902 \u092f\u0939 \u092a\u094d\u0930\u0936\u094d\u0928 \u092a\u0942\u091b\u0924\u0940 \u0939\u0948, \u091c\u093f\u0938\u0938\u0947 \u0939\u0941\u0917\u0932\u0940 \u0907\u091a\u094d\u091b\u093f\u0924 \u0909\u0924\u094d\u0924\u0930 \u092c\u0928 \u091c\u093e\u0924\u093e \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0914\u0930 (b) \u0917\u0932\u0924 \u0939\u0948\u0902 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u092e\u0941\u0916\u094d\u092f \u0917\u0902\u0917\u093e \u092f\u093e \u0915\u093e\u0935\u0947\u0930\u0940 \u092a\u0930 \u0915\u094b\u0908 \u092a\u094d\u0930\u093e\u0930\u0902\u092d\u093f\u0915 \u0915\u093e\u0930\u0916\u093e\u0928\u0947 \u0928\u0939\u0940\u0902 \u0925\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0917\u0932\u0924 \u0939\u0948, \u0939\u093e\u0932\u093e\u0902\u0915\u093f 1633 \u092e\u0947\u0902 \u0939\u0930\u093f\u0939\u0930\u092a\u0941\u0930 (\u092e\u0939\u093e\u0928\u0926\u0940 \u0921\u0947\u0932\u094d\u091f\u093e) \u092e\u0947\u0902 \u090f\u0915 \u0915\u093e\u0930\u0916\u093e\u0928\u093e \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e, \u0932\u0947\u0915\u093f\u0928 \u0907\u0938 \u0938\u0902\u0926\u0930\u094d\u092d \u092e\u0947\u0902 \u0928\u0926\u0940-\u0924\u091f \u0915\u0947 \u092a\u094d\u0930\u0936\u094d\u0928\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u0939\u0941\u0917\u0932\u0940 \u092a\u094d\u0930\u093e\u0925\u092e\u093f\u0915 \u0909\u0924\u094d\u0924\u0930 \u092c\u0928\u093e \u0939\u0941\u0906 \u0939\u0948\u0964 \u090f\u0915 \u092e\u0941\u0916\u094d\u092f \u0924\u0925\u094d\u092f \u092f\u0939 \u0939\u0948 \u0915\u093f \u090f\u0915 \u0938\u0930\u094d\u091c\u0928 \u0921\u0949. \u0917\u0947\u092c\u094d\u0930\u093f\u092f\u0932 \u092c\u0949\u091f\u0928 \u0928\u0947 \u090f\u0915 \u0936\u093e\u0939\u0940 \u092e\u0939\u093f\u0932\u093e \u0915\u093e \u0907\u0932\u093e\u091c \u0915\u0930\u0928\u0947 \u0915\u0947 \u092c\u093e\u0926 \u0907\u0938 \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u0935\u093f\u0936\u0947\u0937\u093e\u0927\u093f\u0915\u093e\u0930 \u0915\u0947 \u0932\u093f\u090f \u092b\u0930\u092e\u093e\u0928 \u0939\u093e\u0938\u093f\u0932 \u0915\u0930\u0928\u0947 \u092e\u0947\u0902 \u092e\u0926\u0926 \u0915\u0940 \u0925\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q4.</b> Around which year was Robert Clive appointed the Governor of Bengal? / \u0930\u0949\u092c\u0930\u094d\u091f \u0915\u094d\u0932\u093e\u0907\u0935 \u0915\u094b \u092c\u0902\u0917\u093e\u0932 \u0915\u093e \u0917\u0935\u0930\u094d\u0928\u0930 \u0932\u0917\u092d\u0917 \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u0928\u093f\u092f\u0941\u0915\u094d\u0924 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e? [SSC CHSL, 28 Nov 2025, Shift-2]",
+      "options": [
+        "1733 / 1733",
+        "1752 / 1752",
+        "1764 / 1764",
+        "1781 / 1781"
+      ],
+      "correctIndex": 2,
+      "explanation": "Robert Clive was appointed Governor of Bengal for his second term in 1764 and arrived in India in May 1765 to take charge. His first term was from 1757 to 1760. Option (c) is the correct answer as it marks his reappointment to stabilize the company's affairs after the chaos under his successors. Options (a), (b), and (d) are incorrect dates for his governorship. During this second tenure, Clive established the \"Dual System\" of government in Bengal, where the Company controlled revenues (Diwani) while the Nawab handled administration (Nizamat). / \u0930\u0949\u092c\u0930\u094d\u091f \u0915\u094d\u0932\u093e\u0907\u0935 \u0915\u094b 1764 \u092e\u0947\u0902 \u0905\u092a\u0928\u0947 \u0926\u0942\u0938\u0930\u0947 \u0915\u093e\u0930\u094d\u092f\u0915\u093e\u0932 \u0915\u0947 \u0932\u093f\u090f \u092c\u0902\u0917\u093e\u0932 \u0915\u093e \u0917\u0935\u0930\u094d\u0928\u0930 \u0928\u093f\u092f\u0941\u0915\u094d\u0924 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e \u0914\u0930 \u0935\u0947 \u0915\u093e\u0930\u094d\u092f\u092d\u093e\u0930 \u0938\u0902\u092d\u093e\u0932\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092e\u0908 1765 \u092e\u0947\u0902 \u092d\u093e\u0930\u0924 \u0906\u090f \u0925\u0947\u0964 \u0909\u0928\u0915\u093e \u092a\u0939\u0932\u093e \u0915\u093e\u0930\u094d\u092f\u0915\u093e\u0932 1757 \u0938\u0947 1760 \u0924\u0915 \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0938\u0939\u0940 \u0909\u0924\u094d\u0924\u0930 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u092f\u0939 \u0909\u0928\u0915\u0947 \u0909\u0924\u094d\u0924\u0930\u093e\u0927\u093f\u0915\u093e\u0930\u093f\u092f\u094b\u0902 \u0915\u0947 \u0924\u0939\u0924 \u0905\u0930\u093e\u091c\u0915\u0924\u093e \u0915\u0947 \u092c\u093e\u0926 \u0915\u0902\u092a\u0928\u0940 \u0915\u0947 \u092e\u093e\u092e\u0932\u094b\u0902 \u0915\u094b \u0938\u094d\u0925\u093f\u0930 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0909\u0928\u0915\u0940 \u092a\u0941\u0928\u0930\u094d\u0928\u093f\u092f\u0941\u0915\u094d\u0924\u093f \u0915\u094b \u091a\u093f\u0939\u094d\u0928\u093f\u0924 \u0915\u0930\u0924\u093e \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a), (b) \u0914\u0930 (d) \u0909\u0928\u0915\u0940 \u0917\u0935\u0930\u094d\u0928\u0930\u0940 \u0915\u0947 \u0932\u093f\u090f \u0917\u0932\u0924 \u0924\u093e\u0930\u0940\u0916\u0947\u0902 \u0939\u0948\u0902\u0964 \u0907\u0938 \u0926\u0942\u0938\u0930\u0947 \u0915\u093e\u0930\u094d\u092f\u0915\u093e\u0932 \u0915\u0947 \u0926\u094c\u0930\u093e\u0928, \u0915\u094d\u0932\u093e\u0907\u0935 \u0928\u0947 \u092c\u0902\u0917\u093e\u0932 \u092e\u0947\u0902 \u0936\u093e\u0938\u0928 \u0915\u0940 \"\u0926\u094b\u0939\u0930\u0940 \u092a\u094d\u0930\u0923\u093e\u0932\u0940\" \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0940, \u091c\u0939\u093e\u0901 \u0915\u0902\u092a\u0928\u0940 \u0928\u0947 \u0930\u093e\u091c\u0938\u094d\u0935 (\u0926\u0940\u0935\u093e\u0928\u0940) \u0915\u094b \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u093f\u0924 \u0915\u093f\u092f\u093e \u091c\u092c\u0915\u093f \u0928\u0935\u093e\u092c \u0928\u0947 \u092a\u094d\u0930\u0936\u093e\u0938\u0928 (\u0928\u093f\u091c\u093e\u092e\u0924) \u0915\u094b \u0938\u0902\u092d\u093e\u0932\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q5.</b> What tragic incident happened in the life of Robert Clive in 1774? / 1774 \u092e\u0947\u0902 \u0930\u0949\u092c\u0930\u094d\u091f \u0915\u094d\u0932\u093e\u0907\u0935 \u0915\u0947 \u091c\u0940\u0935\u0928 \u092e\u0947\u0902 \u0915\u094c\u0928 \u0938\u0940 \u0926\u0941\u0916\u0926 \u0918\u091f\u0928\u093e \u0918\u091f\u0940? [SSC CHSL, 26 Nov 2025, Shift-1]",
+      "options": [
+        "He was assassinated. / \u0909\u0928\u0915\u0940 \u0939\u0924\u094d\u092f\u093e \u0915\u0930 \u0926\u0940 \u0917\u0908 \u0925\u0940\u0964",
+        "He committed suicide. / \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0906\u0924\u094d\u092e\u0939\u0924\u094d\u092f\u093e \u0915\u0930 \u0932\u0940\u0964",
+        "He was exiled to Burma. / \u0909\u0928\u094d\u0939\u0947\u0902 \u092c\u0930\u094d\u092e\u093e \u0928\u093f\u0930\u094d\u0935\u093e\u0938\u093f\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964",
+        "He was given death penalty on the charges of corruption. / \u092d\u094d\u0930\u0937\u094d\u091f\u093e\u091a\u093e\u0930 \u0915\u0947 \u0906\u0930\u094b\u092a\u094b\u0902 \u092e\u0947\u0902 \u0909\u0928\u094d\u0939\u0947\u0902 \u092e\u094c\u0924 \u0915\u0940 \u0938\u091c\u093e \u0926\u0940 \u0917\u0908 \u0925\u0940\u0964"
+      ],
+      "correctIndex": 1,
+      "explanation": "Robert Clive committed suicide in November 1774 at his Berkeley Square home in London. He had been suffering from severe health issues, including gallstones and depression, and was also under immense stress from a parliamentary inquiry into his wealth and conduct in India. Option (a) is incorrect as he was not murdered. Options (c) and (d) are factually wrong; he was acquitted by Parliament but left disgraced. An interesting fact is that despite his controversial legacy, he is credited as the \"Founder of the British Empire in India.\" / \u0930\u0949\u092c\u0930\u094d\u091f \u0915\u094d\u0932\u093e\u0907\u0935 \u0928\u0947 \u0928\u0935\u0902\u092c\u0930 1774 \u092e\u0947\u0902 \u0932\u0902\u0926\u0928 \u0915\u0947 \u092c\u0930\u094d\u0915\u0932\u0947 \u0938\u094d\u0915\u094d\u0935\u093e\u092f\u0930 \u0938\u094d\u0925\u093f\u0924 \u0905\u092a\u0928\u0947 \u0918\u0930 \u092a\u0930 \u0906\u0924\u094d\u092e\u0939\u0924\u094d\u092f\u093e \u0915\u0930 \u0932\u0940 \u0925\u0940\u0964 \u0935\u0947 \u092a\u093f\u0924\u094d\u0924 \u0915\u0940 \u092a\u0925\u0930\u0940 \u0914\u0930 \u0905\u0935\u0938\u093e\u0926 \u0938\u0939\u093f\u0924 \u0917\u0902\u092d\u0940\u0930 \u0938\u094d\u0935\u093e\u0938\u094d\u0925\u094d\u092f \u0938\u092e\u0938\u094d\u092f\u093e\u0913\u0902 \u0938\u0947 \u091c\u0942\u091d \u0930\u0939\u0947 \u0925\u0947, \u0914\u0930 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u0905\u092a\u0928\u0940 \u0938\u0902\u092a\u0924\u094d\u0924\u093f \u0914\u0930 \u0906\u091a\u0930\u0923 \u0915\u0940 \u0938\u0902\u0938\u0926\u0940\u092f \u091c\u093e\u0902\u091a \u0915\u0947 \u0915\u093e\u0930\u0923 \u0905\u0924\u094d\u092f\u0927\u093f\u0915 \u0924\u0928\u093e\u0935 \u092e\u0947\u0902 \u092d\u0940 \u0925\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0909\u0928\u0915\u0940 \u0939\u0924\u094d\u092f\u093e \u0928\u0939\u0940\u0902 \u0939\u0941\u0908 \u0925\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0914\u0930 (d) \u0924\u0925\u094d\u092f\u093e\u0924\u094d\u092e\u0915 \u0930\u0942\u092a \u0938\u0947 \u0917\u0932\u0924 \u0939\u0948\u0902; \u0909\u0928\u094d\u0939\u0947\u0902 \u0938\u0902\u0938\u0926 \u0926\u094d\u0935\u093e\u0930\u093e \u092c\u0930\u0940 \u0915\u0930 \u0926\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e \u0932\u0947\u0915\u093f\u0928 \u0935\u0947 \u0905\u092a\u092e\u093e\u0928\u093f\u0924 \u0939\u094b\u0915\u0930 \u0930\u0939 \u0917\u090f \u0925\u0947\u0964 \u090f\u0915 \u0926\u093f\u0932\u091a\u0938\u094d\u092a \u0924\u0925\u094d\u092f \u092f\u0939 \u0939\u0948 \u0915\u093f \u0909\u0928\u0915\u0940 \u0935\u093f\u0935\u093e\u0926\u093e\u0938\u094d\u092a\u0926 \u0935\u093f\u0930\u093e\u0938\u0924 \u0915\u0947 \u092c\u093e\u0935\u091c\u0942\u0926, \u0909\u0928\u094d\u0939\u0947\u0902 \"\u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f \u0915\u0947 \u0938\u0902\u0938\u094d\u0925\u093e\u092a\u0915\" \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0936\u094d\u0930\u0947\u092f \u0926\u093f\u092f\u093e \u091c\u093e\u0924\u093e \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q6.</b> Which of the following was the British East India Company&#x27;s first major victory in India? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0915\u0940 \u092a\u0939\u0932\u0940 \u092c\u0921\u093c\u0940 \u091c\u0940\u0924 \u0925\u0940? [SSC CHSL, 29 Nov 2025, Shift-2]",
+      "options": [
+        "Battle of Ambur / \u0905\u0902\u092c\u0941\u0930 \u0915\u093e \u092f\u0941\u0926\u094d\u0927",
+        "Battle of Wandiwash / \u0935\u093e\u0902\u0921\u0940\u0935\u093e\u0936 \u0915\u093e \u092f\u0941\u0926\u094d\u0927",
+        "First Anglo-Maratha war / \u092a\u094d\u0930\u0925\u092e \u0906\u0902\u0917\u094d\u0932-\u092e\u0930\u093e\u0920\u093e \u092f\u0941\u0926\u094d\u0927",
+        "Battle of Plassey / \u092a\u094d\u0932\u093e\u0938\u0940 \u0915\u093e \u092f\u0941\u0926\u094d\u0927"
+      ],
+      "correctIndex": 3,
+      "explanation": "The Battle of Plassey (1757) is regarded as the British East India Company's first major decisive victory in India. It established British political influence over Bengal, the richest province at the time. Option (a) involved French and local powers, while option (b) was a victory over the French, not a territorial conquest of the same magnitude. Option (c) ended in a stalemate with the Treaty of Salbai. Plassey is unique because it was won more through treachery (Mir Jafar's betrayal) than military might, yet it laid the foundation for 200 years of British rule. / \u092a\u094d\u0932\u093e\u0938\u0940 \u0915\u0947 \u092f\u0941\u0926\u094d\u0927 (1757) \u0915\u094b \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0915\u0940 \u092a\u0939\u0932\u0940 \u092c\u0921\u093c\u0940 \u0928\u093f\u0930\u094d\u0923\u093e\u092f\u0915 \u091c\u0940\u0924 \u092e\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0939\u0948\u0964 \u0907\u0938\u0928\u0947 \u0909\u0938 \u0938\u092e\u092f \u0915\u0947 \u0938\u092c\u0938\u0947 \u0905\u092e\u0940\u0930 \u092a\u094d\u0930\u093e\u0902\u0924 \u092c\u0902\u0917\u093e\u0932 \u092a\u0930 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0930\u093e\u091c\u0928\u0940\u0924\u093f\u0915 \u092a\u094d\u0930\u092d\u093e\u0935 \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u093f\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u092e\u0947\u0902 \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u0940 \u0914\u0930 \u0938\u094d\u0925\u093e\u0928\u0940\u092f \u0936\u0915\u094d\u0924\u093f\u092f\u093e\u0901 \u0936\u093e\u092e\u093f\u0932 \u0925\u0940\u0902, \u091c\u092c\u0915\u093f \u0935\u093f\u0915\u0932\u094d\u092a (b) \u092b\u094d\u0930\u093e\u0902\u0938\u0940\u0938\u093f\u092f\u094b\u0902 \u092a\u0930 \u091c\u0940\u0924 \u0925\u0940, \u0928 \u0915\u093f \u0909\u0938\u0940 \u092a\u0930\u093f\u092e\u093e\u0923 \u0915\u0940 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u0940\u092f \u0935\u093f\u091c\u092f\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0938\u093e\u0932\u092c\u093e\u0908 \u0915\u0940 \u0938\u0902\u0927\u093f \u0915\u0947 \u0938\u093e\u0925 \u0917\u0924\u093f\u0930\u094b\u0927 \u092e\u0947\u0902 \u0938\u092e\u093e\u092a\u094d\u0924 \u0939\u0941\u0906\u0964 \u092a\u094d\u0932\u093e\u0938\u0940 \u0905\u0926\u094d\u0935\u093f\u0924\u0940\u092f \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0907\u0938\u0947 \u0938\u0948\u0928\u094d\u092f \u0936\u0915\u094d\u0924\u093f \u0915\u0940 \u0924\u0941\u0932\u0928\u093e \u092e\u0947\u0902 \u0935\u093f\u0936\u094d\u0935\u093e\u0938\u0918\u093e\u0924 (\u092e\u0940\u0930 \u091c\u093e\u092b\u0930 \u0915\u093e \u0935\u093f\u0936\u094d\u0935\u093e\u0938\u0918\u093e\u0924) \u0915\u0947 \u092e\u093e\u0927\u094d\u092f\u092e \u0938\u0947 \u0905\u0927\u093f\u0915 \u091c\u0940\u0924\u093e \u0917\u092f\u093e \u0925\u093e, \u092b\u093f\u0930 \u092d\u0940 \u0907\u0938\u0928\u0947 200 \u0935\u0930\u094d\u0937\u094b\u0902 \u0915\u0947 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0936\u093e\u0938\u0928 \u0915\u0940 \u0928\u0940\u0902\u0935 \u0930\u0916\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q7.</b> The Battle of Buxar took place in which of the following years? / \u092c\u0915\u094d\u0938\u0930 \u0915\u093e \u092f\u0941\u0926\u094d\u0927 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u0939\u0941\u0906 \u0925\u093e? [SSC CHSL, 20 Nov 2025, Shift-1]",
+      "options": [
+        "1757 / 1757",
+        "1764 / 1764",
+        "1773 / 1773",
+        "1785 / 1785"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Battle of Buxar was fought on October 22, 1764. It was a conflict between the British East India Company (led by Hector Munro) and the combined forces of Mir Qasim (Bengal), Shuja-ud-Daulah (Awadh), and Shah Alam II (Mughal Emperor). Option (a) refers to Plassey, and (c) to the Regulating Act. Option (d) is unrelated. Buxar was far more significant militarily than Plassey because the British defeated three major Indian powers simultaneously, leading to the Treaty of Allahabad (1765) and the grant of Diwani rights. / \u092c\u0915\u094d\u0938\u0930 \u0915\u093e \u092f\u0941\u0926\u094d\u0927 22 \u0905\u0915\u094d\u091f\u0942\u092c\u0930, 1764 \u0915\u094b \u0932\u0921\u093c\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u092f\u0939 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 (\u0939\u0947\u0915\u094d\u091f\u0930 \u092e\u0941\u0928\u0930\u094b \u0915\u0947 \u0928\u0947\u0924\u0943\u0924\u094d\u0935 \u092e\u0947\u0902) \u0914\u0930 \u092e\u0940\u0930 \u0915\u093e\u0938\u093f\u092e (\u092c\u0902\u0917\u093e\u0932), \u0936\u0941\u091c\u093e-\u0909\u0926-\u0926\u094c\u0932\u093e (\u0905\u0935\u0927), \u0914\u0930 \u0936\u093e\u0939 \u0906\u0932\u092e \u0926\u094d\u0935\u093f\u0924\u0940\u092f (\u092e\u0941\u0917\u0932 \u0938\u092e\u094d\u0930\u093e\u091f) \u0915\u0940 \u0938\u0902\u092f\u0941\u0915\u094d\u0924 \u0938\u0947\u0928\u093e\u0913\u0902 \u0915\u0947 \u092c\u0940\u091a \u090f\u0915 \u0938\u0902\u0918\u0930\u094d\u0937 \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u092a\u094d\u0932\u093e\u0938\u0940 \u0915\u094b \u0938\u0902\u0926\u0930\u094d\u092d\u093f\u0924 \u0915\u0930\u0924\u093e \u0939\u0948, \u0914\u0930 (c) \u0930\u0947\u0917\u0941\u0932\u0947\u091f\u093f\u0902\u0917 \u090f\u0915\u094d\u091f \u0915\u094b\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0905\u0938\u0902\u092c\u0926\u094d\u0927 \u0939\u0948\u0964 \u092c\u0915\u094d\u0938\u0930 \u0938\u0948\u0928\u094d\u092f \u0930\u0942\u092a \u0938\u0947 \u092a\u094d\u0932\u093e\u0938\u0940 \u0915\u0940 \u0924\u0941\u0932\u0928\u093e \u092e\u0947\u0902 \u0915\u0939\u0940\u0902 \u0905\u0927\u093f\u0915 \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0925\u093e \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0928\u0947 \u090f\u0915 \u0938\u093e\u0925 \u0924\u0940\u0928 \u092a\u094d\u0930\u092e\u0941\u0916 \u092d\u093e\u0930\u0924\u0940\u092f \u0936\u0915\u094d\u0924\u093f\u092f\u094b\u0902 \u0915\u094b \u0939\u0930\u093e\u092f\u093e \u0925\u093e, \u091c\u093f\u0938\u0915\u0947 \u0915\u093e\u0930\u0923 \u0907\u0932\u093e\u0939\u093e\u092c\u093e\u0926 \u0915\u0940 \u0938\u0902\u0927\u093f (1765) \u0939\u0941\u0908 \u0914\u0930 \u0926\u0940\u0935\u093e\u0928\u0940 \u0905\u0927\u093f\u0915\u093e\u0930 \u092a\u094d\u0930\u093e\u092a\u094d\u0924 \u0939\u0941\u090f\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q8.</b> Who among the following became the Nawab of Bengal after Alivardi Khan? / \u0905\u0932\u0940\u0935\u0930\u094d\u0926\u0940 \u0916\u093e\u0928 \u0915\u0947 \u092c\u093e\u0926 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u092c\u0902\u0917\u093e\u0932 \u0915\u093e \u0928\u0935\u093e\u092c \u092c\u0928\u093e? [SSC CHSL, 22 Nov 2025, Shift-2]",
+      "options": [
+        "Mir Jafar / \u092e\u0940\u0930 \u091c\u093e\u092b\u0930",
+        "Mir Qasim / \u092e\u0940\u0930 \u0915\u093e\u0938\u093f\u092e",
+        "Murshid Quli Khan / \u092e\u0941\u0930\u094d\u0936\u093f\u0926 \u0915\u0941\u0932\u0940 \u0916\u093e\u0928",
+        "Sirajuddaulah / \u0938\u093f\u0930\u093e\u091c\u0941\u0926\u094d\u0926\u094c\u0932\u093e"
+      ],
+      "correctIndex": 3,
+      "explanation": "Sirajuddaulah succeeded his maternal grandfather, Alivardi Khan, as the Nawab of Bengal in 1756. Alivardi Khan had no sons, so he nominated Sirajuddaulah as his heir. Option (a) Mir Jafar became Nawab after betraying Siraj at Plassey. Option (b) Mir Qasim succeeded Mir Jafar. Option (c) Murshid Quli Khan was the first Nawab of Bengal, ruling much earlier. Sirajuddaulah's reign was short and turbulent, marked by the Black Hole tragedy and his eventual defeat at the Battle of Plassey in 1757. / \u0938\u093f\u0930\u093e\u091c\u0941\u0926\u094d\u0926\u094c\u0932\u093e \u0928\u0947 1756 \u092e\u0947\u0902 \u0905\u092a\u0928\u0947 \u0928\u093e\u0928\u093e \u0905\u0932\u0940\u0935\u0930\u094d\u0926\u0940 \u0916\u093e\u0928 \u0915\u0947 \u0909\u0924\u094d\u0924\u0930\u093e\u0927\u093f\u0915\u093e\u0930\u0940 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u0928\u0935\u093e\u092c \u0915\u093e \u092a\u0926 \u0938\u0902\u092d\u093e\u0932\u093e\u0964 \u0905\u0932\u0940\u0935\u0930\u094d\u0926\u0940 \u0916\u093e\u0928 \u0915\u093e \u0915\u094b\u0908 \u092a\u0941\u0924\u094d\u0930 \u0928\u0939\u0940\u0902 \u0925\u093e, \u0907\u0938\u0932\u093f\u090f \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0938\u093f\u0930\u093e\u091c\u0941\u0926\u094d\u0926\u094c\u0932\u093e \u0915\u094b \u0905\u092a\u0928\u093e \u0909\u0924\u094d\u0924\u0930\u093e\u0927\u093f\u0915\u093e\u0930\u0940 \u0928\u093e\u092e\u093f\u0924 \u0915\u093f\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u092e\u0940\u0930 \u091c\u093e\u092b\u0930 \u092a\u094d\u0932\u093e\u0938\u0940 \u092e\u0947\u0902 \u0938\u093f\u0930\u093e\u091c \u0915\u094b \u0927\u094b\u0916\u093e \u0926\u0947\u0928\u0947 \u0915\u0947 \u092c\u093e\u0926 \u0928\u0935\u093e\u092c \u092c\u0928\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u092e\u0940\u0930 \u0915\u093e\u0938\u093f\u092e \u092e\u0940\u0930 \u091c\u093e\u092b\u0930 \u0915\u093e \u0909\u0924\u094d\u0924\u0930\u093e\u0927\u093f\u0915\u093e\u0930\u0940 \u092c\u0928\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u092e\u0941\u0930\u094d\u0936\u093f\u0926 \u0915\u0941\u0932\u0940 \u0916\u093e\u0928 \u092c\u0902\u0917\u093e\u0932 \u0915\u0947 \u092a\u0939\u0932\u0947 \u0928\u0935\u093e\u092c \u0925\u0947, \u091c\u093f\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u092c\u0939\u0941\u0924 \u092a\u0939\u0932\u0947 \u0936\u093e\u0938\u0928 \u0915\u093f\u092f\u093e \u0925\u093e\u0964 \u0938\u093f\u0930\u093e\u091c\u0941\u0926\u094d\u0926\u094c\u0932\u093e \u0915\u093e \u0936\u093e\u0938\u0928\u0915\u093e\u0932 \u091b\u094b\u091f\u093e \u0914\u0930 \u0905\u0936\u093e\u0902\u0924 \u0925\u093e, \u091c\u094b \u092c\u094d\u0932\u0948\u0915 \u0939\u094b\u0932 \u0924\u094d\u0930\u093e\u0938\u0926\u0940 \u0914\u0930 1757 \u092e\u0947\u0902 \u092a\u094d\u0932\u093e\u0938\u0940 \u0915\u0947 \u092f\u0941\u0926\u094d\u0927 \u092e\u0947\u0902 \u0909\u0928\u0915\u0940 \u0905\u0902\u0924\u093f\u092e \u0939\u093e\u0930 \u0938\u0947 \u091a\u093f\u0939\u094d\u0928\u093f\u0924 \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q9.</b> The First Anglo-Maratha War ended with which of the following treaty? / \u092a\u094d\u0930\u0925\u092e \u0906\u0902\u0917\u094d\u0932-\u092e\u0930\u093e\u0920\u093e \u092f\u0941\u0926\u094d\u0927 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938 \u0938\u0902\u0927\u093f \u0915\u0947 \u0938\u093e\u0925 \u0938\u092e\u093e\u092a\u094d\u0924 \u0939\u0941\u0906? [SSC CHSL, 26 Nov 2025, Shift-3]",
+      "options": [
+        "Treaty of Surat / \u0938\u0942\u0930\u0924 \u0915\u0940 \u0938\u0902\u0927\u093f",
+        "Treaty of Seringpatanam / \u0936\u094d\u0930\u0940\u0930\u0902\u0917\u092a\u091f\u094d\u091f\u0928\u092e \u0915\u0940 \u0938\u0902\u0927\u093f",
+        "Treaty of Salbai / \u0938\u093e\u0932\u092c\u093e\u0908 \u0915\u0940 \u0938\u0902\u0927\u093f",
+        "Treaty of Bassein / \u092c\u0938\u0908 \u0915\u0940 \u0938\u0902\u0927\u093f"
+      ],
+      "correctIndex": 2,
+      "explanation": "The First Anglo-Maratha War (1775\u20131782) concluded with the Treaty of Salbai in 1782. This treaty established a 20-year peace between the Marathas and the British. Option (a) Treaty of Surat started the war. Option (b) ended the Third Anglo-Mysore War. Option (d) Treaty of Bassein was signed later in 1802, leading to the Second Anglo-Maratha War. The Treaty of Salbai is historically significant because it allowed the British to focus on defeating Mysore (Tipu Sultan) without fighting on two fronts. / \u092a\u094d\u0930\u0925\u092e \u0906\u0902\u0917\u094d\u0932-\u092e\u0930\u093e\u0920\u093e \u092f\u0941\u0926\u094d\u0927 (1775-1782) 1782 \u092e\u0947\u0902 \u0938\u093e\u0932\u092c\u093e\u0908 \u0915\u0940 \u0938\u0902\u0927\u093f \u0915\u0947 \u0938\u093e\u0925 \u0938\u0902\u092a\u0928\u094d\u0928 \u0939\u0941\u0906\u0964 \u0907\u0938 \u0938\u0902\u0927\u093f \u0928\u0947 \u092e\u0930\u093e\u0920\u094b\u0902 \u0914\u0930 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0915\u0947 \u092c\u0940\u091a 20 \u0938\u093e\u0932 \u0915\u0940 \u0936\u093e\u0902\u0924\u093f \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0938\u0942\u0930\u0924 \u0915\u0940 \u0938\u0902\u0927\u093f \u0928\u0947 \u092f\u0941\u0926\u094d\u0927 \u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924 \u0915\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0928\u0947 \u0924\u0940\u0938\u0930\u0947 \u0906\u0902\u0917\u094d\u0932-\u092e\u0948\u0938\u0942\u0930 \u092f\u0941\u0926\u094d\u0927 \u0915\u094b \u0938\u092e\u093e\u092a\u094d\u0924 \u0915\u093f\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u092c\u0938\u0908 \u0915\u0940 \u0938\u0902\u0927\u093f \u092a\u0930 \u092c\u093e\u0926 \u092e\u0947\u0902 1802 \u092e\u0947\u0902 \u0939\u0938\u094d\u0924\u093e\u0915\u094d\u0937\u0930 \u0915\u093f\u090f \u0917\u090f \u0925\u0947, \u091c\u093f\u0938\u0915\u0947 \u0915\u093e\u0930\u0923 \u0926\u094d\u0935\u093f\u0924\u0940\u092f \u0906\u0902\u0917\u094d\u0932-\u092e\u0930\u093e\u0920\u093e \u092f\u0941\u0926\u094d\u0927 \u0939\u0941\u0906\u0964 \u0938\u093e\u0932\u092c\u093e\u0908 \u0915\u0940 \u0938\u0902\u0927\u093f \u0910\u0924\u093f\u0939\u093e\u0938\u093f\u0915 \u0930\u0942\u092a \u0938\u0947 \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0907\u0938\u0928\u0947 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0915\u094b \u0926\u094b \u092e\u094b\u0930\u094d\u091a\u094b\u0902 \u092a\u0930 \u0932\u0921\u093c\u0947 \u092c\u093f\u0928\u093e \u092e\u0948\u0938\u0942\u0930 (\u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928) \u0915\u094b \u0939\u0930\u093e\u0928\u0947 \u092a\u0930 \u0927\u094d\u092f\u093e\u0928 \u0915\u0947\u0902\u0926\u094d\u0930\u093f\u0924 \u0915\u0930\u0928\u0947 \u0915\u0940 \u0905\u0928\u0941\u092e\u0924\u093f \u0926\u0940\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q10.</b> In which year was the third Anglo Mysore war fought? / \u0924\u0940\u0938\u0930\u093e \u0906\u0902\u0917\u094d\u0932-\u092e\u0948\u0938\u0942\u0930 \u092f\u0941\u0926\u094d\u0927 \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u0932\u0921\u093c\u093e \u0917\u092f\u093e \u0925\u093e? [SSC CHSL, 24 Nov 2025, Shift-1]",
+      "options": [
+        "1790-92 / 1790-92",
+        "1767-69 / 1767-69",
+        "1763-65 / 1763-65",
+        "1755-57 / 1755-57"
+      ],
+      "correctIndex": 0,
+      "explanation": "The Third Anglo-Mysore War was fought between 1790 and 1792. It began after Tipu Sultan attacked the British ally, the Raja of Travancore. Option (b) refers to the First Anglo-Mysore War. Options (c) and (d) are incorrect dates for these conflicts. The war ended with the Treaty of Seringapatam (1792), under which Tipu Sultan had to surrender half of his kingdom to the British and their allies and pay a massive war indemnity of 330 lakh rupees. / \u0924\u0940\u0938\u0930\u093e \u0906\u0902\u0917\u094d\u0932-\u092e\u0948\u0938\u0942\u0930 \u092f\u0941\u0926\u094d\u0927 1790 \u0914\u0930 1792 \u0915\u0947 \u092c\u0940\u091a \u0932\u0921\u093c\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0907\u0938\u0915\u0940 \u0936\u0941\u0930\u0941\u0906\u0924 \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928 \u0926\u094d\u0935\u093e\u0930\u093e \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0939\u092f\u094b\u0917\u0940, \u0924\u094d\u0930\u093e\u0935\u0923\u0915\u094b\u0930 \u0915\u0947 \u0930\u093e\u091c\u093e \u092a\u0930 \u0939\u092e\u0932\u093e \u0915\u0930\u0928\u0947 \u0915\u0947 \u092c\u093e\u0926 \u0939\u0941\u0908 \u0925\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u092a\u094d\u0930\u0925\u092e \u0906\u0902\u0917\u094d\u0932-\u092e\u0948\u0938\u0942\u0930 \u092f\u0941\u0926\u094d\u0927 \u0915\u094b \u0938\u0902\u0926\u0930\u094d\u092d\u093f\u0924 \u0915\u0930\u0924\u093e \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0914\u0930 (d) \u0907\u0928 \u0938\u0902\u0918\u0930\u094d\u0937\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u0917\u0932\u0924 \u0924\u093f\u0925\u093f\u092f\u093e\u0901 \u0939\u0948\u0902\u0964 \u092f\u0941\u0926\u094d\u0927 \u0936\u094d\u0930\u0940\u0930\u0902\u0917\u092a\u091f\u094d\u091f\u0928\u092e \u0915\u0940 \u0938\u0902\u0927\u093f (1792) \u0915\u0947 \u0938\u093e\u0925 \u0938\u092e\u093e\u092a\u094d\u0924 \u0939\u0941\u0906, \u091c\u093f\u0938\u0915\u0947 \u0924\u0939\u0924 \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928 \u0915\u094b \u0905\u092a\u0928\u0947 \u0906\u0927\u0947 \u0930\u093e\u091c\u094d\u092f \u0915\u094b \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0914\u0930 \u0909\u0928\u0915\u0947 \u0938\u0939\u092f\u094b\u0917\u093f\u092f\u094b\u0902 \u0915\u094b \u0938\u094c\u0902\u092a\u0928\u093e \u092a\u0921\u093c\u093e \u0914\u0930 330 \u0932\u093e\u0916 \u0930\u0941\u092a\u092f\u0947 \u0915\u093e \u092d\u093e\u0930\u0940 \u092f\u0941\u0926\u094d\u0927 \u0939\u0930\u094d\u091c\u093e\u0928\u093e \u0926\u0947\u0928\u093e \u092a\u0921\u093c\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q11. Who was in the combined forces that attacked Tipu Sultan in 1792? / 1792 \u092e\u0947\u0902 \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928 \u092a\u0930 \u0939\u092e\u0932\u093e \u0915\u0930\u0928\u0947 \u0935\u093e\u0932\u0940 \u0938\u0902\u092f\u0941\u0915\u094d\u0924 \u0938\u0947\u0928\u093e \u092e\u0947\u0902 \u0915\u094c\u0928 \u0936\u093e\u092e\u093f\u0932 \u0925\u093e?<br>I. The Marathas / I. \u092e\u0930\u093e\u0920\u093e<br>II. The Nizam of Hyderabad / II. \u0939\u0948\u0926\u0930\u093e\u092c\u093e\u0926 \u0915\u093e \u0928\u093f\u091c\u093e\u092e<br>III. The East India Company / III. \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940<br>[SSC CHSL, 27 Nov 2025, Shift-3]\n            </div>\n            <b>Q11.</b> Choose the correct option: / \u0938\u0939\u0940 \u0935\u093f\u0915\u0932\u094d\u092a \u091a\u0941\u0928\u0947\u0902:",
+      "options": [
+        "Only I and II / \u0915\u0947\u0935\u0932 I \u0914\u0930 II",
+        "Only II and III / \u0915\u0947\u0935\u0932 II \u0914\u0930 III",
+        "Only I and III / \u0915\u0947\u0935\u0932 I \u0914\u0930 III",
+        "I, II and III / I, II \u0914\u0930 III"
+      ],
+      "correctIndex": 3,
+      "explanation": "In the Third Anglo-Mysore War (1790-92), the British East India Company formed a \"Triple Alliance\" with the Marathas and the Nizam of Hyderabad against Tipu Sultan. Lord Cornwallis successfully diplomatized these native powers to isolate Mysore. Therefore, option (d) is correct as all three powers attacked Tipu. The Marathas and Nizam were motivated by the promise of regaining territories they had lost to Mysore. This alliance was a critical factor in Tipu's defeat, as he could not fight on multiple fronts simultaneously. / \u0924\u0940\u0938\u0930\u0947 \u0906\u0902\u0917\u094d\u0932-\u092e\u0948\u0938\u0942\u0930 \u092f\u0941\u0926\u094d\u0927 (1790-92) \u092e\u0947\u0902, \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0928\u0947 \u091f\u0940\u092a\u0942 \u0938\u0941\u0932\u094d\u0924\u093e\u0928 \u0915\u0947 \u0916\u093f\u0932\u093e\u092b \u092e\u0930\u093e\u0920\u094b\u0902 \u0914\u0930 \u0939\u0948\u0926\u0930\u093e\u092c\u093e\u0926 \u0915\u0947 \u0928\u093f\u091c\u093e\u092e \u0915\u0947 \u0938\u093e\u0925 \"\u0924\u094d\u0930\u093f\u0917\u0941\u091f \u0917\u0920\u092c\u0902\u0927\u0928\" \u092c\u0928\u093e\u092f\u093e \u0925\u093e\u0964 \u0932\u0949\u0930\u094d\u0921 \u0915\u0949\u0930\u094d\u0928\u0935\u093e\u0932\u093f\u0938 \u0928\u0947 \u092e\u0948\u0938\u0942\u0930 \u0915\u094b \u0905\u0932\u0917-\u0925\u0932\u0917 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0907\u0928 \u0926\u0947\u0936\u0940 \u0936\u0915\u094d\u0924\u093f\u092f\u094b\u0902 \u0915\u094b \u0938\u092b\u0932\u0924\u093e\u092a\u0942\u0930\u094d\u0935\u0915 \u0915\u0942\u091f\u0928\u0940\u0924\u093f\u0915 \u0930\u0942\u092a \u0938\u0947 \u0905\u092a\u0928\u0947 \u092a\u0915\u094d\u0937 \u092e\u0947\u0902 \u0915\u093f\u092f\u093e\u0964 \u0907\u0938\u0932\u093f\u090f, \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0938\u0939\u0940 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0924\u0940\u0928\u094b\u0902 \u0936\u0915\u094d\u0924\u093f\u092f\u094b\u0902 \u0928\u0947 \u091f\u0940\u092a\u0942 \u092a\u0930 \u0939\u092e\u0932\u093e \u0915\u093f\u092f\u093e \u0925\u093e\u0964 \u092e\u0930\u093e\u0920\u093e \u0914\u0930 \u0928\u093f\u091c\u093e\u092e \u0909\u0928 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u094b\u0902 \u0915\u094b \u0935\u093e\u092a\u0938 \u092a\u093e\u0928\u0947 \u0915\u0947 \u0935\u093e\u0926\u0947 \u0938\u0947 \u092a\u094d\u0930\u0947\u0930\u093f\u0924 \u0925\u0947 \u091c\u093f\u0928\u094d\u0939\u0947\u0902 \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u092e\u0948\u0938\u0942\u0930 \u0938\u0947 \u0916\u094b \u0926\u093f\u092f\u093e \u0925\u093e\u0964 \u092f\u0939 \u0917\u0920\u092c\u0902\u0927\u0928 \u091f\u0940\u092a\u0942 \u0915\u0940 \u0939\u093e\u0930 \u092e\u0947\u0902 \u090f\u0915 \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0915\u093e\u0930\u0915 \u0925\u093e, \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0935\u0947 \u090f\u0915 \u0938\u093e\u0925 \u0915\u0908 \u092e\u094b\u0930\u094d\u091a\u094b\u0902 \u092a\u0930 \u0928\u0939\u0940\u0902 \u0932\u0921\u093c \u0938\u0915\u0924\u0947 \u0925\u0947\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q12.</b> The Subsidiary Alliance system had which of the following conditions for the allied Indian rulers? / \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f (Subsidiary Alliance) \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u092e\u0947\u0902 \u0938\u0902\u092c\u0926\u094d\u0927 \u092d\u093e\u0930\u0924\u0940\u092f \u0936\u093e\u0938\u0915\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u0940 \u0936\u0930\u094d\u0924 \u0925\u0940? [SSC CGL Tier 1, 26 Sep 2025, Shift-1]",
+      "options": [
+        "Allowed to maintain independent army / \u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930 \u0938\u0947\u0928\u093e \u092c\u0928\u093e\u090f \u0930\u0916\u0928\u0947 \u0915\u0940 \u0905\u0928\u0941\u092e\u0924\u093f \u0925\u0940",
+        "Must keep British Resident in court / \u0926\u0930\u092c\u093e\u0930 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0930\u0947\u091c\u093f\u0921\u0947\u0902\u091f \u0930\u0916\u0928\u093e \u0939\u094b\u0917\u093e",
+        "Free to enter alliances / \u0917\u0920\u092c\u0902\u0927\u0928 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930",
+        "Not required to pay revenue / \u0930\u093e\u091c\u0938\u094d\u0935 \u0915\u093e \u092d\u0941\u0917\u0924\u093e\u0928 \u0915\u0930\u0928\u0947 \u0915\u0940 \u0906\u0935\u0936\u094d\u092f\u0915\u0924\u093e \u0928\u0939\u0940\u0902"
+      ],
+      "correctIndex": 1,
+      "explanation": "Under the Subsidiary Alliance system introduced by Lord Wellesley, the allied Indian ruler was required to station a British Resident at their court. This resident interfered in internal affairs, ensuring British control. Option (a) is wrong because rulers had to disband their own independent armies and pay for British subsidiary troops. Option (c) is incorrect as they were forbidden from negotiating with other powers without British permission. Option (d) is wrong because they had to cede territory or pay cash for the troops. The Nizam of Hyderabad was the first to accept this alliance in 1798. / \u0932\u0949\u0930\u094d\u0921 \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940 \u0926\u094d\u0935\u093e\u0930\u093e \u0936\u0941\u0930\u0942 \u0915\u0940 \u0917\u0908 \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f \u092a\u094d\u0930\u0923\u093e\u0932\u0940 \u0915\u0947 \u0924\u0939\u0924, \u0938\u0902\u092c\u0926\u094d\u0927 \u092d\u093e\u0930\u0924\u0940\u092f \u0936\u093e\u0938\u0915 \u0915\u094b \u0905\u092a\u0928\u0947 \u0926\u0930\u092c\u093e\u0930 \u092e\u0947\u0902 \u090f\u0915 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0930\u0947\u091c\u093f\u0921\u0947\u0902\u091f \u0924\u0948\u0928\u093e\u0924 \u0915\u0930\u0928\u093e \u0906\u0935\u0936\u094d\u092f\u0915 \u0925\u093e\u0964 \u092f\u0939 \u0930\u0947\u091c\u093f\u0921\u0947\u0902\u091f \u0906\u0902\u0924\u0930\u093f\u0915 \u092e\u093e\u092e\u0932\u094b\u0902 \u092e\u0947\u0902 \u0939\u0938\u094d\u0924\u0915\u094d\u0937\u0947\u092a \u0915\u0930\u0924\u093e \u0925\u093e, \u091c\u093f\u0938\u0938\u0947 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u0923 \u0938\u0941\u0928\u093f\u0936\u094d\u091a\u093f\u0924 \u0939\u094b\u0924\u093e \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0936\u093e\u0938\u0915\u094b\u0902 \u0915\u094b \u0905\u092a\u0928\u0940 \u0938\u094d\u0935\u0924\u0902\u0924\u094d\u0930 \u0938\u0947\u0928\u093e\u0913\u0902 \u0915\u094b \u092d\u0902\u0917 \u0915\u0930\u0928\u093e \u092a\u0921\u093c\u093e \u0914\u0930 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0939\u093e\u092f\u0915 \u0938\u0948\u0928\u093f\u0915\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u092d\u0941\u0917\u0924\u093e\u0928 \u0915\u0930\u0928\u093e \u092a\u0921\u093c\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0909\u0928\u094d\u0939\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0905\u0928\u0941\u092e\u0924\u093f \u0915\u0947 \u092c\u093f\u0928\u093e \u0905\u0928\u094d\u092f \u0936\u0915\u094d\u0924\u093f\u092f\u094b\u0902 \u0915\u0947 \u0938\u093e\u0925 \u092c\u093e\u0924\u091a\u0940\u0924 \u0915\u0930\u0928\u0947 \u0915\u0940 \u092e\u0928\u093e\u0939\u0940 \u0925\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0917\u0932\u0924 \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0909\u0928\u094d\u0939\u0947\u0902 \u0938\u0948\u0928\u093f\u0915\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u0938\u094c\u0902\u092a\u0928\u093e \u092a\u0921\u093c\u093e \u092f\u093e \u0928\u0915\u0926 \u092d\u0941\u0917\u0924\u093e\u0928 \u0915\u0930\u0928\u093e \u092a\u0921\u093c\u093e\u0964 \u0939\u0948\u0926\u0930\u093e\u092c\u093e\u0926 \u0915\u093e \u0928\u093f\u091c\u093e\u092e 1798 \u092e\u0947\u0902 \u0907\u0938 \u0917\u0920\u092c\u0902\u0927\u0928 \u0915\u094b \u0938\u094d\u0935\u0940\u0915\u093e\u0930 \u0915\u0930\u0928\u0947 \u0935\u093e\u0932\u093e \u092a\u0939\u0932\u093e \u0936\u093e\u0938\u0915 \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q13.</b> What was the primary objective of the Ring-Fencing Policy adopted by the British in the 18th century? / 18\u0935\u0940\u0902 \u0936\u0924\u093e\u092c\u094d\u0926\u0940 \u092e\u0947\u0902 \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0926\u094d\u0935\u093e\u0930\u093e \u0905\u092a\u0928\u093e\u0908 \u0917\u0908 \u0930\u093f\u0902\u0917-\u092b\u0947\u0902\u0938\u093f\u0902\u0917 \u0928\u0940\u0924\u093f (Ring-Fencing Policy) \u0915\u093e \u092a\u094d\u0930\u093e\u0925\u092e\u093f\u0915 \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0915\u094d\u092f\u093e \u0925\u093e? [SSC CGL Tier 1, 17 Sep 2025, Shift-3]",
+      "options": [
+        "To expand territory by annexing / \u0915\u092c\u094d\u091c\u093e \u0915\u0930\u0915\u0947 \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u0915\u093e \u0935\u093f\u0938\u094d\u0924\u093e\u0930 \u0915\u0930\u0928\u093e",
+        "To economically exploit trading / \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u0915\u093e \u0906\u0930\u094d\u0925\u093f\u0915 \u0930\u0942\u092a \u0938\u0947 \u0936\u094b\u0937\u0923 \u0915\u0930\u0928\u093e",
+        "To create buffer states for defense / \u0930\u0915\u094d\u0937\u093e \u0915\u0947 \u0932\u093f\u090f \u092c\u092b\u0930 \u0930\u093e\u091c\u094d\u092f \u092c\u0928\u093e\u0928\u093e",
+        "To impose direct rule / \u092a\u094d\u0930\u0924\u094d\u092f\u0915\u094d\u0937 \u0936\u093e\u0938\u0928 \u0925\u094b\u092a\u0928\u093e"
+      ],
+      "correctIndex": 2,
+      "explanation": "The \"Ring-Fence\" policy, associated with Warren Hastings, aimed to create buffer states around the Company's territories to defend them from invaders like the Marathas and Afghans. For example, Awadh was maintained as a buffer state to protect Bengal. Option (a) and (d) describe later policies like Subsidiary Alliance or Doctrine of Lapse. Option (b) was a general goal but not the specific military strategy of Ring-Fence. This policy prioritized defense of existing borders over aggressive expansion, marking an earlier phase of British strategy. / \u0935\u093e\u0930\u0947\u0928 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 \u0938\u0947 \u091c\u0941\u0921\u093c\u0940 \"\u0930\u093f\u0902\u0917-\u092b\u0947\u0902\u0938\" \u0928\u0940\u0924\u093f \u0915\u093e \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0915\u0902\u092a\u0928\u0940 \u0915\u0947 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u094b\u0902 \u0915\u0947 \u091a\u093e\u0930\u094b\u0902 \u0913\u0930 \u092c\u092b\u0930 \u0930\u093e\u091c\u094d\u092f \u092c\u0928\u093e\u0928\u093e \u0925\u093e \u0924\u093e\u0915\u093f \u092e\u0930\u093e\u0920\u094b\u0902 \u0914\u0930 \u0905\u092b\u0917\u093e\u0928\u094b\u0902 \u091c\u0948\u0938\u0947 \u0906\u0915\u094d\u0930\u092e\u0923\u0915\u093e\u0930\u093f\u092f\u094b\u0902 \u0938\u0947 \u0909\u0928\u0915\u0940 \u0930\u0915\u094d\u0937\u093e \u0915\u0940 \u091c\u093e \u0938\u0915\u0947\u0964 \u0909\u0926\u093e\u0939\u0930\u0923 \u0915\u0947 \u0932\u093f\u090f, \u092c\u0902\u0917\u093e\u0932 \u0915\u0940 \u0930\u0915\u094d\u0937\u093e \u0915\u0947 \u0932\u093f\u090f \u0905\u0935\u0927 \u0915\u094b \u092c\u092b\u0930 \u0930\u093e\u091c\u094d\u092f \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u092c\u0928\u093e\u090f \u0930\u0916\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0914\u0930 (d) \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f \u092f\u093e \u0935\u094d\u092f\u092a\u0917\u0924 \u0915\u093e \u0938\u093f\u0926\u094d\u0927\u093e\u0902\u0924 \u091c\u0948\u0938\u0940 \u092c\u093e\u0926 \u0915\u0940 \u0928\u0940\u0924\u093f\u092f\u094b\u0902 \u0915\u093e \u0935\u0930\u094d\u0923\u0928 \u0915\u0930\u0924\u0947 \u0939\u0948\u0902\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u090f\u0915 \u0938\u093e\u092e\u093e\u0928\u094d\u092f \u0932\u0915\u094d\u0937\u094d\u092f \u0925\u093e \u0932\u0947\u0915\u093f\u0928 \u0930\u093f\u0902\u0917-\u092b\u0947\u0902\u0938 \u0915\u0940 \u0935\u093f\u0936\u093f\u0937\u094d\u091f \u0938\u0948\u0928\u094d\u092f \u0930\u0923\u0928\u0940\u0924\u093f \u0928\u0939\u0940\u0902 \u0925\u0940\u0964 \u0907\u0938 \u0928\u0940\u0924\u093f \u0928\u0947 \u0906\u0915\u094d\u0930\u093e\u092e\u0915 \u0935\u093f\u0938\u094d\u0924\u093e\u0930 \u0915\u0947 \u092c\u091c\u093e\u092f \u092e\u094c\u091c\u0942\u0926\u093e \u0938\u0940\u092e\u093e\u0913\u0902 \u0915\u0940 \u0930\u0915\u094d\u0937\u093e \u0915\u094b \u092a\u094d\u0930\u093e\u0925\u092e\u093f\u0915\u0924\u093e \u0926\u0940, \u091c\u094b \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0930\u0923\u0928\u0940\u0924\u093f \u0915\u0947 \u092a\u094d\u0930\u093e\u0930\u0902\u092d\u093f\u0915 \u091a\u0930\u0923 \u0915\u094b \u091a\u093f\u0939\u094d\u0928\u093f\u0924 \u0915\u0930\u0924\u0940 \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q14.</b> In which year the Nawab of Awadh was forced to give over half of his territory to the East India Company? / \u0905\u0935\u0927 \u0915\u0947 \u0928\u0935\u093e\u092c \u0915\u094b \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u0905\u092a\u0928\u0947 \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u0915\u093e \u0906\u0927\u093e \u0939\u093f\u0938\u094d\u0938\u093e \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0915\u094b \u0926\u0947\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092e\u091c\u092c\u0942\u0930 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e? [SSC CHSL, 22 Nov 2025, Shift-3]",
+      "options": [
+        "1795 / 1795",
+        "1801 / 1801",
+        "1810 / 1810",
+        "1818 / 1818"
+      ],
+      "correctIndex": 1,
+      "explanation": "The Nawab of Awadh, Saadat Ali Khan II, was forced to sign a Subsidiary Alliance treaty in 1801 by Lord Wellesley. Under this treaty, he had to cede about half of his territory (including Rohilkhand and the Lower Doab) to the British to pay for the subsidiary troops. Option (b) is the correct year. Options (a), (c), and (d) are incorrect. This annexation of territory was a key feature of Wellesley's aggressive expansion, which aimed to make the Company the paramount power in India. / \u0905\u0935\u0927 \u0915\u0947 \u0928\u0935\u093e\u092c \u0938\u0906\u0926\u0924 \u0905\u0932\u0940 \u0916\u093e\u0928 \u0926\u094d\u0935\u093f\u0924\u0940\u092f \u0915\u094b 1801 \u092e\u0947\u0902 \u0932\u0949\u0930\u094d\u0921 \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940 \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f \u092a\u0930 \u0939\u0938\u094d\u0924\u093e\u0915\u094d\u0937\u0930 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092e\u091c\u092c\u0942\u0930 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0907\u0938 \u0938\u0902\u0927\u093f \u0915\u0947 \u0924\u0939\u0924, \u0909\u0928\u094d\u0939\u0947\u0902 \u0938\u0939\u093e\u092f\u0915 \u0938\u0948\u0928\u093f\u0915\u094b\u0902 \u0915\u0947 \u092d\u0941\u0917\u0924\u093e\u0928 \u0915\u0947 \u0932\u093f\u090f \u0905\u092a\u0928\u0947 \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u0915\u093e \u0932\u0917\u092d\u0917 \u0906\u0927\u093e \u0939\u093f\u0938\u094d\u0938\u093e (\u0930\u0941\u0939\u0947\u0932\u0916\u0902\u0921 \u0914\u0930 \u0928\u093f\u091a\u0932\u093e \u0926\u094b\u0906\u092c \u0938\u0939\u093f\u0924) \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0915\u094b \u0938\u094c\u0902\u092a\u0928\u093e \u092a\u0921\u093c\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0938\u0939\u0940 \u0935\u0930\u094d\u0937 \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a), (c) \u0914\u0930 (d) \u0917\u0932\u0924 \u0939\u0948\u0902\u0964 \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u0915\u093e \u092f\u0939 \u0915\u092c\u094d\u091c\u093e \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940 \u0915\u0947 \u0906\u0915\u094d\u0930\u093e\u092e\u0915 \u0935\u093f\u0938\u094d\u0924\u093e\u0930 \u0915\u0940 \u090f\u0915 \u092a\u094d\u0930\u092e\u0941\u0916 \u0935\u093f\u0936\u0947\u0937\u0924\u093e \u0925\u0940, \u091c\u093f\u0938\u0915\u093e \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0915\u0902\u092a\u0928\u0940 \u0915\u094b \u092d\u093e\u0930\u0924 \u092e\u0947\u0902 \u0938\u0930\u094d\u0935\u094b\u092a\u0930\u093f \u0936\u0915\u094d\u0924\u093f \u092c\u0928\u093e\u0928\u093e \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q15. Match Column A with Column B (Sindh Annexation): / \u0915\u0949\u0932\u092e A \u0915\u094b \u0915\u0949\u0932\u092e B (\u0938\u093f\u0902\u0927 \u0935\u093f\u0932\u092f) \u0915\u0947 \u0938\u093e\u0925 \u0938\u0941\u092e\u0947\u0932\u093f\u0924 \u0915\u0930\u0947\u0902:<br>1. Anglo-Russian rivalry - Led Britain to expand influence... / \u0906\u0902\u0917\u094d\u0932-\u0930\u0942\u0938\u0940 \u092a\u094d\u0930\u0924\u093f\u0926\u094d\u0935\u0902\u0926\u094d\u0935\u093f\u0924\u093e - \u092c\u094d\u0930\u093f\u091f\u0947\u0928 \u0915\u094b \u092a\u094d\u0930\u092d\u093e\u0935 \u092c\u0922\u093c\u093e\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092a\u094d\u0930\u0947\u0930\u093f\u0924 \u0915\u093f\u092f\u093e...<br>2. Subsidiary Treaty 1839 - Forced on the Amirs of Sindh... / \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f 1839 - \u0938\u093f\u0902\u0927 \u0915\u0947 \u0905\u092e\u0940\u0930\u094b\u0902 \u092a\u0930 \u0925\u094b\u092a\u0940 \u0917\u0908...<br>3. Sir Charles Napier - Led military campaign... / \u0938\u0930 \u091a\u093e\u0930\u094d\u0932\u094d\u0938 \u0928\u0947\u092a\u093f\u092f\u0930 - \u0938\u0948\u0928\u094d\u092f \u0905\u092d\u093f\u092f\u093e\u0928 \u0915\u093e \u0928\u0947\u0924\u0943\u0924\u094d\u0935 \u0915\u093f\u092f\u093e...<br>4. River Sindh - Had commercial value... / \u0938\u093f\u0902\u0927 \u0928\u0926\u0940 - \u0935\u093e\u0923\u093f\u091c\u094d\u092f\u093f\u0915 \u092e\u0942\u0932\u094d\u092f \u0925\u093e...<br>5. Treaty of 1832 - Opened Sindh&#x27;s rivers... / 1832 \u0915\u0940 \u0938\u0902\u0927\u093f - \u0938\u093f\u0902\u0927 \u0915\u0940 \u0928\u0926\u093f\u092f\u094b\u0902 \u0915\u094b \u0916\u094b\u0932\u093e...<br>[SSC Steno, 06/08/2025, Shift-3]\n            </div>\n            <b>Q15.</b> Choose the correct matching: / \u0938\u0939\u0940 \u092e\u093f\u0932\u093e\u0928 \u091a\u0941\u0928\u0947\u0902:",
+      "options": [
+        "A-5, B-2, C-4, D-3, E-1",
+        "A-1, B-5, C-2, D-4, E-3",
+        "A-2, B-4, C-3, D-1, E-5",
+        "A-4, B-1, C-5, D-2, E-3"
+      ],
+      "correctIndex": 0,
+      "explanation": "The correct matching is Option (a). A-5: Fear of Russian expansion (The Great Game) drove British interest in Sindh. B-2: The Amirs were forced into a subsidiary alliance in 1839. C-4: Sir Charles Napier led the military campaign that annexed Sindh in 1843. D-3: The Indus (Sindh) river was crucial for commerce and transport. E-1: The Treaty of 1832 opened the roads and rivers of Sindh to British trade. This sequence accurately reflects the chronological and strategic progression of the annexation of Sindh. / \u0938\u0939\u0940 \u092e\u093f\u0932\u093e\u0928 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0939\u0948\u0964 A-5: \u0930\u0942\u0938\u0940 \u0935\u093f\u0938\u094d\u0924\u093e\u0930 (\u0926 \u0917\u094d\u0930\u0947\u091f \u0917\u0947\u092e) \u0915\u0947 \u0921\u0930 \u0928\u0947 \u0938\u093f\u0902\u0927 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0930\u0941\u091a\u093f \u0915\u094b \u092c\u0922\u093c\u093e\u092f\u093e\u0964 B-2: \u0905\u092e\u0940\u0930\u094b\u0902 \u0915\u094b 1839 \u092e\u0947\u0902 \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f \u0915\u0947 \u0932\u093f\u090f \u092e\u091c\u092c\u0942\u0930 \u0915\u093f\u092f\u093e \u0917\u092f\u093e\u0964 C-4: \u0938\u0930 \u091a\u093e\u0930\u094d\u0932\u094d\u0938 \u0928\u0947\u092a\u093f\u092f\u0930 \u0928\u0947 \u0938\u0948\u0928\u094d\u092f \u0905\u092d\u093f\u092f\u093e\u0928 \u0915\u093e \u0928\u0947\u0924\u0943\u0924\u094d\u0935 \u0915\u093f\u092f\u093e \u091c\u093f\u0938\u0928\u0947 1843 \u092e\u0947\u0902 \u0938\u093f\u0902\u0927 \u0915\u093e \u0935\u093f\u0932\u092f \u0915\u093f\u092f\u093e\u0964 D-3: \u0938\u093f\u0902\u0927\u0941 (\u0938\u093f\u0902\u0927) \u0928\u0926\u0940 \u0935\u093e\u0923\u093f\u091c\u094d\u092f \u0914\u0930 \u092a\u0930\u093f\u0935\u0939\u0928 \u0915\u0947 \u0932\u093f\u090f \u092e\u0939\u0924\u094d\u0935\u092a\u0942\u0930\u094d\u0923 \u0925\u0940\u0964 E-1: 1832 \u0915\u0940 \u0938\u0902\u0927\u093f \u0928\u0947 \u0938\u093f\u0902\u0927 \u0915\u0940 \u0938\u0921\u093c\u0915\u094b\u0902 \u0914\u0930 \u0928\u0926\u093f\u092f\u094b\u0902 \u0915\u094b \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u0915\u0947 \u0932\u093f\u090f \u0916\u094b\u0932 \u0926\u093f\u092f\u093e\u0964 \u092f\u0939 \u0915\u094d\u0930\u092e \u0938\u093f\u0902\u0927 \u0915\u0947 \u0935\u093f\u0932\u092f \u0915\u0940 \u0915\u093e\u0932\u093e\u0928\u0941\u0915\u094d\u0930\u092e\u093f\u0915 \u0914\u0930 \u0930\u0923\u0928\u0940\u0924\u093f\u0915 \u092a\u094d\u0930\u0917\u0924\u093f \u0915\u094b \u0938\u091f\u0940\u0915 \u0930\u0942\u092a \u0938\u0947 \u0926\u0930\u094d\u0936\u093e\u0924\u093e \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "\n            <div style=\"\n                margin-bottom: 1rem;\n                padding: 0.8rem;\n                border-radius: 8px;\n                background-color: rgba(0,0,0,0.03);\n                border-left: 4px solid var(--info);\n                font-size: 0.95em;\n                line-height: 1.5;\n            \">\n                Q16. Assertion(A): Sir Charles Napier justified the annexation of Sindh on moral and legal grounds. / \u0905\u092d\u093f\u0915\u0925\u0928 (A): \u0938\u0930 \u091a\u093e\u0930\u094d\u0932\u094d\u0938 \u0928\u0947\u092a\u093f\u092f\u0930 \u0928\u0947 \u0928\u0948\u0924\u093f\u0915 \u0914\u0930 \u0915\u093e\u0928\u0942\u0928\u0940 \u0906\u0927\u093e\u0930 \u092a\u0930 \u0938\u093f\u0902\u0927 \u0915\u0947 \u0935\u093f\u0932\u092f \u0915\u094b \u0909\u091a\u093f\u0924 \u0920\u0939\u0930\u093e\u092f\u093e\u0964<br>Reason(R): He described it as a &quot;useful humane piece of rascality.&quot; / \u0915\u093e\u0930\u0923 (R): \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0907\u0938\u0947 &quot;\u092c\u0926\u092e\u093e\u0936\u0940 \u0915\u093e \u090f\u0915 \u0909\u092a\u092f\u094b\u0917\u0940 \u092e\u093e\u0928\u0935\u0940\u092f \u091f\u0941\u0915\u0921\u093c\u093e&quot; (useful humane piece of rascality) \u092c\u0924\u093e\u092f\u093e\u0964<br>[SSC Steno, 08/08/2025, Shift-1]\n            </div>\n            <b>Q16.</b> Choose the correct option: / \u0938\u0939\u0940 \u0935\u093f\u0915\u0932\u094d\u092a \u091a\u0941\u0928\u0947\u0902:",
+      "options": [
+        "Both Assertion (A) and Reason (R) are true, and R is the correct explanation of A. / \u0905\u092d\u093f\u0915\u0925\u0928 (A) \u0914\u0930 \u0915\u093e\u0930\u0923 (R) \u0926\u094b\u0928\u094b\u0902 \u0938\u0924\u094d\u092f \u0939\u0948\u0902, \u0914\u0930 R, A \u0915\u0940 \u0938\u0939\u0940 \u0935\u094d\u092f\u093e\u0916\u094d\u092f\u093e \u0939\u0948\u0964",
+        "A is true, but R is false. / A \u0938\u0924\u094d\u092f \u0939\u0948, \u0932\u0947\u0915\u093f\u0928 R \u0917\u0932\u0924 \u0939\u0948\u0964",
+        "A is false, but R is true. / A \u0917\u0932\u0924 \u0939\u0948, \u0932\u0947\u0915\u093f\u0928 R \u0938\u0924\u094d\u092f \u0939\u0948\u0964",
+        "Both Assertion (A) and Reason (R) are true, and R is not the correct explanation of A. / \u0905\u092d\u093f\u0915\u0925\u0928 (A) \u0914\u0930 \u0915\u093e\u0930\u0923 (R) \u0926\u094b\u0928\u094b\u0902 \u0938\u0924\u094d\u092f \u0939\u0948\u0902, \u0914\u0930 R, A \u0915\u0940 \u0938\u0939\u0940 \u0935\u094d\u092f\u093e\u0916\u094d\u092f\u093e \u0928\u0939\u0940\u0902 \u0939\u0948\u0964"
+      ],
+      "correctIndex": 2,
+      "explanation": "The correct answer is (c) because the Assertion is false and the Reason is true. Sir Charles Napier famously admitted that the British had \"no right to seize Sindh,\" acknowledging the lack of moral or legal justification. However, he cynically described it as a \"useful humane piece of rascality\" (Reason), implying it was advantageous despite being unjust. Therefore, he did not justify it on moral grounds; he justified it on pragmatic, imperialist grounds. This quote is one of the most honest admissions of British imperial aggression. / \u0938\u0939\u0940 \u0909\u0924\u094d\u0924\u0930 (c) \u0939\u0948 \u0915\u094d\u092f\u094b\u0902\u0915\u093f \u0905\u092d\u093f\u0915\u0925\u0928 \u0917\u0932\u0924 \u0939\u0948 \u0914\u0930 \u0915\u093e\u0930\u0923 \u0938\u0924\u094d\u092f \u0939\u0948\u0964 \u0938\u0930 \u091a\u093e\u0930\u094d\u0932\u094d\u0938 \u0928\u0947\u092a\u093f\u092f\u0930 \u0928\u0947 \u092a\u094d\u0930\u0938\u093f\u0926\u094d\u0927 \u0930\u0942\u092a \u0938\u0947 \u0938\u094d\u0935\u0940\u0915\u093e\u0930 \u0915\u093f\u092f\u093e \u0915\u093f \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0915\u094b \"\u0938\u093f\u0902\u0927 \u092a\u0930 \u0915\u092c\u094d\u091c\u093e \u0915\u0930\u0928\u0947 \u0915\u093e \u0915\u094b\u0908 \u0905\u0927\u093f\u0915\u093e\u0930 \u0928\u0939\u0940\u0902 \u0925\u093e\", \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0928\u0948\u0924\u093f\u0915 \u092f\u093e \u0915\u093e\u0928\u0942\u0928\u0940 \u0914\u091a\u093f\u0924\u094d\u092f \u0915\u0940 \u0915\u092e\u0940 \u0915\u094b \u0938\u094d\u0935\u0940\u0915\u093e\u0930 \u0915\u093f\u092f\u093e\u0964 \u0939\u093e\u0932\u093e\u0901\u0915\u093f, \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0907\u0938\u0947 \u0938\u0928\u0915 \u092e\u0947\u0902 \"\u092c\u0926\u092e\u093e\u0936\u0940 \u0915\u093e \u090f\u0915 \u0909\u092a\u092f\u094b\u0917\u0940 \u092e\u093e\u0928\u0935\u0940\u092f \u091f\u0941\u0915\u0921\u093c\u093e\" \u092c\u0924\u093e\u092f\u093e (\u0915\u093e\u0930\u0923), \u091c\u093f\u0938\u0915\u093e \u0905\u0930\u094d\u0925 \u0925\u093e \u0915\u093f \u0905\u0928\u094d\u092f\u093e\u092f\u092a\u0942\u0930\u094d\u0923 \u0939\u094b\u0928\u0947 \u0915\u0947 \u092c\u093e\u0935\u091c\u0942\u0926 \u092f\u0939 \u092b\u093e\u092f\u0926\u0947\u092e\u0902\u0926 \u0925\u093e\u0964 \u0907\u0938\u0932\u093f\u090f, \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0907\u0938\u0947 \u0928\u0948\u0924\u093f\u0915 \u0906\u0927\u093e\u0930 \u092a\u0930 \u0909\u091a\u093f\u0924 \u0928\u0939\u0940\u0902 \u0920\u0939\u0930\u093e\u092f\u093e; \u0909\u0928\u094d\u0939\u094b\u0902\u0928\u0947 \u0907\u0938\u0947 \u0935\u094d\u092f\u093e\u0935\u0939\u093e\u0930\u093f\u0915, \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f\u0935\u093e\u0926\u0940 \u0906\u0927\u093e\u0930 \u092a\u0930 \u0909\u091a\u093f\u0924 \u0920\u0939\u0930\u093e\u092f\u093e\u0964 \u092f\u0939 \u0909\u0926\u094d\u0927\u0930\u0923 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f\u0935\u093e\u0926\u0940 \u0906\u0915\u094d\u0930\u093e\u092e\u0915\u0924\u093e \u0915\u0940 \u0938\u092c\u0938\u0947 \u0908\u092e\u093e\u0928\u0926\u093e\u0930 \u0938\u094d\u0935\u0940\u0915\u093e\u0930\u094b\u0915\u094d\u0924\u093f\u092f\u094b\u0902 \u092e\u0947\u0902 \u0938\u0947 \u090f\u0915 \u0939\u0948\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q17.</b> In which of the following years &#x27;Sindh&#x27; was taken over by the East India Company? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0926\u094d\u0935\u093e\u0930\u093e &#x27;\u0938\u093f\u0902\u0927&#x27; \u092a\u0930 \u0915\u092c\u094d\u091c\u093e \u0915\u0930 \u0932\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e? [SSC CHSL, 28 Nov 2025, Shift-3]",
+      "options": [
+        "1834 / 1834",
+        "1843 / 1843",
+        "1856 / 1856",
+        "1861 / 1861"
+      ],
+      "correctIndex": 1,
+      "explanation": "Sindh was formally annexed by the British East India Company in 1843 following the Battle of Miani and the Battle of Dubba. Sir Charles Napier led the British forces to defeat the Amirs of Sindh. Option (b) is the correct year. Option (c) 1856 refers to the annexation of Awadh. Options (a) and (d) are incorrect. The annexation was controversial even at the time, driven by the desire to control the Indus trade route and secure the frontier against Russian influence. / \u092e\u093f\u092f\u093e\u0928\u0940 \u0915\u0947 \u092f\u0941\u0926\u094d\u0927 \u0914\u0930 \u0926\u0941\u092c\u094d\u092c\u093e \u0915\u0947 \u092f\u0941\u0926\u094d\u0927 \u0915\u0947 \u092c\u093e\u0926 1843 \u092e\u0947\u0902 \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0926\u094d\u0935\u093e\u0930\u093e \u0938\u093f\u0902\u0927 \u0915\u093e \u0914\u092a\u091a\u093e\u0930\u093f\u0915 \u0930\u0942\u092a \u0938\u0947 \u0935\u093f\u0932\u092f \u0915\u0930 \u0932\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e\u0964 \u0938\u0930 \u091a\u093e\u0930\u094d\u0932\u094d\u0938 \u0928\u0947\u092a\u093f\u092f\u0930 \u0928\u0947 \u0938\u093f\u0902\u0927 \u0915\u0947 \u0905\u092e\u0940\u0930\u094b\u0902 \u0915\u094b \u0939\u0930\u093e\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0938\u0947\u0928\u093e \u0915\u093e \u0928\u0947\u0924\u0943\u0924\u094d\u0935 \u0915\u093f\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0938\u0939\u0940 \u0935\u0930\u094d\u0937 \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) 1856 \u0905\u0935\u0927 \u0915\u0947 \u0935\u093f\u0932\u092f \u0915\u094b \u0938\u0902\u0926\u0930\u094d\u092d\u093f\u0924 \u0915\u0930\u0924\u093e \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (a) \u0914\u0930 (d) \u0917\u0932\u0924 \u0939\u0948\u0902\u0964 \u0938\u093f\u0902\u0927\u0941 \u0935\u094d\u092f\u093e\u092a\u093e\u0930 \u092e\u093e\u0930\u094d\u0917 \u0915\u094b \u0928\u093f\u092f\u0902\u0924\u094d\u0930\u093f\u0924 \u0915\u0930\u0928\u0947 \u0914\u0930 \u0930\u0942\u0938\u0940 \u092a\u094d\u0930\u092d\u093e\u0935 \u0915\u0947 \u0916\u093f\u0932\u093e\u092b \u0938\u0940\u092e\u093e \u0915\u094b \u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924 \u0915\u0930\u0928\u0947 \u0915\u0940 \u0907\u091a\u094d\u091b\u093e \u0938\u0947 \u092a\u094d\u0930\u0947\u0930\u093f\u0924 \u092f\u0939 \u0935\u093f\u0932\u092f \u0909\u0938 \u0938\u092e\u092f \u092d\u0940 \u0935\u093f\u0935\u093e\u0926\u093e\u0938\u094d\u092a\u0926 \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q18.</b> In which of the year was Satara annexed under the Doctrine of Lapse? / \u0935\u094d\u092f\u092a\u0917\u0924 \u0915\u0947 \u0938\u093f\u0926\u094d\u0927\u093e\u0902\u0924 (Doctrine of Lapse) \u0915\u0947 \u0924\u0939\u0924 \u0938\u0924\u093e\u0930\u093e \u0915\u093e \u0935\u093f\u0932\u092f \u0915\u093f\u0938 \u0935\u0930\u094d\u0937 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0925\u093e? [SSC CHSL, 25 Nov 2025, Shift-2]",
+      "options": [
+        "1853 / 1853",
+        "1850 / 1850",
+        "1854 / 1854",
+        "1848 / 1848"
+      ],
+      "correctIndex": 3,
+      "explanation": "Satara was the first state to be annexed under the Doctrine of Lapse in 1848. Lord Dalhousie applied this doctrine, declaring that states without a natural male heir would lapse to the British rather than passing to an adopted son. Option (d) is correct. Other states followed later: Sambalpur (1849), Udaipur (1852), Jhansi (1853), and Nagpur (1854). This policy caused widespread resentment among Indian rulers and was a major contributing factor to the Revolt of 1857. / \u0938\u0924\u093e\u0930\u093e 1848 \u092e\u0947\u0902 \u0935\u094d\u092f\u092a\u0917\u0924 \u0915\u0947 \u0938\u093f\u0926\u094d\u0927\u093e\u0902\u0924 \u0915\u0947 \u0924\u0939\u0924 \u0935\u093f\u0932\u092f \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u092a\u0939\u0932\u093e \u0930\u093e\u091c\u094d\u092f \u0925\u093e\u0964 \u0932\u0949\u0930\u094d\u0921 \u0921\u0932\u0939\u094c\u091c\u0940 \u0928\u0947 \u0907\u0938 \u0938\u093f\u0926\u094d\u0927\u093e\u0902\u0924 \u0915\u094b \u0932\u093e\u0917\u0942 \u0915\u093f\u092f\u093e, \u092f\u0939 \u0918\u094b\u0937\u0923\u093e \u0915\u0930\u0924\u0947 \u0939\u0941\u090f \u0915\u093f \u092a\u094d\u0930\u093e\u0915\u0943\u0924\u093f\u0915 \u092a\u0941\u0930\u0941\u0937 \u0909\u0924\u094d\u0924\u0930\u093e\u0927\u093f\u0915\u093e\u0930\u0940 \u0915\u0947 \u092c\u093f\u0928\u093e \u0930\u093e\u091c\u094d\u092f \u0926\u0924\u094d\u0924\u0915 \u092a\u0941\u0924\u094d\u0930 \u0915\u0947 \u092a\u093e\u0938 \u091c\u093e\u0928\u0947 \u0915\u0947 \u092c\u091c\u093e\u092f \u0905\u0902\u0917\u094d\u0930\u0947\u091c\u094b\u0902 \u0915\u0947 \u092a\u093e\u0938 \u091a\u0932\u0947 \u091c\u093e\u090f\u0902\u0917\u0947\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0938\u0939\u0940 \u0939\u0948\u0964 \u0905\u0928\u094d\u092f \u0930\u093e\u091c\u094d\u092f \u092c\u093e\u0926 \u092e\u0947\u0902 \u0936\u093e\u092e\u093f\u0932 \u0939\u0941\u090f: \u0938\u0902\u092c\u0932\u092a\u0941\u0930 (1849), \u0909\u0926\u092f\u092a\u0941\u0930 (1852), \u091d\u093e\u0901\u0938\u0940 (1853), \u0914\u0930 \u0928\u093e\u0917\u092a\u0941\u0930 (1854)\u0964 \u0907\u0938 \u0928\u0940\u0924\u093f \u0928\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u0936\u093e\u0938\u0915\u094b\u0902 \u0915\u0947 \u092c\u0940\u091a \u0935\u094d\u092f\u093e\u092a\u0915 \u0906\u0915\u094d\u0930\u094b\u0936 \u092a\u0948\u0926\u093e \u0915\u093f\u092f\u093e \u0914\u0930 1857 \u0915\u0947 \u0935\u093f\u0926\u094d\u0930\u094b\u0939 \u092e\u0947\u0902 \u090f\u0915 \u092a\u094d\u0930\u092e\u0941\u0916 \u092f\u094b\u0917\u0926\u093e\u0928 \u0915\u093e\u0930\u0915 \u0925\u093e\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q19.</b> Which of the following policies were devised by Lord Dalhousie? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u0940 \u0928\u0940\u0924\u093f \u0932\u0949\u0930\u094d\u0921 \u0921\u0932\u0939\u094c\u091c\u0940 \u0926\u094d\u0935\u093e\u0930\u093e \u0924\u0948\u092f\u093e\u0930 \u0915\u0940 \u0917\u0908 \u0925\u0940? [SSC CHSL, 29 Nov 2025, Shift-1]",
+      "options": [
+        "Doctrine of Lapse / \u0935\u094d\u092f\u092a\u0917\u0924 \u0915\u093e \u0938\u093f\u0926\u094d\u0927\u093e\u0902\u0924 (\u0939\u0921\u093c\u092a \u0928\u0940\u0924\u093f)",
+        "Policy of Paramountcy / \u0938\u0930\u094d\u0935\u094b\u092a\u0930\u093f\u0924\u093e \u0915\u0940 \u0928\u0940\u0924\u093f",
+        "Subsidiary Alliance / \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f",
+        "Policy of Non-intervention / \u0905\u0939\u0938\u094d\u0924\u0915\u094d\u0937\u0947\u092a \u0915\u0940 \u0928\u0940\u0924\u093f"
+      ],
+      "correctIndex": 0,
+      "explanation": "The Doctrine of Lapse was the expansionist policy devised and aggressively implemented by Lord Dalhousie (Governor-General 1848\u20131856). It denied adopted sons of Indian rulers the right to inherit their kingdoms. Option (b) Policy of Paramountcy is associated with Lord Hastings. Option (c) Subsidiary Alliance was the brainchild of Lord Wellesley. Option (d) Policy of Non-intervention was followed by Sir John Shore. Dalhousie's policy led to the annexation of major states like Satara, Jhansi, and Nagpur. / \u0935\u094d\u092f\u092a\u0917\u0924 \u0915\u093e \u0938\u093f\u0926\u094d\u0927\u093e\u0902\u0924 \u0932\u0949\u0930\u094d\u0921 \u0921\u0932\u0939\u094c\u091c\u0940 (\u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 1848-1856) \u0926\u094d\u0935\u093e\u0930\u093e \u0924\u0948\u092f\u093e\u0930 \u0915\u0940 \u0917\u0908 \u0914\u0930 \u0906\u0915\u094d\u0930\u093e\u092e\u0915 \u0930\u0942\u092a \u0938\u0947 \u0932\u093e\u0917\u0942 \u0915\u0940 \u0917\u0908 \u0935\u093f\u0938\u094d\u0924\u093e\u0930\u0935\u093e\u0926\u0940 \u0928\u0940\u0924\u093f \u0925\u0940\u0964 \u0907\u0938\u0928\u0947 \u092d\u093e\u0930\u0924\u0940\u092f \u0936\u093e\u0938\u0915\u094b\u0902 \u0915\u0947 \u0926\u0924\u094d\u0924\u0915 \u092a\u0941\u0924\u094d\u0930\u094b\u0902 \u0915\u094b \u0909\u0928\u0915\u0947 \u0930\u093e\u091c\u094d\u092f\u094b\u0902 \u0915\u094b \u0935\u093f\u0930\u093e\u0938\u0924 \u092e\u0947\u0902 \u092a\u093e\u0928\u0947 \u0915\u0947 \u0905\u0927\u093f\u0915\u093e\u0930 \u0938\u0947 \u0935\u0902\u091a\u093f\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0938\u0930\u094d\u0935\u094b\u092a\u0930\u093f\u0924\u093e \u0915\u0940 \u0928\u0940\u0924\u093f \u0932\u0949\u0930\u094d\u0921 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 \u0938\u0947 \u091c\u0941\u0921\u093c\u0940 \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f \u0932\u0949\u0930\u094d\u0921 \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940 \u0915\u0940 \u0909\u092a\u091c \u0925\u0940\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0905\u0939\u0938\u094d\u0924\u0915\u094d\u0937\u0947\u092a \u0915\u0940 \u0928\u0940\u0924\u093f \u0915\u093e \u092a\u093e\u0932\u0928 \u0938\u0930 \u091c\u0949\u0928 \u0936\u094b\u0930 \u0928\u0947 \u0915\u093f\u092f\u093e \u0925\u093e\u0964 \u0921\u0932\u0939\u094c\u091c\u0940 \u0915\u0940 \u0928\u0940\u0924\u093f \u0915\u0947 \u0915\u093e\u0930\u0923 \u0938\u0924\u093e\u0930\u093e, \u091d\u093e\u0901\u0938\u0940 \u0914\u0930 \u0928\u093e\u0917\u092a\u0941\u0930 \u091c\u0948\u0938\u0947 \u092a\u094d\u0930\u092e\u0941\u0916 \u0930\u093e\u091c\u094d\u092f\u094b\u0902 \u0915\u093e \u0935\u093f\u0932\u092f \u0939\u0941\u0906\u0964",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q20.</b> Under which of the following governor-General a new policy of &quot;paramountcy&quot; was initiated? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938 \u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 \u0915\u0947 \u0924\u0939\u0924 &quot;\u0938\u0930\u094d\u0935\u094b\u092a\u0930\u093f\u0924\u093e&quot; (paramountcy) \u0915\u0940 \u090f\u0915 \u0928\u0908 \u0928\u0940\u0924\u093f \u0936\u0941\u0930\u0942 \u0915\u0940 \u0917\u0908 \u0925\u0940? [SSC CHSL, 28 Nov 2025, Shift-1]",
+      "options": [
+        "Lord Hastings / \u0932\u0949\u0930\u094d\u0921 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938",
+        "Lord Cornwallis / \u0932\u0949\u0930\u094d\u0921 \u0915\u0949\u0930\u094d\u0928\u0935\u093e\u0932\u093f\u0938",
+        "Lord Wellesley / \u0932\u0949\u0930\u094d\u0921 \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940",
+        "Lord Dalhousie / \u0932\u0949\u0930\u094d\u0921 \u0921\u0932\u0939\u094c\u091c\u0940"
+      ],
+      "correctIndex": 0,
+      "explanation": "The policy of Paramountcy was initiated under Lord Hastings (Governor-General 1813\u20131823). This policy explicitly declared that the authority of the East India Company was supreme (paramount) and greater than that of any Indian state, justifying annexation to protect British interests. Option (b) Cornwallis is known for the Permanent Settlement. Option (c) Wellesley is known for the Subsidiary Alliance. Option (d) Dalhousie is known for the Doctrine of Lapse. Under Hastings, the Company effectively ceased to act as a vassal of the Mughal Empire. / \u0938\u0930\u094d\u0935\u094b\u092a\u0930\u093f\u0924\u093e \u0915\u0940 \u0928\u0940\u0924\u093f \u0932\u0949\u0930\u094d\u0921 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 (\u0917\u0935\u0930\u094d\u0928\u0930-\u091c\u0928\u0930\u0932 1813-1823) \u0915\u0947 \u0924\u0939\u0924 \u0936\u0941\u0930\u0942 \u0915\u0940 \u0917\u0908 \u0925\u0940\u0964 \u0907\u0938 \u0928\u0940\u0924\u093f \u0928\u0947 \u0938\u094d\u092a\u0937\u094d\u091f \u0930\u0942\u092a \u0938\u0947 \u0918\u094b\u0937\u0923\u093e \u0915\u0940 \u0915\u093f \u0908\u0938\u094d\u091f \u0907\u0902\u0921\u093f\u092f\u093e \u0915\u0902\u092a\u0928\u0940 \u0915\u093e \u0905\u0927\u093f\u0915\u093e\u0930 \u0938\u0930\u094d\u0935\u094b\u091a\u094d\u091a (paramount) \u0925\u093e \u0914\u0930 \u0915\u093f\u0938\u0940 \u092d\u0940 \u092d\u093e\u0930\u0924\u0940\u092f \u0930\u093e\u091c\u094d\u092f \u0938\u0947 \u0905\u0927\u093f\u0915 \u0925\u093e, \u091c\u094b \u092c\u094d\u0930\u093f\u091f\u093f\u0936 \u0939\u093f\u0924\u094b\u0902 \u0915\u0940 \u0930\u0915\u094d\u0937\u093e \u0915\u0947 \u0932\u093f\u090f \u0935\u093f\u0932\u092f \u0915\u094b \u0909\u091a\u093f\u0924 \u0920\u0939\u0930\u093e\u0924\u093e \u0925\u093e\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (b) \u0915\u0949\u0930\u094d\u0928\u0935\u093e\u0932\u093f\u0938 \u0915\u094b \u0938\u094d\u0925\u093e\u092f\u0940 \u092c\u0902\u0926\u094b\u092c\u0938\u094d\u0924 \u0915\u0947 \u0932\u093f\u090f \u091c\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (c) \u0935\u0947\u0932\u0947\u0938\u094d\u0932\u0940 \u0915\u094b \u0938\u0939\u093e\u092f\u0915 \u0938\u0902\u0927\u093f \u0915\u0947 \u0932\u093f\u090f \u091c\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0939\u0948\u0964 \u0935\u093f\u0915\u0932\u094d\u092a (d) \u0921\u0932\u0939\u094c\u091c\u0940 \u0915\u094b \u0935\u094d\u092f\u092a\u0917\u0924 \u0915\u0947 \u0938\u093f\u0926\u094d\u0927\u093e\u0902\u0924 \u0915\u0947 \u0932\u093f\u090f \u091c\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0939\u0948\u0964 \u0939\u0947\u0938\u094d\u091f\u093f\u0902\u0917\u094d\u0938 \u0915\u0947 \u0924\u0939\u0924, \u0915\u0902\u092a\u0928\u0940 \u0928\u0947 \u092a\u094d\u0930\u092d\u093e\u0935\u0940 \u0930\u0942\u092a \u0938\u0947 \u092e\u0941\u0917\u0932 \u0938\u093e\u092e\u094d\u0930\u093e\u091c\u094d\u092f \u0915\u0947 \u091c\u093e\u0917\u0940\u0930\u0926\u093e\u0930 \u0915\u0947 \u0930\u0942\u092a \u092e\u0947\u0902 \u0915\u093e\u0930\u094d\u092f \u0915\u0930\u0928\u093e \u092c\u0902\u0926 \u0915\u0930 \u0926\u093f\u092f\u093e\u0964",
+      "reference": ""
+    }
+  ],
+  "leaderboard": {
+    "rankings": [],
+    "question_stats": {
+      "0": {
+        "correct": 0,
+        "total": 0
+      },
+      "1": {
+        "correct": 0,
+        "total": 0
+      },
+      "2": {
+        "correct": 0,
+        "total": 0
+      },
+      "3": {
+        "correct": 0,
+        "total": 0
+      },
+      "4": {
+        "correct": 0,
+        "total": 0
+      },
+      "5": {
+        "correct": 0,
+        "total": 0
+      },
+      "6": {
+        "correct": 0,
+        "total": 0
+      },
+      "7": {
+        "correct": 0,
+        "total": 0
+      },
+      "8": {
+        "correct": 0,
+        "total": 0
+      },
+      "9": {
+        "correct": 0,
+        "total": 0
+      },
+      "10": {
+        "correct": 0,
+        "total": 0
+      },
+      "11": {
+        "correct": 0,
+        "total": 0
+      },
+      "12": {
+        "correct": 0,
+        "total": 0
+      },
+      "13": {
+        "correct": 0,
+        "total": 0
+      },
+      "14": {
+        "correct": 0,
+        "total": 0
+      },
+      "15": {
+        "correct": 0,
+        "total": 0
+      },
+      "16": {
+        "correct": 0,
+        "total": 0
+      },
+      "17": {
+        "correct": 0,
+        "total": 0
+      },
+      "18": {
+        "correct": 0,
+        "total": 0
+      },
+      "19": {
+        "correct": 0,
+        "total": 0
+      }
+    }
+  }
+};
+
+(function(){
+  // ----- Config from quizData.settings -----
+  const TOTAL_TIME = (quizData.settings && quizData.settings.totalTimeSec) || 20*60;
+  const NEGATIVE = (quizData.settings && quizData.settings.negativeMarkPerWrong) || (1/3);
+
+  // ----- State -----
+  const state = {
+    current: 0,
+    answers: Array(quizData.questions.length).fill(null),
+    markedForReview: Array(quizData.questions.length).fill(false),
+    startTime: new Date(),
+    timePerQ: Array(quizData.questions.length).fill(0),
+    submitted: false,
+    inReviewMode: false,
+    darkMode: false,
+    totalTime: TOTAL_TIME,
+    negativeMark: NEGATIVE,
+    avgTime: 0,
+    timerInterval: null,
+    qTimerInterval: null,
+    lastSoundIdx: -1,
+    currentLang: 'both', // 'both', 'hn', 'en'
+    rootFontSize: 16
+  };
+
+  // ----- Elements -----
+  const questionArea = document.getElementById('questionArea');
+  const resultsContainer = document.getElementById('resultsContainer');
+  const submitBtn = document.getElementById('submitBtn');
+  const qListGrid = document.getElementById('qList');
+  const themeToggle = document.getElementById('themeToggle');
+  const clickSound = document.getElementById('clickSound');
+  const correctSound = document.getElementById('correctSound');
+  const wrongSound = document.getElementById('wrongSound');
+  const quizNav = document.getElementById('quizNav');
+  const langToggleBtn = document.getElementById('langToggleBtn');
+
+  // ----- Init -----
+  document.addEventListener('DOMContentLoaded', () => {
+    setupHomePage();
+    document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+  });
+
+  function setupHomePage() {
+    const totalQuestions = quizData.questions.length;
+    const totalTimeMinutes = Math.floor(quizData.settings.totalTimeSec / 60);
+    const negativeMark = quizData.settings.negativeMarkPerWrong;
+
+    // Linkify Topic Name logic
+    let rawTopic = quizData.settings.topic || "General Knowledge";
+
+    // Sanitize HTML entities to prevent XSS
+    rawTopic = rawTopic.replace(/&/g, "&amp;")
+                       .replace(/</g, "&lt;")
+                       .replace(/>/g, "&gt;")
+                       .replace(/"/g, "&quot;")
+                       .replace(/'/g, "&#039;");
+
+    // Regex to detect URLs and convert to <a> tags
+    const topicWithLinks = rawTopic.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+        return `<a href="${url}" target="_blank" style="color: var(--primary); text-decoration: underline; font-weight: bold; position: relative; z-index: 10;">${url}</a>`;
+    });
+
+    document.getElementById('homeTopic').innerHTML = topicWithLinks;
+    document.getElementById('homeQuestions').textContent = totalQuestions;
+    document.getElementById('homeTime').textContent = `${totalTimeMinutes} Minutes`;
+    document.getElementById('homeNegative').textContent = negativeMark > 0 ? `-${negativeMark} per wrong answer` : "No negative marking";
+
+    initTheme(); // Init theme on home page as well
+  }
+
+  function startQuiz() {
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    initQuiz();
+  }
+
+  function initQuiz() {
+    buildQuestionTiles();
+    renderQuestion(0);
+    initTimer();
+    initNav();
+    initFullscreen();
+    initFontSizeControls();
+    initLanguageSwitcher();
+    initSwipeNavigation();
+    updateStats();
+    quizNav.style.display = 'flex';
+  }
+
+  function initNav(){
+    submitBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to submit the quiz?')) {
+            submitQuiz();
+        }
+    });
+
+    // Mobile Sidebar Toggles
+    const infoSidebar = document.getElementById('infoSidebar');
+    const paletteSidebar = document.getElementById('paletteSidebar');
+    const overlay = document.getElementById('overlay');
+    const openInfo = document.getElementById('openInfoSidebar');
+    const closeInfo = document.getElementById('closeInfoSidebar');
+    const openPalette = document.getElementById('openPaletteSidebar');
+    const closePalette = document.getElementById('closePaletteSidebar');
+
+    const toggleSidebar = (sidebar, action) => {
+        sidebar.classList[action]('show');
+        overlay.classList[action]('show');
+    };
+
+    openInfo.addEventListener('click', () => toggleSidebar(infoSidebar, 'add'));
+    closeInfo.addEventListener('click', () => toggleSidebar(infoSidebar, 'remove'));
+    openPalette.addEventListener('click', () => toggleSidebar(paletteSidebar, 'add'));
+    closePalette.addEventListener('click', () => toggleSidebar(paletteSidebar, 'remove'));
+    overlay.addEventListener('click', () => {
+        toggleSidebar(infoSidebar, 'remove');
+        toggleSidebar(paletteSidebar, 'remove');
+    });
+
+    // keyboard
+    document.addEventListener('keydown',(e)=>{
+      if(e.target.tagName === 'INPUT') return;
+      if(e.key==='ArrowLeft') go(-1);
+      if(e.key==='ArrowRight') go(1);
+    });
+  }
+
+  function initTheme(){
+    const saved = localStorage.getItem('qa_theme');
+    if(saved==='dark'){ 
+        document.body.classList.add('dark-mode'); 
+        state.darkMode=true; 
+    }
+    updateThemeIcon();
+    themeToggle.addEventListener('click', ()=>{
+      state.darkMode = !state.darkMode;
+      document.body.classList.toggle('dark-mode', state.darkMode);
+      localStorage.setItem('qa_theme', state.darkMode?'dark':'light');
+      updateThemeIcon();
+      if(state.submitted) buildCharts(state.lastResultData);
+    });
+  }
+  function updateThemeIcon(){
+    const i = themeToggle.querySelector('i');
+    i.classList.toggle('fa-moon', !state.darkMode);
+    i.classList.toggle('fa-sun',  state.darkMode);
+  }
+
+  function initFullscreen() {
+    const toggleBtn = document.getElementById('fullscreenToggle');
+    if (!toggleBtn) return;
+
+    toggleBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+        const icon = toggleBtn.querySelector('i');
+        if (document.fullscreenElement) {
+            icon.classList.remove('fa-expand');
+            icon.classList.add('fa-compress');
+        } else {
+            icon.classList.remove('fa-compress');
+            icon.classList.add('fa-expand');
+        }
+    });
+  }
+
+  function initFontSizeControls() {
+      const increaseBtn = document.getElementById('fontIncreaseBtn');
+      const decreaseBtn = document.getElementById('fontDecreaseBtn');
+      const docEl = document.documentElement;
+
+      increaseBtn.addEventListener('click', () => {
+          state.rootFontSize = Math.min(22, state.rootFontSize + 1);
+          docEl.style.fontSize = state.rootFontSize + 'px';
+      });
+
+      decreaseBtn.addEventListener('click', () => {
+          state.rootFontSize = Math.max(12, state.rootFontSize - 1);
+          docEl.style.fontSize = state.rootFontSize + 'px';
+      });
+  }
+
+  function initLanguageSwitcher() {
+      // Toggle order: Both -> Hindi -> English -> Both
+      const langOrder = ['both', 'hn', 'en'];
+
+      langToggleBtn.addEventListener('click', () => {
+          const currentIndex = langOrder.indexOf(state.currentLang);
+          const nextIndex = (currentIndex + 1) % langOrder.length;
+          state.currentLang = langOrder[nextIndex];
+
+          updateLangButton();
+          renderQuestion(state.current);
+      });
+  }
+
+  function updateLangButton() {
+      let label = 'BILI';
+      if (state.currentLang === 'hn') label = 'HIN';
+      if (state.currentLang === 'en') label = 'ENG';
+      langToggleBtn.textContent = label;
+  }
+
+  function translateText(text) {
+      if (!text) return text;
+      if (state.currentLang === 'both') return text;
+
+      // Check if string has HTML tags to decide between simple split and DOM traversal
+      const hasTags = /<[a-z][\s\S]*>/i.test(text);
+
+      if (hasTags) {
+          const div = document.createElement('div');
+          div.innerHTML = text;
+          walkAndTranslate(div);
+          return div.innerHTML;
+      } else {
+          // Plain text path
+          if (text.includes(' / ')) {
+              const parts = text.split(' / ');
+              if (parts.length >= 2) {
+                  const en = parts[0];
+                  const hn = parts.slice(1).join(' / ');
+                  return state.currentLang === 'hn' ? hn.trim() : en.trim();
+              }
+          }
+          return text;
+      }
+  }
+
+  function walkAndTranslate(node) {
+      if (node.nodeType === 3) { // Text node
+          const val = node.nodeValue;
+          if (val && val.includes(' / ')) {
+              const parts = val.split(' / ');
+              if (parts.length >= 2) {
+                  const en = parts[0];
+                  const hn = parts.slice(1).join(' / ');
+                  node.nodeValue = state.currentLang === 'hn' ? hn.trim() : en.trim();
+              }
+          }
+      } else if (node.nodeType === 1) { // Element node
+          for (let i = 0; i < node.childNodes.length; i++) {
+              walkAndTranslate(node.childNodes[i]);
+          }
+      }
+  }
+
+
+  function initSwipeNavigation() {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const swipeThreshold = 50; // Minimum distance for a swipe
+    const swipeRatio = 0.5; // Vertical distance should be less than half of horizontal
+
+    const swipeArea = document.querySelector('.quiz-main');
+
+    swipeArea.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    swipeArea.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        if (state.submitted && !state.inReviewMode) return;
+
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+
+        if (Math.abs(dx) > swipeThreshold && Math.abs(dy) < Math.abs(dx) * swipeRatio) {
+            if (dx < 0) {
+                go(1); // Swiped left
+            } else {
+                go(-1); // Swiped right
+            }
+        }
+    }
+  }
+
+  // ----- Timer -----
+  function initTimer(){
+    const start = Date.now();
+    const duration = state.totalTime*1000;
+    const end = start + duration;
+    tick(); state.timerInterval = setInterval(tick, 1000);
+    function tick(){
+      const now = Date.now();
+      const left = Math.max(0, end-now);
+      const m = String(Math.floor(left/60000)).padStart(2,'0');
+      const s = String(Math.floor((left%60000)/1000)).padStart(2,'0');
+
+      // Sidebar timer
+      document.getElementById('minutes').textContent = m;
+      document.getElementById('seconds').textContent = s;
+
+      // Header timer (NEW)
+      const headerTimer = document.getElementById('headerTimerDisp');
+      if(headerTimer) headerTimer.textContent = `${m}:${s}`;
+
+      const pct = (left/duration)*100;
+      const bar = document.getElementById('timeProgress');
+      bar.style.width = pct + '%';
+      if(left<=0){ clearInterval(state.timerInterval); submitQuiz(); }
+      else if(pct<25) bar.className='progress-bar bg-danger';
+      else if(pct<50) bar.className='progress-bar bg-warning';
+      else bar.className='progress-bar bg-primary';
+    }
+  }
+
+  // ----- Sidebar tiles -----
+  function buildQuestionTiles(){
+    qListGrid.innerHTML = '';
+    quizData.questions.forEach((_,i)=>{
+      const d = document.createElement('div');
+      d.className='q-tile'; d.textContent=i+1;
+      d.addEventListener('click', ()=>{
+        if(!state.submitted) updateTime();
+        renderQuestion(i);
+        document.getElementById('paletteSidebar').classList.remove('show');
+        document.getElementById('overlay').classList.remove('show');
+      });
+      qListGrid.appendChild(d);
+    });
+  }
+
+  function updateTiles(){
+    document.querySelectorAll('.q-tile').forEach((el,idx)=>{
+      el.className='q-tile'; // Reset
+      if(state.submitted){
+          if(state.answers[idx] === quizData.questions[idx].correctIndex) el.classList.add('review-correct');
+          else if(state.answers[idx] !== null) el.classList.add('review-incorrect');
+          else el.classList.add('review-unattempted');
+      } else {
+        if(state.answers[idx] !== null) el.classList.add('answered');
+        if(state.markedForReview[idx]) el.classList.add('marked');
+      }
+      if(idx === state.current) el.classList.add('current');
+    });
+  }
+
+  // ----- Render question -----
+  function renderQuestion(idx){
+    if (idx < 0 || idx >= quizData.questions.length) return;
+
+    // Stop previous Question Timer
+    if (state.qTimerInterval) clearInterval(state.qTimerInterval);
+
+    state.current=idx;
+    const q=quizData.questions[idx];
+
+    // Live Accuracy Calculation
+    let accuracyBadge = '';
+    if (quizData.leaderboard && quizData.leaderboard.question_stats && quizData.leaderboard.question_stats[idx]) {
+        const stats = quizData.leaderboard.question_stats[idx];
+        if(stats.total > 0) {
+            const acc = Math.round((stats.correct / stats.total) * 100);
+            accuracyBadge = `<span class="q-accuracy ms-2" title="Based on ${stats.total} Telegram users"><i class="fas fa-bullseye me-1"></i>${acc}%</span>`;
+        }
+    }
+
+    // Question Card HTML
+    let questionHtml=`
+      <div class="card-ui">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="q-meta-container">
+                <h5 class="fw-bold m-0">Question ${idx+1}</h5>
+                <span class="q-timer"><i class="fas fa-stopwatch me-1"></i><span id="qTimerDisp">0s</span></span>
+                ${accuracyBadge}
+            </div>
+            ${q.reference ? `<div class="small opacity-75">${q.reference}</div>` : ''}
+        </div>
+        <div class="q-text">${translateText(q.text)}</div>
+        <div class="options">`;
+    q.options.forEach((opt,i)=>{
+      let cls='option-btn';
+      if(state.answers[idx]===i) cls+=' selected';
+      if(state.submitted){
+        if(i===q.correctIndex) cls+=' correct';
+        else if(state.answers[idx]===i) cls+=' incorrect';
+      }
+      questionHtml += `<button class="${cls}" data-i="${i}">${translateText(opt)}</button>`;
+    });
+    const translatedExplanation = translateText(q.explanation || 'Not available.');
+    questionHtml += `</div>
+        ${state.submitted ? `<div class="explanation mt-3"><strong>Explanation:</strong> ${translatedExplanation}</div>` : ''}
+      </div>
+    `;
+    questionArea.innerHTML = questionHtml;
+
+    // Start per-question timer logic (Visual only)
+    if (!state.submitted) {
+        // Start from time already spent
+        let secondsSpent = Math.floor(state.timePerQ[idx] || 0);
+        const timerEl = document.getElementById('qTimerDisp');
+        if(timerEl) {
+            timerEl.textContent = secondsSpent + 's';
+            state.qTimerInterval = setInterval(() => {
+                secondsSpent++;
+                timerEl.textContent = secondsSpent + 's';
+            }, 1000);
+        }
+    } else {
+        // Show static time if submitted
+         const timerEl = document.getElementById('qTimerDisp');
+         if(timerEl) timerEl.textContent = Math.floor(state.timePerQ[idx] || 0) + 's';
+    }
+
+
+    // Navigation Buttons HTML
+    let buttonsHtml = `
+      <button id="prevBtn" class="btn btn-outline-secondary btn-nav"><i class="fas fa-chevron-left me-2"></i>Previous</button>
+      <button id="markBtn" class="btn btn-outline-info btn-nav">
+          ${state.markedForReview[idx] ? '<i class="fas fa-bookmark me-2"></i>Unmark' : '<i class="far fa-bookmark me-2"></i>Mark for Review'}
+      </button>
+      <button id="nextBtn" class="btn btn-primary btn-nav">Next<i class="fas fa-chevron-right ms-2"></i></button>
+    `;
+    quizNav.innerHTML = buttonsHtml;
+
+
+    // Add event listeners to new elements
+    document.getElementById('prevBtn').addEventListener('click', () => go(-1));
+    document.getElementById('nextBtn').addEventListener('click', () => go(1));
+    document.getElementById('markBtn').addEventListener('click', toggleMark);
+
+    if(state.submitted) {
+        document.getElementById('markBtn').style.display = 'none';
+    }
+
+    document.querySelectorAll('.option-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        if(state.submitted) return;
+        clickSound.currentTime=0; clickSound.play();
+        const i = parseInt(btn.dataset.i);
+        state.answers[state.current] = (state.answers[state.current] === i) ? null : i; // Allow un-selecting
+        renderQuestion(state.current); // Re-render to show selection change
+        updateStats();
+        updateTiles();
+      });
+    });
+
+    updateTiles();
+    updateProgress();
+
+    // Sound for review mode
+    if(state.inReviewMode && state.lastSoundIdx!==idx){
+      state.lastSoundIdx=idx;
+      const isAttempted = state.answers[idx]!==null;
+      const isCorrect = isAttempted && state.answers[idx]===q.correctIndex;
+      if(isAttempted){
+        setTimeout(()=>{ (isCorrect?correctSound:wrongSound).play(); }, 250);
+      }
+    }
+  }
+
+  function go(dir){
+    const i = state.current + dir;
+    if(i>=0 && i<quizData.questions.length){
+      if(!state.submitted) updateTime();
+      renderQuestion(i);
+    }
+  }
+
+  function toggleMark() {
+    state.markedForReview[state.current] = !state.markedForReview[state.current];
+    renderQuestion(state.current); // Re-render to update button text
+    updateTiles();
+    updateStats();
+  }
+
+  function updateTime(){
+    const now = new Date();
+    state.timePerQ[state.current] += (now - state.startTime)/1000;
+    state.startTime = now;
+  }
+
+  function updateStats() {
+    const answeredCount = state.answers.filter(a => a !== null).length;
+    const markedCount = state.markedForReview.filter(m => m).length;
+    const totalCount = quizData.questions.length;
+    document.getElementById('statAnswered').textContent = answeredCount;
+    document.getElementById('statUnanswered').textContent = totalCount - answeredCount;
+    document.getElementById('statMarked').textContent = markedCount;
+    document.getElementById('statTotal').textContent = totalCount;
+  }
+
+  function updateProgress() {
+      const answeredCount = state.answers.filter(a => a !== null).length;
+      const totalCount = quizData.questions.length;
+      const percent = totalCount > 0 ? (answeredCount / totalCount) * 100 : 0;
+      const progressBar = document.getElementById('thinProgressBarInner');
+      if (progressBar) {
+          progressBar.style.width = `${percent}%`;
+      }
+  }
+
+  // ----- Submit & Results -----
+  function submitQuiz(){
+    if(state.submitted) return;
+    clearInterval(state.timerInterval);
+    if(state.qTimerInterval) clearInterval(state.qTimerInterval); // Stop question timer
+
+    updateTime();
+    state.submitted=true;
+
+    let correct=0, incorrect=0, unattempted=0, score=0, neg=0;
+    state.answers.forEach((a,i)=>{
+      if(a===null){ unattempted++; }
+      else if(a===quizData.questions[i].correctIndex){ correct++; score+=1; }
+      else { incorrect++; score-=state.negativeMark; neg+=state.negativeMark; }
+    });
+
+    state.avgTime = state.timePerQ.reduce((s,t)=>s+t,0)/quizData.questions.length;
+    const pct = (score/quizData.questions.length)*100;
+
+    questionArea.style.display = 'none';
+    quizNav.style.display = 'none';
+    submitBtn.style.display = 'none';
+    document.querySelector('.quiz-main-header').style.display = 'none';
+
+    renderResults({correct, incorrect, unattempted, score, neg, pct});
+    resultsContainer.style.display = 'block';
+
+    updateTiles();
+
+    if(pct>=70){ confetti(); correctSound.play(); }
+    else if(pct<50){ wrongSound.play(); }
+  }
+
+  function renderResults(resData) {
+      const { correct, incorrect, unattempted, score, neg, pct } = resData;
+      const total = quizData.questions.length;
+      state.lastResultData = resData; // Save for redrawing charts on theme change
+
+      let html = `
+        <div class="results-container card-ui text-start">
+            <div class="text-center">
+                <h2 class="fw-bold">Quiz Completed!</h2>
+                <p>Here is your performance summary.</p>
+                <div class="final-score">${pct.toFixed(1)}%</div>
+                <div class="fs-4 fw-bold mb-4">${score.toFixed(2)} / ${total}</div>
+            </div>
+
+            <ul class="nav nav-pills justify-content-center mb-3 results-tabs" id="pills-tab" role="tablist">
+              <li class="nav-item" role="presentation"><button class="nav-link active" id="pills-summary-tab" data-bs-toggle="pill" data-bs-target="#pills-summary" type="button" role="tab">Summary</button></li>
+              <li class="nav-item" role="presentation"><button class="nav-link" id="pills-analysis-tab" data-bs-toggle="pill" data-bs-target="#pills-analysis" type="button" role="tab">Analysis</button></li>
+            </ul>
+
+            <div class="tab-content" id="pills-tabContent">
+              <div class="tab-pane fade show active" id="pills-summary" role="tabpanel">
+                <div class="row g-3">
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Total Questions</span><span class="fw-bold">${total}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Correct</span><span class="fw-bold text-success">${correct}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Incorrect</span><span class="fw-bold text-danger">${incorrect}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Unattempted</span><span class="fw-bold text-warning">${unattempted}</span></div></div>
+                    <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Negative Marks</span><span class="fw-bold text-danger">-${neg.toFixed(2)}</span></div></div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="pills-analysis" role="tabpanel">
+                <div class="chart-container mb-3"><canvas id="performanceChart"></canvas></div>
+                <div class="chart-container" style="height: 300px;"><canvas id="timeAnalysisChart"></canvas></div>
+
+                <h5 class="fw-bold mt-5 mb-3 text-center">Telegram Leaderboard</h5>
+                <div id="leaderboardSection"></div>
+              </div>
+            </div>
+            <div class="text-center mt-4">
+                <button id="reviewBtn" class="btn btn-primary btn-lg"><i class="fas fa-search me-2"></i>Review Answers</button>
+            </div>
+        </div>
+      `;
+      resultsContainer.innerHTML = html;
+
+      document.getElementById('reviewBtn').addEventListener('click', reviewMode);
+
+      // Render Leaderboard
+      const lbSection = document.getElementById('leaderboardSection');
+      if (quizData.leaderboard && quizData.leaderboard.rankings && quizData.leaderboard.rankings.length > 0) {
+          let lbHtml = `<table class="leaderboard-table">
+              <thead><tr><th>Rank</th><th>User</th><th>Score</th><th>Acc</th></tr></thead>
+              <tbody>`;
+
+          quizData.leaderboard.rankings.forEach((rank, i) => {
+              const rankClass = i < 3 ? `rank-${i+1}` : '';
+              lbHtml += `<tr>
+                  <td class="${rankClass}">#${i+1}</td>
+                  <td>${rank.name}</td>
+                  <td>${rank.score.toFixed(1)}</td>
+                  <td>${rank.accuracy.toFixed(0)}%</td>
+              </tr>`;
+          });
+
+          lbHtml += `</tbody></table>`;
+          lbSection.innerHTML = lbHtml;
+      } else {
+          lbSection.innerHTML = `<div class="text-muted small text-center p-3">No Telegram comparison data available yet.</div>`;
+      }
+
+      // Trigger chart build after tab is shown
+      const analysisTab = document.getElementById('pills-analysis-tab');
+      analysisTab.addEventListener('shown.bs.tab', () => buildCharts(resData), { once: true });
+  }
+
+  let performanceChartInstance, timeAnalysisChartInstance;
+  function buildCharts(res){
+    const {correct, incorrect, unattempted} = res;
+    Chart.defaults.color = state.darkMode ? '#e8eaed' : '#6c757d';
+
+    if (performanceChartInstance) performanceChartInstance.destroy();
+    performanceChartInstance = new Chart(document.getElementById('performanceChart').getContext('2d'),{
+      type:'doughnut',
+      data:{ labels:['Correct','Incorrect','Unattempted'],
+        datasets:[{ data:[correct,incorrect,unattempted],
+          backgroundColor:['#20c997','#e63946','#ffb703'], borderWidth: 0 }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+    });
+
+    const labels = Array.from({length:quizData.questions.length},(_,i)=>`Q${i+1}`);
+    const correctTimes = state.timePerQ.map((t,i) => state.answers[i] === quizData.questions[i].correctIndex ? t : 0);
+    const incorrectTimes = state.timePerQ.map((t,i) => (state.answers[i] !== null && state.answers[i] !== quizData.questions[i].correctIndex) ? t : 0);
+
+    if(timeAnalysisChartInstance) timeAnalysisChartInstance.destroy();
+    timeAnalysisChartInstance = new Chart(document.getElementById('timeAnalysisChart').getContext('2d'),{
+      type:'bar',
+      data:{ labels,
+        datasets:[
+          {label:'Correct', data:correctTimes, backgroundColor:'rgba(32, 201, 151, 0.7)'},
+          {label:'Incorrect', data:incorrectTimes, backgroundColor:'rgba(230, 57, 70, 0.7)'}
+        ]},
+      options:{ responsive:true, maintainAspectRatio:false, indexAxis: 'x',
+        scales:{ x:{stacked:true, grid: {color: state.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}},
+                 y:{stacked:true, title:{display:true,text:'Time (s)'}, grid: {color: state.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}} },
+      }
+    });
+  }
+
+  function reviewMode(){
+    state.inReviewMode=true; state.lastSoundIdx=-1;
+    questionArea.style.display='block';
+    quizNav.style.display = 'flex';
+    resultsContainer.style.display='none';
+    document.querySelector('.quiz-main-header').style.display = 'flex';
+    renderQuestion(0);
+  }
+
+  function confetti(){
+    const colors=['#6a5af9','#f72585','#20c997','#ffb703'];
+    for(let i=0;i<100;i++){
+      const d=document.createElement('div');
+      d.style.cssText=`position:fixed;width:10px;height:10px;top:-10px;left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};z-index:1300;`;
+      document.body.appendChild(d);
+      const dy = Math.random()*500+500, rot = Math.random()*360;
+      const anim = d.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:`translateY(${dy}px) rotate(${rot}deg)`,opacity:0}],
+        {duration:Math.random()*2000+2000, easing:'ease-out'});
+      anim.onfinish=()=>d.remove();
+    }
+  }
+})();
+</script>
+</body>
+</html>
