@@ -3,189 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GS 2025 NEXUS</title>
+    <title>GS 2025 NEXUS | Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #050505;       /* Deep Black */
-            --card-bg: #0a0a0a;        /* Darker Grey */
-            --text-main: #ffffff;      /* White */
-            --text-dim: #a0a0a0;       /* Dim Grey */
-            --neon-blue: #00e5ff;      /* Sky Blue */
-            --neon-yellow: #f2ff00;    /* Cyber Yellow */
-            --font-main: 'Courier New', Courier, monospace; 
+            /* Modern Professional Palette */
+            --bg-body: #0f172a;       /* Rich Slate Dark */
+            --bg-card: #1e293b;       /* Lighter Slate */
+            --bg-header: #1e293b;
+            --primary: #3b82f6;       /* Professional Blue */
+            --primary-hover: #2563eb;
+            --accent: #10b981;        /* Success Green */
+            --text-main: #f8fafc;     /* Bright White */
+            --text-sub: #94a3b8;      /* Muted Grey */
+            --border: #334155;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-body);
             color: var(--text-main);
-            font-family: var(--font-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            line-height: 1.6;
         }
 
-        /* --- NEW HEADER DESIGN --- */
+        /* --- HEADER --- */
         header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 20px 0;
-            border-bottom: 1px solid #333;
-            background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0, 229, 255, 0.05) 100%);
+            background-color: var(--bg-header);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-container {
+            display: flex;
+            flex-direction: column;
         }
 
         .brand-sub {
-            color: var(--neon-yellow);
-            font-size: 0.85rem;
-            letter-spacing: 4px;
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: block;
         }
 
         .brand-main {
-            font-size: 2.5rem;
-            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 800;
             color: var(--text-main);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px var(--neon-blue);
-            border: 1px solid var(--neon-blue);
-            display: inline-block;
-            padding: 5px 20px;
-            background: rgba(0, 229, 255, 0.05);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+            margin: 0;
+            background: linear-gradient(90deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* --- LOADING STATUS --- */
+        .user-badge {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* --- CONTAINER --- */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        /* --- STATUS BAR --- */
         #status {
             text-align: center;
-            color: var(--neon-yellow);
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            animation: blink 1s infinite;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-weight: 600;
         }
-        @keyframes blink { 50% { opacity: 0.3; } }
 
-        /* --- GRID SYSTEM --- */
+        /* --- GRID --- */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 25px;
-            max-width: 1200px;
-            margin: 0 auto;
         }
 
-        /* --- CARD DESIGN --- */
+        /* --- CARDS --- */
         .card {
-            background-color: var(--card-bg);
-            border: 1px solid #222;
-            border-left: 3px solid var(--neon-blue);
-            padding: 25px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
             position: relative;
         }
 
         .card:hover {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
-            transform: translateY(-3px);
-            background-color: #0f0f0f;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
         }
 
-        .card h2 { 
-            margin: 0; 
-            font-size: 1.4rem; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(to right, rgba(255,255,255,0.02), transparent);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .card p { 
-            color: var(--text-dim); 
-            font-size: 0.8rem; 
-            margin-top: 8px; 
-            font-style: italic;
+
+        .card-title h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--text-main);
+            text-transform: capitalize;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title p {
+            margin: 5px 0 0 0;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+        }
+
+        .expand-icon {
+            color: var(--text-sub);
+            transition: transform 0.3s;
         }
 
         /* --- CHAPTER LIST --- */
         .chapter-list {
-            display: none;
-            margin-top: 20px;
-            border-top: 1px dashed #333;
-            padding-top: 15px;
+            display: none; /* Hidden by default */
+            background-color: #162032;
+        }
+
+        .chapter-item {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chapter-item:last-child {
+            border-bottom: none;
         }
 
         .chapter-btn {
-            background: transparent;
-            border: 1px solid var(--neon-yellow);
-            color: var(--neon-yellow);
             width: 100%;
-            padding: 12px;
-            margin-bottom: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 15px 20px;
             text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
-            font-family: var(--font-main);
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
         }
 
-        .chapter-btn:hover { 
-            background: var(--neon-yellow); 
-            color: #000; 
-            box-shadow: 0 0 10px var(--neon-yellow);
+        .chapter-btn:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
         }
 
-        /* --- LINKS --- */
+        /* --- TEST LINKS --- */
         .test-links {
             display: none;
-            padding: 10px 0 10px 15px;
-            border-left: 1px solid #333;
-            margin-bottom: 10px;
+            background-color: #0f172a;
+            padding: 10px 20px 20px 20px;
+            border-top: 1px solid var(--border);
         }
 
         .test-link {
             display: block;
-            color: var(--neon-blue);
             text-decoration: none;
-            padding: 6px 0;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            transition: 0.2s;
+            color: var(--text-sub);
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
         }
 
-        .test-link:hover { 
-            color: #fff;
-            padding-left: 5px;
-            text-shadow: 0 0 5px var(--neon-blue); 
+        .test-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border-left-color: var(--accent);
+            padding-left: 18px;
         }
+
+        /* UTILITY */
+        .show { display: block !important; }
+        .rotate { transform: rotate(180deg); }
 
     </style>
 </head>
 <body>
 
     <header>
-        <span class="brand-sub">THE SSC SCHOLARS OFFICIAL</span><br>
-        <h1 class="brand-main">GS 2025 NEXUS</h1>
+        <div class="brand-container">
+            <span class="brand-sub">THE SSC SCHOLARS OFFICIAL</span>
+            <h1 class="brand-main">GS 2025 NEXUS</h1>
+        </div>
+        <div class="user-badge">
+            <i class="fas fa-user-circle"></i> Student
+        </div>
     </header>
 
-    <div id="status">INITIALIZING SYSTEM SCAN...</div>
-    <div id="app" class="grid-container"></div>
+    <div class="container">
+        <div id="status"><i class="fas fa-circle-notch fa-spin"></i> Loading Subjects...</div>
+        <div id="app" class="grid-container"></div>
+    </div>
 
 <script>
-        // ===============================================
-    // 🔴 SETTINGS: EDIT HERE
+    // ===============================================
+    // 🔴 SETTINGS
     // ===============================================
     const USERNAME = "THE-SSC-SCHOLARS-OFFICIAL";  
-    const REPO_NAME = "Gs2025";       
+    const REPO_NAME = "Gs2025";        
     const BRANCH = "main";
     // ===============================================
 
     const apiUrl = `https://api.github.com/repos/${USERNAME}/${REPO_NAME}/git/trees/${BRANCH}?recursive=1`;
     const app = document.getElementById('app');
     const statusDiv = document.getElementById('status');
+
+    // 🎨 ICON MAPPING (Automatic Icons)
+    const icons = {
+        "history": "fa-scroll",
+        "science": "fa-flask",
+        "polity": "fa-landmark",
+        "geography": "fa-globe-asia",
+        "economics": "fa-chart-line",
+        "computer": "fa-laptop-code",  // <--- COMPUTER ICON ADDED
+        "static": "fa-brain",
+        "default": "fa-book-open"
+    };
 
     async function fetchFiles() {
         try {
@@ -198,14 +270,12 @@
 
             files.forEach(file => {
                 if (file.path.endsWith('.html') && !file.path.startsWith('index.html')) {
-                    
                     const parts = file.path.split('/');
                     
                     if (parts.length >= 2) {
                         const subject = parts[0];
-                        
-                        // LOGIC: Polity/Geo -> 'Topic Wise Test' | History/Science -> Folder Name
-                        let chapter = "Topic Wise Test"; 
+                        // Logic: Handles 'Computer' or 'Polity' as Topic Wise, 'History' as Chapters
+                        let chapter = "Topic Wise Tests"; 
                         let filename = "";
 
                         if (parts.length === 2) {
@@ -229,9 +299,9 @@
             renderDashboard(structuredData);
 
         } catch (error) {
-            statusDiv.innerText = "SYSTEM ERROR: REPO NOT FOUND";
-            statusDiv.style.color = "red";
-            console.error(error);
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error: Check Repo Name or Internet.`;
+            statusDiv.style.color = "#ef4444";
+            statusDiv.style.background = "rgba(239, 68, 68, 0.1)";
         }
     }
 
@@ -241,64 +311,96 @@
 
         if (Object.keys(data).length === 0) {
             statusDiv.style.display = 'block';
-            statusDiv.innerText = "NO DATA MODULES FOUND.";
+            statusDiv.innerText = "No Tests Found. Please upload files.";
             return;
         }
 
-        for (const [subject, chapters] of Object.entries(data)) {
+        // Sort keys to make sure Computer/History etc appear in order (Optional)
+        const subjects = Object.keys(data).sort();
+
+        subjects.forEach(subject => {
+            const chapters = data[subject];
+            
+            // CARD ELEMENT
             const card = document.createElement('div');
             card.className = 'card';
             
-            const title = document.createElement('h2');
-            title.innerText = subject.replace(/-/g, ' ');
+            // Get Icon
+            const iconKey = subject.toLowerCase().split(' ')[0]; // gets first word
+            const iconClass = icons[iconKey] || icons["default"];
 
+            // Count Tests
             let totalTests = 0;
             Object.values(chapters).forEach(list => totalTests += list.length);
-            
-            const sub = document.createElement('p');
-            sub.innerText = `>> ${totalTests} ACTIVE MODULES`;
 
+            // HEADER HTML
+            const header = document.createElement('div');
+            header.className = 'card-header';
+            header.innerHTML = `
+                <div class="card-title">
+                    <h2><i class="fas ${iconClass}" style="color:var(--primary)"></i> ${subject.replace(/-/g, ' ')}</h2>
+                    <p>${totalTests} Modules Available</p>
+                </div>
+                <i class="fas fa-chevron-down expand-icon"></i>
+            `;
+
+            // CHAPTER LIST CONTAINER
             const chapterListDiv = document.createElement('div');
             chapterListDiv.className = 'chapter-list';
 
             for (const [chapter, tests] of Object.entries(chapters)) {
+                const chapterItem = document.createElement('div');
+                chapterItem.className = 'chapter-item';
+
+                // CHAPTER BUTTON
                 const chapBtn = document.createElement('button');
                 chapBtn.className = 'chapter-btn';
-                chapBtn.innerText = `[+] ${chapter.replace(/-/g, ' ')}`;
+                chapBtn.innerHTML = `<span>${chapter.replace(/-/g, ' ')}</span> <i class="fas fa-plus" style="font-size:0.8em; opacity:0.5;"></i>`;
 
+                // TESTS LINKS CONTAINER
                 const linksDiv = document.createElement('div');
                 linksDiv.className = 'test-links';
 
                 tests.forEach(test => {
                     const link = document.createElement('a');
                     link.className = 'test-link';
-                    link.innerText = `> ${test.name.replace(/-/g, ' ')}`;
+                    link.innerHTML = `<i class="far fa-file-alt"></i> ${test.name.replace(/-/g, ' ')}`;
                     link.href = test.path;
                     linksDiv.appendChild(link);
                 });
 
+                // Chapter Toggle Logic
                 chapBtn.onclick = (e) => {
                     e.stopPropagation();
                     const isHidden = linksDiv.style.display !== 'block';
                     linksDiv.style.display = isHidden ? 'block' : 'none';
-                    chapBtn.innerText = isHidden ? `[-] ${chapter.replace(/-/g, ' ')}` : `[+] ${chapter.replace(/-/g, ' ')}`;
+                    chapBtn.querySelector('i').className = isHidden ? 'fas fa-minus' : 'fas fa-plus';
+                    chapBtn.style.color = isHidden ? 'var(--primary)' : 'var(--text-main)';
                 };
 
-                chapterListDiv.appendChild(chapBtn);
-                chapterListDiv.appendChild(linksDiv);
+                chapterItem.appendChild(chapBtn);
+                chapterItem.appendChild(linksDiv);
+                chapterListDiv.appendChild(chapterItem);
             }
 
-            card.onclick = () => {
+            // Card Toggle Logic
+            header.onclick = () => {
                 const isVisible = chapterListDiv.style.display === 'block';
+                
+                // Close others (Optional - remove next line if you want multiple open)
                 document.querySelectorAll('.chapter-list').forEach(el => el.style.display = 'none');
-                chapterListDiv.style.display = isVisible ? 'none' : 'block';
+                document.querySelectorAll('.expand-icon').forEach(el => el.classList.remove('rotate'));
+
+                if (!isVisible) {
+                    chapterListDiv.style.display = 'block';
+                    header.querySelector('.expand-icon').classList.add('rotate');
+                }
             };
 
-            card.appendChild(title);
-            card.appendChild(sub);
+            card.appendChild(header);
             card.appendChild(chapterListDiv);
             app.appendChild(card);
-        }
+        });
     }
 
     fetchFiles();
