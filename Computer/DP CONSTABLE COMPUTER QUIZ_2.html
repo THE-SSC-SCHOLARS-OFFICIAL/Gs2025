@@ -1,0 +1,1374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DP CONSTABLE COMPUTER QUIZ_2</title>
+<style>
+:root{
+  --accent:#2ec4b6;
+  --accent-dark:#1da89a;
+  --muted:#69707a;
+  --success:#1f9e5a;
+  --danger:#c82d3f;
+  --bg:#f5f7fa;
+  --card:#fff;
+  --maxw:820px;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:#111;padding-bottom:96px}
+.container{max-width:var(--maxw);margin:auto;padding:10px 16px}
+header{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.08);position:relative;z-index:10}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;gap:12px}
+h1{margin:0;color:var(--accent);font-size:18px}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;transition:background .18s}
+.btn:hover{background:var(--accent-dark)}
+.btn-ghost{background:#fff;color:var(--accent);border:2px solid var(--accent);padding:8px 12px;border-radius:999px;font-weight:700;cursor:pointer}
+.timer-text{color:var(--accent-dark);font-weight:700;font-size:18px;min-width:72px;text-align:right}
+.toggle-pill{position:relative;width:90px;height:30px;background:#eaeef0;border-radius:999px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0 6px;font-size:13px;color:#444;font-weight:600}
+.toggle-pill span{z-index:2;flex:1;text-align:center}
+.toggle-pill::before{content:"";position:absolute;top:3px;left:3px;width:42px;height:24px;background:var(--accent);border-radius:999px;transition:.28s}
+.toggle-pill.active::before{transform:translateX(45px);background:var(--accent-dark)}
+.toggle-pill.active span:last-child{color:#fff}
+.toggle-pill span:first-child{color:#fff}
+
+/* quiz card */
+.card{background:var(--card);border-radius:10px;padding:10px 12px;margin:12px 0;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
+.qbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.qmeta{font-size:13px;color:var(--muted)}
+.marking{font-size:13px;color:var(--muted)}
+.qtext{font-size:16px;margin:6px 0;font-weight:500}
+.opt{padding:10px;border:1px solid #e6eaec;border-radius:8px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .12s;font-weight:500}
+.opt{padding:10px;border:1px solid #e6eaec;border-radius:8px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .12s}
+.opt:hover{border-color:#cfd8da}
+.opt.selected{border-color:var(--accent)}
+.opt.correct{border-color:var(--success);background:rgba(31,158,90,0.12)}
+.opt.wrong{border-color:var(--danger);background:rgba(200,45,63,0.12)}
+.custom-radio{display:none;height:16px;width:16px;border-radius:50%;border:2px solid #ccc}
+.opt.selected .custom-radio{display:block;border:6px solid var(--accent)}
+.opt.correct .custom-radio{display:block;border:6px solid var(--success)}
+.opt.wrong .custom-radio{display:block;border:6px solid var(--danger)}
+.explanation{margin-top:8px;padding:10px;border-radius:8px;background:#fbfdfe;border:1px solid #edf2f3;display:none;font-size:14px}
+
+/* bottom nav */
+.fbar{position:fixed;left:0;right:0;bottom:0;background:#fff;box-shadow:0 -3px 12px rgba(0,0,0,0.08);display:flex;justify-content:center;z-index:50}
+.fbar-inner{display:flex;justify-content:center;align-items:center;gap:10px;max-width:var(--maxw);width:100%;padding:10px}
+.fbar button{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.fbar button:hover{background:var(--accent-dark)}
+
+/* palette popup */
+#palette{position:fixed;top:64px;right:14px;background:#fff;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.12);padding:12px;display:none;gap:8px;flex-wrap:wrap;z-index:200;max-width:300px;max-height:70vh;overflow-y:auto;overscroll-behavior:contain}
+#palette .qbtn{width:44px;height:44px;border-radius:8px;border:1px solid #e3eaeb;background:#fbfdff;cursor:pointer;font-weight:700}
+#palette .qbtn.answered{background:var(--accent);color:#fff;border:none}
+#palette .qbtn.current{background:rgba(46,196,182,0.12);border:2px solid var(--accent)}
+#palette-summary{margin-top:8px;font-size:13px;color:var(--muted);text-align:center}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:300}
+.modal-content{background:#fff;border-radius:12px;padding:18px;max-width:420px;width:92%;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,0.18)}
+.modal h3{margin:0 0 8px;color:var(--accent)}
+.modal p{color:#333;margin:8px 0 12px;font-size:15px}
+.modal .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;border:none;padding:8px 14px;border-radius:999px;font-weight:700;cursor:pointer}
+
+/* results */
+.results{margin-top:12px}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.stat{flex:1 1 120px;padding:10px;border-radius:10px;text-align:center;background:#f7fbfb;border:1px solid #e6eeed}
+.stat h4{margin:0;color:var(--accent);font-size:13px}
+.stat p{margin:6px 0 0;font-weight:700;font-size:18px}
+
+@media(max-width:540px){
+  .header-inner{padding:8px}
+  .timer-text{font-size:16px}
+  .fbar-inner{gap:8px;padding:8px}
+  .fbar button{padding:8px 10px;font-size:13px}
+}
+/* 🔐 COPY & SELECTION BLOCK */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow inputs only */
+input, textarea {
+  user-select: text !important;
+}
+
+/* 🔐 WATERMARK BASE */
+.ssc-watermark {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ssc-wm {
+  position: absolute;
+  font-size: 26px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.045);
+  transform: rotate(-30deg);
+  white-space: nowrap;
+}
+/* 🔢 MathJax mobile safety */
+mjx-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 🔢 Make MathJax match quiz text font */
+mjx-container {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 1em;
+}
+
+</style>
+
+<!-- 🔢 MathJax Auto-LaTeX (Google Docs like) -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    },
+    options: {
+      skipHtmlTags: ['script', 'style', 'textarea', 'pre']
+    }
+  };
+</script>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+  async>
+</script>
+
+</head>
+<body>
+<!-- 🔐 WATERMARK LAYER -->
+<div id="ssc-watermark" class="ssc-watermark">
+  <div class="ssc-wm" style="top:10%; left:5%;">@SSC_JOURNEY2</div>
+  <div class="ssc-wm" style="top:30%; left:60%;">@SSC_JOURNEY2</div>
+  <div class="ssc-wm" style="top:55%; left:25%;">@SSC_JOURNEY2</div>
+  <div class="ssc-wm" style="top:75%; left:65%;">@SSC_JOURNEY2</div>
+  <div class="ssc-wm" style="top:90%; left:10%;">@SSC_JOURNEY2</div>
+</div>
+
+<!-- 🔥 FIREBASE SDK (STEP 5) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBWF7Ojso-w0BucbqJylGR7h9eGeDQodzE",
+    authDomain: "ssc-quiz-rank-percentile.firebaseapp.com",
+    databaseURL: "https://ssc-quiz-rank-percentile-default-rtdb.firebaseio.com",
+    projectId: "ssc-quiz-rank-percentile",
+    storageBucket: "ssc-quiz-rank-percentile.firebasestorage.app",
+    messagingSenderId: "944635517164",
+    appId: "1:944635517164:web:62f0cc83892917f225edc9"
+  };
+
+  // 🔥 Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  // 🔥 Realtime Database reference
+  const db = firebase.database();
+</script>
+
+<!-- TELEGRAM JOIN OVERLAY WITH CLOSE BUTTON -->
+<style>
+  #ssc-join-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2147483647;
+  }
+
+  #ssc-join-card {
+    width: min(520px, 92%);
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px 18px 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    text-align: center;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    position: relative;
+  }
+
+  #ssc-join-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    border: none;
+    background: none;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #555;
+  }
+
+  #ssc-join-title {
+    margin: 10px 0 16px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #052d3d;
+    line-height: 1.4;
+  }
+
+  .ssc-join-btn {
+    display: inline-block;
+    background: #0088cc;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+  }
+</style>
+
+<div id="ssc-join-overlay" aria-hidden="true">
+  <div id="ssc-join-card">
+    <button id="ssc-join-close" aria-label="Close">✕</button>
+
+    <div id="ssc-join-title">
+      JOIN SSC JOURNEY TELEGRAM CHANNEL FOR MORE QUIZ AND MOCK
+    </div>
+
+    <a
+      id="ssc-join-open"
+      class="ssc-join-btn"
+      href="https://t.me/SSC_JOURNEY2"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Join Channel
+    </a>
+  </div>
+</div>
+
+<script>
+(function () {
+  const OVERLAY_ID = "ssc-join-overlay";
+  const OPEN_ID = "ssc-join-open";
+  const CLOSE_ID = "ssc-join-close";
+  const SESSION_KEY = "ssc_tg_joined_session_v1";
+
+  const overlay = document.getElementById(OVERLAY_ID);
+  const openBtn = document.getElementById(OPEN_ID);
+  const closeBtn = document.getElementById(CLOSE_ID);
+
+  if (!overlay || !openBtn || !closeBtn) return;
+
+  function showModal() {
+    overlay.style.display = "flex";
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function hideModal() {
+    overlay.style.display = "none";
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  function sessionJoined() {
+    try {
+      return sessionStorage.getItem(SESSION_KEY) === "1";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function markSessionJoined() {
+    try {
+      sessionStorage.setItem(SESSION_KEY, "1");
+    } catch (e) {}
+  }
+
+  /* show on first interaction */
+  document.addEventListener(
+    "click",
+    function (e) {
+      if (sessionJoined()) return;
+      const t = e.target;
+      if (
+        t.closest(".opt") ||
+        t.closest("#nextBtn") ||
+        t.closest("#prevBtn") ||
+        t.closest("#submitBtn") ||
+        t.closest("#paletteBtn") ||
+        t.closest("#modeToggle")
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        showModal();
+      }
+    },
+    true
+  );
+
+  /* JOIN button */
+  openBtn.addEventListener("click", function () {
+    markSessionJoined();
+    hideModal();
+  });
+
+  /* CLOSE (✕) button */
+  closeBtn.addEventListener("click", function () {
+    markSessionJoined();
+    hideModal();
+  });
+})();
+
+</script>
+
+<div style="max-width:600px;margin:10px auto">
+  <input
+    type="text"
+    id="studentName"
+    placeholder="Enter your full name"
+    style="width:100%;padding:8px;font-size:15px"
+  />
+</div>
+
+<!-- QUIZ STARTS BELOW -->
+<div class="container">
+  <!-- your quiz code -->
+</div>
+
+
+
+<header id="mainHeader">
+  <div class="header-inner" id="headerControls">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="toggle-pill" id="modeToggle"><span>Test</span><span>Quiz</span></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="timer-text" id="timer">00:00</div>
+      <button id="submitBtn" class="btn">Submit</button>
+      <button id="paletteBtn" class="btn-ghost">View</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div id="quizCard" class="card">
+    <div class="qbar">
+      <div class="qmeta">Question <span id="qindex">0</span> / <span id="qtotal">0</span></div>
+      <div class="marking" id="marking"></div>
+    </div>
+
+    <div class="qtext" id="qtext"></div>
+    <div class="options" id="options"></div>
+    <div id="explanation" class="explanation"></div>
+  </div>
+
+  <div id="results" class="results" style="display:none"></div>
+  <div id="previousAttempts" class="results" style="display:none"></div>
+  <div id="attemptReplay" class="results" style="display:none"></div>
+
+</div>
+
+<div class="fbar" id="floatBar">
+  <div class="fbar-inner">
+    <button id="prevBtn">← Prev</button>
+    <button id="clearBtn">Clear</button>
+    <button id="nextBtn">Next →</button>
+  </div>
+</div>
+
+<div id="palette" aria-hidden="true"></div>
+
+<div id="submitModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h3>Submit quiz?</h3>
+    <p id="submitMsg">You attempted X/Y. Are you sure you want to submit?</p>
+    <div class="actions">
+      <button id="cancelSubmit" class="btn-ghost">Cancel</button>
+      <button id="confirmSubmit" class="btn-primary">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function renderMath(){
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise();
+  }
+}
+
+
+function normalizeMathForQuiz(container) {
+  if (!container) return;
+
+  // Replace $$...$$ inside text with inline math \( ... \)
+  container.innerHTML = container.innerHTML
+    // case 1: $$...$$ surrounded by text → inline
+    .replace(/(\S)\s*\$\$(.+?)\$\*\s*(\S)/g, '$1 \\($2\\) $3')
+    // case 2: $$...$$ with spaces but not line-isolated → inline
+    .replace(/\$\$(.+?)\$\$/g, function(match, math) {
+      // if already block (surrounded by <br> or alone), keep it
+      if (/^<br>|<div>|<\/div>|<p>|<\/p>/.test(match)) {
+        return match;
+      }
+      return '\\(' + math + '\\)';
+    });
+}
+
+
+function _hx(s){
+  let h = 0;
+  for(let i = 0; i < s.length; i++){
+    h = ((h << 5) - h) + s.charCodeAt(i);
+    h |= 0;
+  }
+  return h;
+}
+
+let __QUIZ_OK = false;
+
+const banner = document.getElementById("ssc-join-title");
+const joinBtn = document.getElementById("ssc-join-open");
+
+if (!banner || !joinBtn) {
+  document.body.innerHTML = "";
+  throw new Error("JOIN_COMPONENT_MISSING");
+}
+
+const EXPECTED_HASH = 197247123;  // 👈 PASTE YOUR HASH HERE
+
+if (
+  _hx(banner.textContent.trim() + "|" + joinBtn.href)
+  === EXPECTED_HASH
+) {
+  __QUIZ_OK = true;
+} else {
+  document.body.innerHTML =
+    "<h2 style='text-align:center;margin-top:60px;color:#c82d3f'>Quiz blocked (modified join section)</h2>";
+  throw new Error("JOIN_TAMPERED");
+}
+</script>
+
+<script>
+
+// 🔐 SAFE Device ID (works everywhere)
+let DEVICE_ID = localStorage.getItem("ssc_quiz_device_id");
+if (!DEVICE_ID) {
+  DEVICE_ID = "dev-" + Date.now() + "-" + Math.random().toString(36).substring(2, 12);
+  localStorage.setItem("ssc_quiz_device_id", DEVICE_ID);
+}
+
+const QUIZ_TITLE = "DP CONSTABLE COMPUTER QUIZ_2";
+const QUIZ_STATE_KEY = "ssc_quiz_state_DP CONSTABLE COMPUTER QUIZ_2";
+const QUIZ_RESULT_KEY = "ssc_quiz_result_DP CONSTABLE COMPUTER QUIZ_2";
+
+
+
+// 🔥 FIREBASE: SAVE ONLY FIRST ATTEMPT (ADMIN DATA)
+function saveResultFirebase(payload) {
+  const ref = db.ref(
+    "quiz_results/" + payload.quizId + "/" + payload.deviceId
+  );
+
+  return ref.once("value").then(snap => {
+    if (snap.exists()) {
+      // ❌ already attempted → DO NOT overwrite admin data
+      return false;
+    }
+
+    // ✅ first attempt only
+    return ref.set(payload);
+  });
+}
+function saveAttemptHistory(payload) {
+  const ref = db.ref(
+    "attempt_history/" +
+    payload.quizId + "/" +
+    payload.deviceId + "/" +
+    payload.submittedAt
+  );
+  return ref.set(payload);
+}
+
+// 🔥 FIREBASE: RANK + PERCENTILE (SCORE ↓, TIME ↑)
+function getRankAndPercentile(quizId, myScore, myTime, mySubmittedAt) {
+  return db
+    .ref("attempt_history/" + quizId)
+    .once("value")
+    .then(snapshot => {
+      const quizData = snapshot.val() || {};
+      let attempts = [];
+
+      // collect ALL attempts from ALL devices
+      Object.values(quizData).forEach(deviceAttempts => {
+        Object.values(deviceAttempts).forEach(attempt => {
+          attempts.push(attempt);
+        });
+      });
+
+      // sort: score desc, time asc
+      attempts.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return a.timeTaken - b.timeTaken;
+      });
+
+      const total = attempts.length;
+
+      let rank = total + 1;
+      for (let i = 0; i < attempts.length; i++) {
+        if (
+          attempts[i].score === myScore &&
+          attempts[i].timeTaken === myTime &&
+          attempts[i].submittedAt === mySubmittedAt
+        ) {
+
+          rank = i + 1;
+          break;
+        }
+      }
+
+      const below = attempts.filter(
+        a =>
+          a.score < myScore ||
+          (a.score === myScore && a.timeTaken > myTime)
+      ).length;
+
+      const percentile = total
+        ? ((below / total) * 100).toFixed(2)
+        : "0.00";
+
+      return { rank, percentile, total };
+    });
+}
+
+// 🔥 LIVE rank recalculation for PREVIOUS attempts
+function getLiveRankForAttempt(quizId, attempt) {
+  return db.ref("attempt_history/" + quizId)
+    .once("value")
+    .then(snapshot => {
+      const quizData = snapshot.val() || {};
+      let attempts = [];
+
+      Object.values(quizData).forEach(deviceAttempts => {
+        Object.values(deviceAttempts).forEach(a => {
+          attempts.push(a);
+        });
+      });
+
+      // SAME SORT LOGIC (score ↓, time ↑)
+      attempts.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return a.timeTaken - b.timeTaken;
+      });
+
+      const total = attempts.length;
+
+      let rank = total;
+      for (let i = 0; i < attempts.length; i++) {
+        if (attempts[i].submittedAt === attempt.submittedAt) {
+          rank = i + 1;
+          break;
+        }
+      }
+
+      const below = attempts.filter(
+        a =>
+          a.score < attempt.score ||
+          (a.score === attempt.score && a.timeTaken > attempt.timeTaken)
+      ).length;
+
+      const percentile = total
+        ? ((below / total) * 100).toFixed(2)
+        : "0.00";
+
+      return { rank, percentile, total };
+    });
+}
+
+
+function checkNameBeforeSubmit() {
+  const nameInput = document.getElementById("studentName");
+
+  if (!nameInput || !nameInput.value.trim()) {
+    alert("Please enter your name to submit quiz");
+    nameInput?.focus();   // cursor returns to name field
+    return false;         // stop submission
+  }
+
+  return true;            // allow submission
+}
+
+/* data from Jinja */
+const QUESTIONS = [
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50001", "negative_score": "1", "option_1": "a) URL यूआरएल", "option_2": "b) ISP आईएसपी", "option_3": "c) TCP टीसीपी", "option_4": "d) Web Server वेब सर्वर", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "﻿Q.91 Which term refers to a company or organization that provides Internet access, typically for a fee?<br>कौन सा शब्द उस कंपनी या ऑर्गनाइजेशन को बताता है जो आम तौर पर फीस लेकर इंटरनेट एक्सेस देती है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50002", "negative_score": "1", "option_1": "a) View व्यू", "option_2": "b) Insert इन्सर्ट", "option_3": "c) File फ़ाइल", "option_4": "d) Review रिव्यू", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.92 To make a document private or restrict who can edit it, which tab should you use to find the Protect Document feature?<br>किसी डॉक्यूमेंट को प्राइवेट बनाने या उसे कौन एडिट कर सकता है, इस पर रोक लगाने के लिए, प्रोटेक्ट डॉक्यूमेंट फीचर को खोजने के लिए आपको कौन सा टैब इस्तेमाल करना चाहिए?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50003", "negative_score": "1", "option_1": "a) Ctrl+F", "option_2": "b) Ctrl+P", "option_3": "c) Ctrl+H", "option_4": "d) Ctrl+G", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.93 Which shortcut key can you use to go to a specific page in MS Word?<br>एम.एस. वर्ड में किसी खास पेज पर जाने के लिए आप कौन सी शॉर्टकट की इस्तेमाल कर सकते हैं?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50004", "negative_score": "1", "option_1": "a) Ctrl+P-Print document दस्तावेज प्रिंट करें", "option_2": "b) Ctrl+S-Select all text सभी टेक्स्ट चुनें", "option_3": "c) Ctrl+A - Save document दस्तावेज सहेजें", "option_4": "d) Ctrl+F-Format text पाठ स्वरूपित करें", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.94 Which of the following pairs is correctly matched?<br>इनमें से कौन सा जोड़ा सही मैच करता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50005", "negative_score": "1", "option_1": "a) To permanently convert the cell's value to text so it cannot be used in calculations. सेल की वैल्यू को हमेशा के लिए टेक्स्ट में बदलने के लिए ताकि उसका इस्तेमाल कैलकुलेशन में न किया जा सके।", "option_2": "b) To lock the cell so that no further editing is allowed. सेल को लॉक करने के लिए ताकि आगे कोई एडिटिंग न हो सके।", "option_3": "c) To define how the data is displayed without changing the actual stored value. यह तय करने के लिए कि असल स्टोर की गई वैल्यू को बदले बिना डेटा कैसे दिखाया जाए।", "option_4": "d) To automatically apply conditional formatting based on value. वैल्यू के आधार पर ऑटोमैटिकली कंडीशनल फॉर्मेटिंग लागू करने के लिए।", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.95 When you select 'Format Cells' and choose Custom under the Number tab, what is the primary purpose?<br>जब आप 'Format Cells' चुनते हैं और Number टैब के अंदर Custom चुनते हैं, तो इसका मुख्य उद्देश्य क्या है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50006", "negative_score": "1", "option_1": "a) Ethernet Connection ईथरनेट कनेक्शन", "option_2": "b) Fiber Optic Broadband फाइबर ऑप्टिक ब्रॉडबैंड", "option_3": "c) Cable TV Internet केबल टीवी इंटरनेट", "option_4": "d) Satellite Internet सैटेलाइट इंटरनेट", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.96 Which internet access technology is the most viable option for connecting users in geographically isolated or remote rural areas?<br>भौगोलिक रूप से अलग-थलग या दूर-दराज के ग्रामीण इलाकों में यूजर्स को जोड़ने के लिए कौन सी इंटरनेट एक्सेस टेक्नोलॉजी सबसे सही ऑप्शन है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50007", "negative_score": "1", "option_1": "a) VLOOKUP", "option_2": "b) HLOOKUP", "option_3": "c) LOOKUP", "option_4": "d) INDEX-MATCH", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.97 Which of the following functions can be used to return a specific value from a table based on matching criteria in multiple columns?<br>इनमें से कौन सा फंक्शन कई कॉलम में मैचिंग क्राइटेरिया के आधार पर टेबल से एक खास वैल्यू रिटर्न करने के लिए इस्तेमाल किया जा सकता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50008", "negative_score": "1", "option_1": "a) Ctrl+O", "option_2": "b) Ctrl+N", "option_3": "c) Ctrl+P", "option_4": "d) Ctrl+S", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.98 Which shortcut key is used to open a new workbook?<br>नई वर्कबुक खोलने के लिए किस शॉर्टकट कुंजी (की) का उपयोग किया जाता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50009", "negative_score": "1", "option_1": "a) Only (i) and (ii) केवल (i) और (ii)", "option_2": "b) Only (ii) केवल (ii)", "option_3": "c) Only (iii) केवल (iii)", "option_4": "d) Only (iii) and (iv) केवल (iii) और (iv)", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.99 Which of the following would typically qualify as junk or spam email?<br>(i) A delivery update from a known online shopping site. (ii) An email from an unknown sender offering a \"free prize\". (iii) An email from your bank about a failed transaction. (iv) An email from your workplace about an upcoming event.<br>निम्नलिखित में से कौन सा ईमेल आमतौर पर जंक या स्पैम ईमेल माना जाएगा?<br>(i) किसी ज्ञात ऑनलाइन शॉपिंग साइट से डिलीवरी अपडेट। (ii) किसी अज्ञात प्रेषक से \"मुफ्त इनाम\" की पेशकश वाला ईमेल। (iii) आपके बैंक से किसी असफल लेनदेन के बारे में ईमेल। (iv) आपके कार्यस्थल से किसी आगामी कार्यक्रम के बारे में ईमेल।", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50010", "negative_score": "1", "option_1": "a) To count the number of non-empty cells in a range किसी श्रेणी में गैर-रिक्त सेल्स की संख्या गिनने के लिए", "option_2": "b) To count the number of cells with numerical data संख्यात्मक डेटा वाले सेल्स की संख्या गिनने के लिए", "option_3": "c) To count the number of errors in a range किसी श्रेणी में त्रुटियों की संख्या गिनने के लिए", "option_4": "d) To count the number of text cells in a range किसी श्रेणी में टेक्स्ट सेल्स की संख्या गिनने के लिए", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.100 How would you use the COUNT() function in Excel?<br>आप एक्सेल में = COUNT() फंक्शन का उपयोग कैसे करेंगे?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50011", "negative_score": "1", "option_1": "a) It must be a dynamic blog that updates its content every hour. यह एक डायनामिक ब्लॉग होना चाहिए जो हर घंटे अपना कंटेंट अपडेट करता हो।", "option_2": "b) It is an unencrypted web page containing only text. यह एक अनएन्क्रिप्टेड वेब पेज है जिसमें केवल टेक्स्ट होता है।", "option_3": "c) It requires a special satellite connection for access. इसे एक्सेस करने के लिए एक खास सैटेलाइट कनेक्शन की जरूरत होती है।", "option_4": "d) It is a server optimized for the storage and retrieval of large files. यह एक सर्वर है जो बड़ी फ़ाइलों के स्टोरेज और रिट्रीवल के लिए ऑप्टिमाइज किया गया है।", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.91 If a URL begins with ftp:// instead of http://, what does this signify about the primary function of the website or server being accessed?<br>अगर कोई URL http:// के बजाय ftp:// से शुरू होता है, तो यह उस वेबसाइट या सर्वर के मुख्य काम के बारे में क्या बताता है जिसे एक्सेस किया जा रहा है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50012", "negative_score": "1", "option_1": "a) Header हेडर", "option_2": "b) Theme थीम", "option_3": "c) Background बैकग्राउंड", "option_4": "d) Watermark वॉटरमार्क", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.92 What is the standard term for the light-colored text or image that appears semi-transparently behind the main content of every page?<br>हर पेज के मेन कंटेंट के पीछे सेमी-ट्रांसपेरेंट दिखने वाले हल्के रंग के टेक्स्ट या इमेज के लिए स्टैंडर्ड टर्म क्या है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50013", "negative_score": "1", "option_1": "a) Home &gt; Citation होम &gt; साइटेशन", "option_2": "b) Insert &gt; Citation इन्सर्ट &gt; साइटेशन", "option_3": "c) Review &gt; Citation रिव्यू &gt; साइटेशन", "option_4": "d) References &gt; Insert Citation रेफरेंसेज &gt; इन्सर्ट साइटेशन", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.93 What feature allows you to add a citation in MS Word?<br>कौन सा फीचर आपको एम. एस. वर्ड में साइटेशन जोड़ने की सुविधा देता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50014", "negative_score": "1", "option_1": "a) .docx", "option_2": "b) .doc", "option_3": "c) .dotx", "option_4": "d) .pdf", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.94 What is the standard file extension for a Word Document Template?<br>वर्ड डॉक्यूमेंट टेम्पलेट के लिए स्टैंडर्ड फाइल एक्सटेंशन क्या है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50015", "negative_score": "1", "option_1": "a) Blogs are always free ब्लॉग हमेशा मुफ़्त होते हैं", "option_2": "b) Blogs allow frequent updates and user interaction ब्लॉग्स से लगातार अपडेट और यूजर इंटरैक्शन मिलता है", "option_3": "c) Blogs cannot include images ब्लॉग में इमेज शामिल नहीं की जा सकतीं", "option_4": "d) Blogs are only personal ब्लॉग केवल व्यक्तिगत होते हैं", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.95 In what primary way does a blog differ from a static website?<br>एक ब्लॉग एक स्टैटिक वेबसाइट से मुख्य रूप से किस तरह अलग होता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50016", "negative_score": "1", "option_1": "a) Breaks cell data into separate columns using a selected separator. चुने हुए सेपरेटर का इस्तेमाल करके सेल डेटा को अलग-अलग कॉलम में तोड़ता है।", "option_2": "b) Joins data from several columns into a single combined field. कई कॉलम से डेटा को एक ही कंबाइंड फ़ील्ड में जोड़ता है।", "option_3": "c) Formats the alignment of text displayed within column ranges. कॉलम रेंज में दिखाए गए टेक्स्ट के अलाइनमेंट को फ़ॉर्मेट करता है।", "option_4": "d) Inserts predefined text patterns across chosen cell groups. चुने हुए सेल ग्रुप में पहले से तय टेक्स्ट पैटर्न डालता है।", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.96 What is the primary function of the 'Text to Columns' tool in Excel?<br>एक्सेल में 'टेक्स्ट टू कॉलम्स' टूल का मुख्य काम क्या है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50017", "negative_score": "1", "option_1": "a) =PV(rate, nper, pmt, [fv], [type])", "option_2": "b) =FV(rate, nper, pmt, [pv], [type])", "option_3": "c) =PMT(rate, nper, pv, [fv], [type])", "option_4": "d) =RATE(nper, pmt, pv, [fv], [type])", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.97 Which of the following formulas would you use to calculate the present value of an investment?<br>किसी इन्वेस्टमेंट की प्रेजेंट वैल्यू कैलकुलेट करने के लिए आप नीचे दिए गए फॉर्मूले में से किसका इस्तेमाल करेंगे?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50018", "negative_score": "1", "option_1": "a) cell सेल", "option_2": "b) tab टैब", "option_3": "c) column कॉलम", "option_4": "d) None of these इनमें से कोई नहीं", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.98 A spreadsheet consists of rows and columns. Each row and column intersection creates a ________ into which you may enter data.<br>एक स्प्रेडशीट में पंक्तियाँ और कॉलम होते हैं। प्रत्येक पंक्ति और कॉलम का प्रतिच्छेदन एक ________ बनाता है जिसमें आप डेटा दर्ज कर सकते हैं।", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50019", "negative_score": "1", "option_1": "a) Text टेक्स्ट (Text)", "option_2": "b) Numbers संख्याएं", "option_3": "c) Formulas सूत्रों (फॉर्मूलें)", "option_4": "d) Graphs ग्राफ्स", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.99 Which of the following is NOT a type of data that can be entered into a cell in Excel?<br>निम्नलिखित में से कौन सा डेटा का वह प्रकार नहीं है जिसे एक्सेल में किसी सेल में प्रविष्ट किया जा सकता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50020", "negative_score": "1", "option_1": "a) POP3", "option_2": "b) HTTP", "option_3": "c) SMTP", "option_4": "d) FTP", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.100 Which protocol is used mainly to send emails?<br>ईमेल भेजने के लिए मुख्य रूप से किस प्रोटोकॉल का उपयोग किया जाता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50021", "negative_score": "1", "option_1": "a) Copy and Paste कॉपी और पेस्ट", "option_2": "b) Cut and Paste कट और पेस्ट", "option_3": "c) Format Painter प्रारूप चित्रकार", "option_4": "d) Undo and Redo पूर्ववत करें और पुनः करें", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.91 Which command is used to place a selected block of text into a different location, removing it from its original position?<br>कौन सा कमांड टेक्स्ट के चुने हुए ब्लॉक को उसकी असली जगह से हटाकर किसी दूसरी जगह पर रखने के लिए इस्तेमाल होता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50022", "negative_score": "1", "option_1": "a) It can be used even when there is no active internet connection available. इसका इस्तेमाल तब भी किया जा सकता है जब कोई एक्टिव इंटरनेट कनेक्शन उपलब्ध न हो।", "option_2": "b) The service reliably provides insurance coverage for every transaction completed by users daily today. यह सर्विस आज यूजर्स के रोजाना किए गए हर ट्रांजैक्शन के लिए भरोसेमंद तरीके से इंश्योरेंस कवरेज देती है।", "option_3": "c) It is faster than RTGS for high-value transfers. यह ज्यादा वैल्यू वाले ट्रांसफर के लिए RTGS से ज्यादा तेज है।", "option_4": "d) It eliminates the need to share sensitive bank account numbers or IFSC codes with the receiver. इससे रिसीवर के साथ सेंसिटिव बैंक अकाउंट नंबर या IFSC कोड शेयर करने की जरूरत खत्म हो जाती है।", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.92 Which of the following is a security benefit of UPI (Unified Payments Interface) for the user?<br>इनमें से कौन सा UPI (यूनिफाइड पेमेंट्स इंटरफेस) का यूजर के लिए सिक्योरिटी फायदा है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50023", "negative_score": "1", "option_1": "a) Shift + F3", "option_2": "b) Ctrl + F3", "option_3": "c) Alt + F3", "option_4": "d) Ctrl + Shift + C", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.93 How can you change the case of selected text in MS Word?<br>आप एम.एस. वर्ड में चुने गए टेक्स्ट का केस कैसे बदल सकते हैं?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50024", "negative_score": "1", "option_1": "a) It loads pages faster यह पेज तेजी से लोड करता है", "option_2": "b) It encrypts communication between client and server यह काइंट और सर्वर के बीच कम्युनिकेशन को एन्क्रिप्ट करता है", "option_3": "c) It reduces server storage यह सर्वर स्टोरेज को कम करता है", "option_4": "d) It avoids advertisements यह विज्ञापनों से बचता है", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.94 Which of the following best explains why HTTPS is preferred over HTTP for e-banking?<br>इनमें से कौन सा सबसे अच्छे तरीके से बताता है कि ई-बैंकिंग के लिए HTTP के बजाय HTTPS को क्यों पसंद किया जाता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50025", "negative_score": "1", "option_1": "a) Protect Workbook वर्कबुक सुरक्षित करें", "option_2": "b) Protect Sheet शीट सुरक्षित करें", "option_3": "c) Mark as Final अंतिम के रूप में चिह्नित करें", "option_4": "d) Encrypt with Password पासवर्ड के साथ एन्क्रिप्ट करें", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.95 To prevent other users from changing the formatting or structure of a worksheet without preventing them from entering data, you should use?<br>दूसरे यूजर्स को डेटा एंटर करने से रोके बिना वर्कशीट की फ़ॉर्मेटिंग या स्ट्रक्चर बदलने से रोकने के लिए, आपको क्या इस्तेमाल करना चाहिए?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50026", "negative_score": "1", "option_1": "a) Telephony टेलीफ़ोनी", "option_2": "b) Postal services डाक सेवाएँ", "option_3": "c) Fax machines फ़ैक्स मशीन", "option_4": "d) Internet and email protocols इंटरनेट और ईमेल प्रोटोकॉल", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.96 Name the technology used for sending and receiving email is widely recognized and essential?<br>ईमेल भेजने और पाने के लिए इस्तेमाल होने वाली उस टेक्नोलॉजी का नाम बताइए जो बहुत जानी-मानी और जरूरी है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50027", "negative_score": "1", "option_1": "a) Select Edit Toolbars command and then uncheck the name of the toolbar to add it. संपादित करें (Edit) टूलबार (Toolbars) कमांड चुनें और फिर उस टूलबार का नाम अनचेक करें जिसे आप जोड़ना चाहते हैं।", "option_2": "b) Select Format Toolbars command and then click the name of an unchecked toolbar to hide it. फ़ॉर्मेट (Format) टूलबार (Toolbars) कमांड चुनें और फिर किसी अनचेक किए गए टूलबार का नाम छिपाने के लिए क्लिक करें।", "option_3": "c) Select File Toolbars command and then check the name of a toolbar to display its shortcut buttons. फ़ाइल (File)- टूलबार (Toolbars) कमांड चुनें और फिर किसी टूलबार का नाम चयनित (चेक) करें ताकि उसके शॉर्टकट बटन दिख सकें।", "option_4": "d) Select View Toolbars command and then click the name of an unchecked toolbar to display it. व्यू (View) - टूलबार (Toolbars) कमांड चुनें और फिर किसी अनचेक किए गए टूलबार के नाम पर क्लिक करें ताकि वह दिखाई दे।", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.97 According to the provided text, which sequence of actions is the correct method for a user to manage the display of different toolbars in a standard menu-driven application interface?<br>दिए गए टेक्स्ट के अनुसार, एक स्टैंडर्ड मेनू-ड्रिवन एप्लिकेशन इंटरफ़ेस में अलग-अलग टूलबार के डिस्प्ले को मैनेज करने के लिए यूजर के लिए एक्शन का कौन सा सीक्वेंस सही तरीका है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50028", "negative_score": "1", "option_1": "a) The Column letter (B) is locked. कॉलम अक्षर (B) लॉक है।", "option_2": "b) Both the Column (B) and the Row (4) are locked. स्तंभ (B) और पंक्ति (4) दोनों लॉक हैं.", "option_3": "c) The Row number (4) is locked. पंक्ति संख्या (4) लॉक है.", "option_4": "d) The reference will change entirely to C4 when copied one cell down. एक सेल नीचे कॉपी करने पर रेफरेंस पूरी तरह से C4 में बदल जाएगा।", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.98 In the mixed cell reference =B4 what specifically is held constant (made absolute) when the formula is copied to a different cell?<br>मिश्रित सेल संदर्भ =B4, जब फ़ॉर्मूला को किसी दूसरे सेल में कॉपी किया जाता है, तो खास तौर पर क्या स्थिर (एब्सोल्यूट) रहता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50029", "negative_score": "1", "option_1": "a) Average एवरेज (Average)", "option_2": "b) Count काउंट (Count)", "option_3": "c) Table टेबल (Table)", "option_4": "d) Column कॉलम (Column)", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.99 Which function is used to create a data table?<br>डेटा टेबल (तालिका) बनाने के लिए किस फंक्शन का उपयोग किया जाता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50030", "negative_score": "1", "option_1": "a) Returns TRUE if all conditions are TRUE यदि सभी शर्ते सत्य हैं तो TRUE देता है", "option_2": "b) Returns TRUE if any condition is TRUE यदि कोई भी शर्त सत्य है तो TRUE देता है", "option_3": "c) Checks for a specific condition किसी विशिष्ट शर्त की जाँच करता है", "option_4": "d) Compares two values दो मानों की तुलना करता है", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.100 What does the AND() function do in Excel?<br>एक्सेल में = AND() फंक्शन क्या करता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50031", "negative_score": "1", "option_1": "a) Static IPs are used in the US, Dynamic IPs are assigned temporarily by a DHCP server and may change US में स्टैटिक IPS का इस्तेमाल होता है, डायनामिक IPs को DHCP सर्वर कुछ समय के लिए असाइन करता है और ये बदल सकते हैं।", "option_2": "b) Static IPs change frequently, Dynamic IPs remain the same स्टैटिक IP बार-बार बदलता है, डायनामिक IP वही रहता है", "option_3": "c) Static IPs remain the same, Dynamic IPs are assigned temporarily by a DHCP server and may change स्टैटिक IP वही रहते हैं, डायनामिक IP DHCP सर्वर से कुछ समय के लिए असाइन किए जाते हैं और बदल सकते हैं।", "option_4": "d) Static IPs are free, Dynamic IPs require a subscription. स्टैटिक IPs फ्री हैं, डायनामिक IPS के लिए सब्सक्रिप्शन की जरूरत होती है।", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.91 Which of the following describes the difference between a Static IP address and a Dynamic IP address?<br>इनमें से कौन सा स्टैटिक IP एड्रेस और डायनामिक IP एड्रेस के बीच अंतर बताता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50032", "negative_score": "1", "option_1": "a) Ctrl+P", "option_2": "b) Ctrl+S", "option_3": "c) Ctrl+O", "option_4": "d) Ctrl+X", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.92 What is the keyboard shortcut used to quickly save a document in MS Word?<br>एमएस वर्ड में किसी डॉक्यूमेंट को जल्दी से सेव करने के लिए इस्तेमाल किया जाने वाला कीबोर्ड शॉर्टकट क्या है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50033", "negative_score": "1", "option_1": "a) National Electronic Funds Transfer नेशनल इलेक्ट्रॉनिक फंड्स ट्रांसफर", "option_2": "b) National Exchange for Financial Transactions नेशनल एक्सचेंज फॉर फाइनेंशियल ट्रांजैक्शन्स", "option_3": "c) Net Easy Fund Transfer नेट इजी फंड ट्रांसफर", "option_4": "d) New Electronic Fund Technology न्यू इलेक्ट्रॉनिक फंड टेक्नोलॉजी", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.93 What does 'NEFT' stand for in E-Banking?<br>ई-बैंकिंग में 'एनईएफटी (NEFT)' का क्या अर्थ है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50034", "negative_score": "1", "option_1": "a) Adds a footer at bottom of every page with page numbers and author info हर पेज के नीचे पेज नंबर और लेखक की जानकारी के साथ एक फुटर जोड़ता है", "option_2": "b) Inserts a superscript reference mark and creates a note at bottom of current page एक सुपरस्क्रिप्ट रेफरेंस मार्क डालता है और मौजूदा पेज के नीचे एक नोट बनाता है", "option_3": "c) Converts selected text into a margin comment visible on hover or print चुने हुए टेक्स्ट को होवर या प्रिंट पर दिखने वाले मार्जिन कमेंट में बदलता है", "option_4": "d) Links text to a bibliography list at end of document with automatic numbering डॉक्यूमेंट के आखिर में ऑटोमैटिक नंबरिंग के साथ टेक्स्ट को बिब्लियोग्राफी लिस्ट से लिंक करता है", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.94 What does the 'Insert Footnote' feature do in MS Word?<br>MS Word में 'Insert Footnote' फीचर क्या करता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "4", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50035", "negative_score": "1", "option_1": "a) Ctrl + ]", "option_2": "b) Ctrl+Alt+&gt;", "option_3": "c) Ctrl+F", "option_4": "d) Ctrl+Shift+&gt;", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.95 A user has selected a section of text and wishes to increase its font size by one increment without navigating to the Font Size dropdown menu. Which shortcut achieves this action?<br>एक यूजर ने टेक्स्ट का एक सेक्शन चुना है और फ़ॉन्ट साइज ड्रॉपडाउन मेनू पर जाए बिना उसका फ़ॉन्ट साइज एक इंक्रीमेंट बढ़ाना चाहता है। कौन सा शॉर्टकट यह काम करता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50036", "negative_score": "1", "option_1": "a) Division of cells डिविजन ऑफ़ सेल्स", "option_2": "b) A separate formula ए सेपरेट फॉर्मूला", "option_3": "c) A range of cells (from A1 through C5) सेल्स की एक रेंज (A1 से C5 तक)", "option_4": "d) The start of a Named Range एक नेम्ड रेंज की शुरुआत", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.96 In the cell reference A1:C5, the colon (:) signifies:<br>सेल रेफरेंस A1:C5 में, कोलन (:) का मतलब है:", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50037", "negative_score": "1", "option_1": "a) The recipient receives a copy of the email for their information प्राप्तकर्ता को उनकी जानकारी के लिए ईमेल की एक कॉपी प्राप्त होती है", "option_2": "b) The recipient's email address will be invisible to others प्राप्तकर्ता का ईमेल पता (एड्रेस) अन्य लोगों के लिए अदृश्य रहेगा", "option_3": "c) The recipient will not be able to see the primary recipient's email address प्राप्तकर्ता प्राथमिक प्राप्तकर्ता का ईमेल पता (एड्रेस) नहीं देख पाएगा", "option_4": "d) The recipient will not be able to open the attachments. प्राप्तकर्ता अनुलग्नक (अटैचमेंट) नहीं खोल सकेगा", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.97 What happens when we enter someone's email address in the \"Cc\" field?<br>जब हम \"CC\" फ़ील्ड में किसी का ईमेल पता (एड्रेस) दर्ज करते हैं तो क्या होता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50038", "negative_score": "1", "option_1": "a) programs प्रोग्राम्स (programs)", "option_2": "b) cells सेल्स (cells)", "option_3": "c) functions फ़ंक्शन्स (functions)", "option_4": "d) None of these इनमें से कोई नहीं", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.98 Formulas that are inbuilt into a spreadsheet are called<br>स्प्रेडशीट में अंतर्निहित सूत्रों (फॉर्मूलाओं) को कहा जाता है।", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50039", "negative_score": "1", "option_1": "a) Area Chart एरिया चार्ट", "option_2": "b) Hierarchy Chart हायरार्की चार्ट", "option_3": "c) Pivot Chart पिवट चार्ट", "option_4": "d) Radar Chart रडार चार्ट", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.99 How can we pivot any data that can be quantified, ranging from currency or other numeric values to qualitative data that can be counted?<br>हम किसी भी डेटा को, जिसे परिमाणित किया जा सकता है, मुद्रा या अन्य संख्यात्मक मूल्यों से लेकर गुणात्मक डेटा तक, जिसे गिना जा सकता है, कैसे पिवट कर सकते हैं?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50040", "negative_score": "1", "option_1": "a) LOOKUP(1,1/(range&lt;&gt;\"\"), range)", "option_2": "b) LOOKUP(2,1/(range&lt;&gt;\"\"), range)", "option_3": "c) LOOKUP(9^9, range)", "option_4": "d) LOOKUP(\"zzz\", range)", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.100 In MS Excel, which LOOKUP-based formula is used to return the last non-empty cell in a column?<br>एमएस एक्सेल में, किसी कॉलम में अंतिम गैर-रिक्त सेल को वापस करने के लिए किस LOOKUP-आधारित सूत्र (फॉर्मूला) का उपयोग किया जाता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50041", "negative_score": "1", "option_1": "a) Depositing cash at the bank counter बैंक काउंटर पर नकदी जमा करना", "option_2": "b) Transferring money using mobile banking मोबाइल बैंकिंग का उपयोग करके धन ट्रांसफर करना", "option_3": "c) Filling a demand draft form डिमांड ड्राफ्ट फॉर्म भरना", "option_4": "d) Standing in queue for passbook update पासबुक अपडेट के लिए कतार में खड़े रहना", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.91 Which of the following is an example of E-Banking transaction?<br>निम्नलिखित में से कौन सा ई-बैंकिंग लेनदेन का उदाहरण है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50042", "negative_score": "1", "option_1": "a) To encrypt data डेटा एन्क्रिप्ट करना", "option_2": "b) To verify human users मानव उपयोगकर्ताओं को सत्यापित करना", "option_3": "c) To speed up websites वेबसाइटों की गति बढ़ाना", "option_4": "d) To block pop-ups पॉप-अप्स ब्लॉक करना", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.92 What is the primary function of a CAPTCHA?<br>CAPTCHA का प्राथमिक फंक्शन क्या है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50043", "negative_score": "1", "option_1": "a) Use Cut and Paste कट और पेस्ट का उपयोग करें", "option_2": "b) Use Copy and Paste कॉपी और पेस्ट का उपयोग करें", "option_3": "c) Use Clear Contents followed by Paste क्लियर कंटेंट्स के बाद पेस्ट का उपयोग करें", "option_4": "d) Use Delete Rows and then Undo डिलीट रो का उपयोग करें फिर अंडू करें", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.93 While editing, which action is most suitable when a user wants to move a block of cells to a new position but also keep a copy of the original block?<br>एडिट करते समय, कौन सी क्रिया सबसे उपयुक्त है जब एक उपयोगकर्ता सेल्स के एक ब्लॉक को एक नई पोजीशन पर मूव करना चाहता है लेकिन ओरिजिनल ब्लॉक की एक कॉपी भी रखना चाहता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50044", "negative_score": "1", "option_1": "a) Both the column and row are fixed कॉलम और रो दोनों फिक्स्ड रहते हैं", "option_2": "b) Both the column and row are relative कॉलम और पंक्ति दोनों रिलेटिव हैं", "option_3": "c) The column is relative but the row is fixed कॉलम रिलेटिव है लेकिन रो फिक्स्ड है", "option_4": "d) The column is fixed but the row is relative कॉलम फिक्स रहता है लेकिन पंक्ति रिलेटिव रहती है", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.94 Which of the following best describes a mixed cell reference, such as A1, in the context of editing and copying formulas in Excel?<br>एक्सेल में फॉर्मूले एडिट और कॉपी करने के संदर्भ में मिक्स्ड सेल रेफरेंस, जैसे A1, का सबसे अच्छा वर्णन कौन सा है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50045", "negative_score": "1", "option_1": "a) Ms-Word एमएस-वर्ड", "option_2": "b) Internet Explorer इंटरनेट एक्सप्लोरर", "option_3": "c) Google Chrome गूगल क्रोम", "option_4": "d) Mozilla Firefox मोज़िला फायरफ़ॉक्स", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.95 __________ is NOT a web browser.<br>__________ वेब ब्राउजर नहीं है।", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "3", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50046", "negative_score": "1", "option_1": "a) The physical server that stores user data भौतिक सर्वर जो उपयोगकर्ता डेटा स्टोर करता है", "option_2": "b) A specific web browser application एक विशिष्ट वेब ब्राउज़र एप्लिकेशन", "option_3": "c) A set of rules for sending and receiving emails ईमेल भेजने और प्राप्त करने के लिए नियमों का एक सेट", "option_4": "d) The subject line categorising email importance ईमेल के महत्व को वर्गीकृत करने वाली विषय पंक्ति", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.96 What does protocol refer to in the context of email communication?<br>ईमेल संचार के संदर्भ में प्रोटोकॉल का क्या अर्थ है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50047", "negative_score": "1", "option_1": "a) Chart चार्ट", "option_2": "b) 3D reference 3डी रेफरेंस", "option_3": "c) Formulas सूत्र (फॉर्मूलें)", "option_4": "d) Table टेबल", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.97 How to calculate data throughout a workbook using multiple worksheets?<br>एकाधिक वर्कशीट का उपयोग करके किसी वर्कबुक में डेटा की गणना कैसे करें?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50048", "negative_score": "1", "option_1": "a) Paste पेस्ट", "option_2": "b) Paste Special पेस्ट स्पेशियल", "option_3": "c) Save सेव", "option_4": "d) View Macros व्यू मैक्रोज", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.98 What does the \"Ctrl + Alt + V\" command do?<br>\"Ctrl + Alt + V\" कमांड क्या करता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "1", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50049", "negative_score": "1", "option_1": "a) Finds the position of \"apple\" in the range A1:A10 A1:A10 श्रेणी में \"apple\" का स्थान ज्ञात करता है", "option_2": "b) Finds the value \"apple\" in the range A1:A10 A1:A10 श्रेणी में \"apple\" मान ज्ञात करता है", "option_3": "c) Returns the count of cells containing \"apple\" \"apple\" युक्त सेल्स की संख्या देता है", "option_4": "d) Returns the first occurrence of the word \"apple\" \"apple\" शब्द की पहली उपस्थिति देता है", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.99 What does the formula MATCH(\"apple\", A1:A10, 0) do?<br>सूत्र (फॉर्मूला) = MATCH(\"apple\", A1:A10, 0) क्या करता है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"},
+{"answer": "2", "correct_score": "3", "deleted": "0", "difficulty_level": "0", "id": "50050", "negative_score": "1", "option_1": "a) To create a table of contents विषय-सूची बनाने के लिए", "option_2": "b) To manage multiple documents as a single document एकाधिक दस्तावेजों को एकल दस्तावेज के रूप में प्रबंधित करने के लिए", "option_3": "c) To protect a document from unauthorized changes किसी दस्तावेज को अनधिकृत परिवर्तनों से बचाने के लिए", "option_4": "d) To create a template एक टेम्पलेट बनाने के लिए", "option_5": "", "option_image_1": "", "option_image_2": "", "option_image_3": "", "option_image_4": "", "option_image_5": "", "question": "Q.100 What is the purpose of the \"Master Document\" feature in Microsoft Word?<br>माइक्रोसॉफ्ट वर्ड में \"मास्टर डॉक्यूमेंट\" सुविधा का उद्देश्य क्या है?", "question_image": "", "quiz_id": "DP CONSTABLE COMPUTER QUIZ_2", "solution_heading": "", "solution_image": "", "solution_text": "", "solution_video": "", "sortingparam": "0.00"}
+];
+
+
+
+
+
+let current = 0;
+let answers = {};            // { questionId: "1", ... }
+let ALL_ATTEMPTS_CACHE = {};
+let LAST_RESULT_HTML = "";
+let seconds = 1500; //  countdown
+const TOTAL_TIME_SECONDS = seconds;
+let isQuiz = false;
+let timerInterval = null;
+
+function saveQuizState(){
+  const state = {
+    current,
+    answers,
+    seconds
+  };
+  localStorage.setItem(QUIZ_STATE_KEY, JSON.stringify(state));
+}
+
+const el = id => document.getElementById(id);
+
+function rebindResultHeaderActions() {
+  const header = document.getElementById("headerControls");
+  if (!header) return;
+
+  header.querySelectorAll("button").forEach(btn => {
+    const txt = btn.textContent.trim();
+
+    if (txt === "Re-Attempt") {
+      btn.onclick = () => {
+        localStorage.removeItem(QUIZ_RESULT_KEY);
+        localStorage.removeItem(QUIZ_STATE_KEY);
+        location.reload();
+      };
+    }
+
+    if (txt === "Previous Attempts") {
+      btn.onclick = () => {
+        const res = document.getElementById("results");
+        res.innerHTML = "";
+        res.style.display = "block";
+        loadPreviousAttempts("DP CONSTABLE COMPUTER QUIZ_2", DEVICE_ID);
+      };
+    }
+
+    if (txt === "Back to Latest Result") {
+      btn.onclick = () => {
+        document.getElementById("results").innerHTML = LAST_RESULT_HTML;
+        document.getElementById("results").style.display = "block";
+      };
+    }
+  });
+}
+
+
+/* format mm:ss */
+function fmt(s){
+  const m = Math.floor(s/60);
+  const sec = s%60;
+  return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
+
+/* Timer */
+function startTimer(){
+  if(timerInterval) clearInterval(timerInterval);
+
+  // show initial time immediately
+  el("timer").textContent = fmt(seconds);
+  saveQuizState();
+
+  timerInterval = setInterval(()=>{
+    if(seconds <= 0){
+      clearInterval(timerInterval);
+      el("timer").textContent = "00:00";
+
+      // auto submit when time is over (optional)
+      try {
+        document.getElementById("submitBtn")?.click();
+      } catch(e){}
+
+      return;
+    }
+
+    seconds--;
+    el("timer").textContent = fmt(seconds);
+  }, 1000);
+}
+
+/* initialize */
+function init(){
+  if (!__QUIZ_OK) return;
+
+  el("qtotal").textContent = QUESTIONS.length;
+
+  // 🔥 CHECK IF QUIZ ALREADY SUBMITTED
+  const resultSaved = localStorage.getItem(QUIZ_RESULT_KEY);
+  if (resultSaved) {
+    const data = JSON.parse(resultSaved);
+
+    if (data.submitted && data.resultHTML) {
+
+      // hide quiz UI
+      el("quizCard").style.display = "none";
+      el("floatBar").style.display = "none";
+      document.getElementById("studentName")?.style.setProperty("display", "none");
+
+      // restore results
+      const res = document.getElementById("results");
+      res.innerHTML = data.resultHTML;
+      res.style.display = "block";
+      renderMath();
+
+      // 🔥 RESTORE HEADER BUTTONS
+      if (data.headerHTML) {
+        document.getElementById("headerControls").innerHTML = data.headerHTML;
+        rebindResultHeaderActions(); // ✅ REQUIRED FIX
+      }
+
+      return; // ❌ STOP QUIZ INIT
+    }
+  }
+
+
+  // 🔁 NORMAL QUIZ RESUME FLOW
+  const saved = localStorage.getItem(QUIZ_STATE_KEY);
+  if (saved) {
+    const state = JSON.parse(saved);
+    current = state.current ?? 0;
+    answers = state.answers ?? {};
+    seconds = state.seconds ?? seconds;
+  }
+
+  renderQuestion(current);
+  startTimer();
+  attachListeners();
+  buildPalette();
+  highlightPalette();
+  renderMath();
+}
+
+
+
+
+/* render question */
+function renderQuestion(i){
+  if (!__QUIZ_OK) return;
+  current = i;
+  const q = QUESTIONS[i];
+  el("qindex").textContent = i+1;
+  el("qtext").innerHTML = q.question || "";
+  normalizeMathForQuiz(el("qtext"));
+  renderMath();
+  el("marking").innerHTML = `Marking: <span style="color:var(--success)">+${Number(q.correct_score ?? 1)}</span> / <span style="color:var(--danger)">-${Number(q.negative_score ?? 0)}</span>`;
+  const opts = el("options");
+  opts.innerHTML = "";
+  el("explanation").style.display = "none";
+
+  const keys = ["option_1","option_2","option_3","option_4","option_5"];
+  keys.forEach((k, idx) => {
+    if(!q[k]) return;
+    const div = document.createElement("div");
+    div.className = "opt";
+    div.innerHTML = `
+    <div class="custom-radio" aria-hidden="true"></div>
+    <div class="opt-text" style="flex:1">${q[k]}</div>
+    `;
+    opts.appendChild(div);
+
+    // 🔥 NORMALIZE MATH IN OPTION TEXT
+    normalizeMathForQuiz(div.querySelector(".opt-text"));
+
+    div.addEventListener("click", () => selectOption(q, idx+1, div));
+
+    // if previously answered, mark selected
+    const qid = q.id ?? i;
+    if(answers[qid] === String(idx+1)) div.classList.add("selected");
+  });
+
+  highlightPalette();
+  renderMath();
+  saveQuizState();
+}
+
+/* selecting option */
+function selectOption(q, val, div){
+  const qid = q.id ?? current;
+  answers[qid] = String(val);
+  // clear previous selections visually
+  Array.from(el("options").children).forEach(o => o.className = "opt");
+  div.classList.add("selected");
+  // immediate feedback in quiz mode
+  if(isQuiz) showFeedback(q, val);
+  highlightPalette();
+  saveQuizState();
+}
+
+/* show correct/wrong coloring and explanation */
+function showFeedback(q, val){
+  const opts = Array.from(el("options").children);
+  opts.forEach((o, idx) => {
+    o.classList.remove("correct","wrong");
+    const idx1 = idx+1;
+    if(String(q.answer) === String(idx1)){
+      o.classList.add("correct");
+    } else if(String(val) === String(idx1)){
+      o.classList.add("wrong");
+    }
+  });
+  if(q.solution_text){
+    el("explanation").innerHTML = `<strong>Explanation:</strong> ${q.solution_text}`;
+    el("explanation").style.display = "block";
+    normalizeMathForQuiz(el("explanation"));
+    renderMath();
+  }
+}
+
+function loadPreviousAttempts(quizId, deviceId) {
+  const box = document.getElementById("previousAttempts");
+  box.innerHTML = "";
+  normalizeMathForQuiz(box);
+  renderMath();
+  box.style.display = "block";
+
+  document.getElementById("results").style.display = "none";
+  document.getElementById("attemptReplay").style.display = "none";
+
+  db.ref("attempt_history/" + quizId + "/" + deviceId)
+    .once("value")
+    .then(snapshot => {
+      const data = snapshot.val();
+      if (!data) {
+        box.innerHTML = "<p>No previous attempts found.</p>";
+        return;
+      }
+      ALL_ATTEMPTS_CACHE = data;
+
+      const attempts = Object.values(data)
+        .sort((a, b) => b.submittedAt - a.submittedAt);
+
+      let html = `<div class="card"><h3 style="color:var(--accent)">Previous Attempts</h3>`;
+
+      attempts.forEach((a, i) => {
+        html += `
+          <button class="btn-ghost" onclick="showAttempt('${a.submittedAt}')">
+            Attempt ${attempts.length - i} — ${a.score}
+          </button>
+        `;
+      });
+
+      html += "</div>";
+      box.innerHTML = html;
+      normalizeMathForQuiz(box);
+      renderMath();
+    });
+}
+
+function showAttempt(submittedAt) {
+  const attempt = ALL_ATTEMPTS_CACHE[submittedAt];
+  if (!attempt) return;
+
+  const box = document.getElementById("attemptReplay");
+  box.innerHTML = "";
+  normalizeMathForQuiz(box);
+  renderMath();
+  box.style.display = "block";
+
+  document.getElementById("previousAttempts").style.display = "none";
+  document.getElementById("results").style.display = "none";
+
+  let html = `
+    <div class="card">
+      <h3 style="color:var(--accent)">Attempt Review</h3>
+      <div class="stats">
+        <div class="stat"><h4>Score</h4><p>${attempt.score}</p></div>
+        <div class="stat"><h4>Correct</h4><p>${attempt.correct}</p></div>
+        <div class="stat"><h4>Wrong</h4><p>${attempt.wrong}</p></div>
+        <div class="stat"><h4>Time Taken</h4><p>${fmt(attempt.timeTaken)}</p></div>
+        <div class="stat"><h4>Rank</h4><p id="live-rank">...</p></div>
+        <div class="stat"><h4>Percentile</h4><p id="live-percentile">...</p></div>
+      </div>
+    </div>
+  `;
+
+  attempt.answers.forEach((q, i) => {
+    html += `<div class="card">
+      <div style="font-weight:600;margin-bottom:6px">
+        Q${i + 1}: ${q.question}
+      </div>`;
+
+    q.options.forEach((opt, idx) => {
+      const id = String(idx + 1);
+      let style = "padding:8px;border-radius:6px;margin:6px 0;border:1px solid #ddd;";
+      if (id === q.correctAnswer) style += "border:2px solid var(--success);background:#eaf7f0;";
+      else if (id === q.userAnswer) style += "border:2px solid var(--danger);background:#fdecec;";
+      html += `<div style="${style}">${opt}</div>`;
+    });
+
+    html += "</div>";
+  });
+
+  box.innerHTML = html;
+  normalizeMathForQuiz(box);
+  renderMath();
+  getLiveRankForAttempt("DP CONSTABLE COMPUTER QUIZ_2", attempt)
+  .then(data => {
+    document.getElementById("live-rank").textContent =
+      `${data.rank} / ${data.total}`;
+    document.getElementById("live-percentile").textContent =
+      `${data.percentile}%`;
+  });
+
+}
+
+
+
+/* Submit flow */
+function submitQuiz(){
+
+  // 🔒 NAME CHECK (ADDED)
+  const nameInput = document.getElementById("studentName");
+  if (!nameInput || !nameInput.value.trim()) {
+    alert("Please enter your name to submit quiz");
+    nameInput?.focus();
+    return; // ❌ STOP SUBMIT, GO BACK TO QUIZ
+  }
+
+  // stop timer
+  if(timerInterval) clearInterval(timerInterval);
+  const timeTakenSeconds = TOTAL_TIME_SECONDS - seconds;
+
+  let correct = 0, wrong = 0, totalMarks = 0;
+  QUESTIONS.forEach((q, i) => {
+    const qid = q.id ?? i;
+    const ans = answers[qid];
+    const isCorrect = ans && String(ans) === String(q.answer);
+    if(isCorrect) correct++;
+    else if(ans) wrong++;
+    const cs = Number(q.correct_score ?? 1);
+    const ns = Number(q.negative_score ?? 0);
+    if(isCorrect) totalMarks += cs;
+    else if(ans) totalMarks -= ns;
+  });
+  // ✅ STEP 1: calculate maximum total marks
+let maxTotalMarks = 0;
+QUESTIONS.forEach(q => {
+  maxTotalMarks += Number(q.correct_score ?? 1);
+});
+
+  const attempted = Object.keys(answers).length;
+  const unattempted = QUESTIONS.length - attempted;
+  const accuracy = attempted ? ((correct/attempted) * 100).toFixed(1) : "0.0";
+
+
+  // build review HTML
+  let reviewHTML = `<div class="card"><h3 style="color:var(--accent);margin:0 0 10px">Results Summary</h3>
+    <div class="stats">
+      <div class="stat"><h4>Correct</h4><p>${correct}</p></div>
+      <div class="stat"><h4>Wrong</h4><p>${wrong}</p></div>
+      <div class="stat"><h4>Unattempted</h4><p>${unattempted}</p></div>
+      <div class="stat"><h4>Accuracy</h4><p>${accuracy}%</p></div>
+      <div class="stat"><h4>Total Marks</h4><p>${totalMarks}</p></div>
+      <div class="stat"><h4>Time Taken</h4><p>${fmt(timeTakenSeconds)}</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0">
+      <button class="btn-ghost" onclick="filterResults('all')">ALL</button>
+      <button class="btn-ghost" onclick="filterResults('correct')">CORRECT</button>
+      <button class="btn-ghost" onclick="filterResults('wrong')">WRONG</button>
+      <button class="btn-ghost" onclick="filterResults('unattempted')">UNATTEMPTED</button>
+    </div>
+
+</div></div>`;
+
+  QUESTIONS.forEach((q,i)=>{
+    const qid = q.id ?? i;
+    const ans = answers[qid];
+    const isCorrect = ans && String(ans) === String(q.answer);
+    const cs = Number(q.correct_score ?? 1);
+    const ns = Number(q.negative_score ?? 0);
+
+    const status = !ans ? "unattempted" : (isCorrect ? "correct" : "wrong");
+    reviewHTML += `<div class="card result-q" data-status="${status}"><div style="font-weight:700;margin-bottom:8px">Q${i+1}: ${q.question}</div>`;
+    ["option_1","option_2","option_3","option_4","option_5"].forEach((k,j)=>{
+      if(!q[k]) return;
+      const idx = j+1;
+      const isOptCorrect = String(idx) === String(q.answer);
+      const isUser = ans && String(idx) === String(ans);
+      let style = "padding:8px 10px;margin:6px 0;border-radius:8px;";
+      if(isOptCorrect) style += "border:2px solid var(--success);background:rgba(31,158,90,0.12);";
+      else if(isUser && !isOptCorrect) style += "border:2px solid var(--danger);background:rgba(200,45,63,0.12);";
+      else style += "border:1px solid #eee;background:#fafbfd;";
+      reviewHTML += `<div style="${style}">${q[k]}</div>`;
+    });
+    const score = isCorrect ? `<span style="color:var(--success)">+${cs}</span>` : (ans ? `<span style="color:var(--danger)">-${ns}</span>` : `<span style="color:var(--muted)">0</span>`);
+    reviewHTML += `<div style="margin-top:8px"><strong>Score:</strong> ${score}</div>`;
+    if(q.solution_text) reviewHTML += `<div class="explanation" style="display:block;margin-top:8px"><strong>Explanation:</strong> ${q.solution_text}</div>`;
+    reviewHTML += `</div>`;
+  });
+
+  el("results").innerHTML = reviewHTML;
+  normalizeMathForQuiz(el("results"));
+  renderMath();
+  el("results").style.display = "block";
+
+  el("quizCard").style.display = "none";
+  // hide bottom nav
+  el("floatBar").style.display = "none";
+  LAST_RESULT_HTML = reviewHTML; // ✅ FIX: store latest result immediately
+
+
+  document.getElementById("studentName")?.style.setProperty("display", "none");
+  document.getElementById("mainHeader")?.style.setProperty("display", "block");
+
+
+
+
+const timeTaken = timeTakenSeconds;
+
+const firebasePayload = {
+  name: document.getElementById("studentName")?.value || "Anonymous",
+  score: totalMarks,
+  total: maxTotalMarks,
+  correct,
+  wrong,
+  timeTaken,
+  quizId: "DP CONSTABLE COMPUTER QUIZ_2",
+  deviceId: DEVICE_ID,
+  submittedAt: Date.now(),
+  answers: QUESTIONS.map((q, i) => {
+    const qid = q.id ?? i;
+    return {
+      question: q.question,
+      options: [
+        q.option_1,
+        q.option_2,
+        q.option_3,
+        q.option_4,
+        q.option_5
+      ].filter(Boolean),
+      correctAnswer: String(q.answer),
+      userAnswer: answers[qid] ?? null
+    };
+  })
+};
+
+
+// 🔥 ADMIN DATA (first attempt only)
+saveResultFirebase(firebasePayload)
+  .finally(() => {
+    saveAttemptHistory(firebasePayload);
+
+    // 🔥 RESULT PAGE (always show rank, even on reattempt)
+    getRankAndPercentile("DP CONSTABLE COMPUTER QUIZ_2", totalMarks, timeTaken, firebasePayload.submittedAt)
+      .then(data => {
+
+        firebasePayload.rank = data.rank;
+        firebasePayload.percentile = data.percentile;
+
+
+
+        // 🔥 UPDATE THIS ATTEMPT WITH RANK & PERCENTILE
+        db.ref(
+        "attempt_history/" +
+        firebasePayload.quizId + "/" +
+        firebasePayload.deviceId + "/" +
+        firebasePayload.submittedAt
+        ).update({
+        rank: data.rank,
+        percentile: data.percentile
+        });
+
+        const rankHTML = `
+          <div class="stat">
+            <h4>Rank</h4>
+            <p>${data.rank} / ${data.total}</p>
+          </div>
+          <div class="stat">
+            <h4>Percentile</h4>
+            <p>${data.percentile}%</p>
+          </div>
+        `;
+
+        document
+          .querySelector("#results .stats")
+          ?.insertAdjacentHTML("beforeend", rankHTML);
+          setTimeout(() => {
+            const finalResultHTML = document.getElementById("results").innerHTML;
+            const headerHTML = document.getElementById("headerControls").innerHTML;
+
+            LAST_RESULT_HTML = finalResultHTML;
+
+            // 🔐 SAVE COMPLETE RESULT + HEADER STATE
+            localStorage.setItem(QUIZ_RESULT_KEY, JSON.stringify({
+              submitted: true,
+              resultHTML: finalResultHTML,
+              headerHTML: headerHTML
+            }));
+          }, 0);
+      });
+  });
+
+
+  // replace header controls with results controls (Re-Attempt, Download, Print)
+  const header = el("headerControls");
+  header.innerHTML = "";
+  const left = document.createElement("div");
+  left.style.display = "flex";
+  left.style.alignItems = "center";
+  left.style.gap = "10px";
+  const title = document.createElement("h1");
+  title.textContent = QUIZ_TITLE;
+  left.appendChild(title);
+
+  const right = document.createElement("div");
+  right.style.display = "flex";
+  right.style.alignItems = "center";
+  right.style.gap = "10px";
+
+  const retry = document.createElement("button");
+  retry.className = "btn";
+  retry.textContent = "Re-Attempt";
+  retry.onclick = ()=> {
+    localStorage.removeItem(QUIZ_RESULT_KEY);
+    localStorage.removeItem(QUIZ_STATE_KEY);
+    location.reload();
+  };
+
+  right.appendChild(retry);
+  const prevBtn = document.createElement("button");
+  prevBtn.className = "btn-ghost";
+  prevBtn.textContent = "Previous Attempts";
+  prevBtn.onclick = () => {
+    const res = document.getElementById("results");
+    res.innerHTML = "";                    // clear latest result
+    res.style.display = "block";
+    loadPreviousAttempts("DP CONSTABLE COMPUTER QUIZ_2", DEVICE_ID);
+  };
+
+
+  const backBtn = document.createElement("button");
+  backBtn.className = "btn-ghost";
+  backBtn.textContent = "Back to Latest Result";
+  backBtn.onclick = () => {
+    document.getElementById("results").innerHTML = LAST_RESULT_HTML;
+    document.getElementById("results").style.display = "block";
+  };
+
+
+  right.appendChild(prevBtn);
+  right.appendChild(backBtn);
+
+  // Download & Print intentionally disabled
+  header.appendChild(left);
+  header.appendChild(right);
+}
+
+/* Download current results page as .html named after quiz title */
+function downloadResults(){
+  const head = document.head.outerHTML;
+  const resultsHtml = el("results").outerHTML;
+  const pageHtml = `<!doctype html><html>${head}<body><div style="padding:20px;max-width:1000px;margin:auto">${resultsHtml}</div></body></html>`;
+  const blob = new Blob([pageHtml], {type:"text/html"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const safe = String(QUIZ_TITLE).replace(/[^a-z0-9]/gi,"_");
+  a.href = url;
+  a.download = `${safe}_results.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* attach DOM listeners */
+function attachListeners(){
+  el("nextBtn").addEventListener("click", ()=> { if(current < QUESTIONS.length-1) renderQuestion(current+1); });
+  el("prevBtn").addEventListener("click", ()=> { if(current > 0) renderQuestion(current-1); });
+  el("clearBtn").addEventListener("click", ()=> { delete answers[QUESTIONS[current].id ?? current]; renderQuestion(current); highlightPalette(); });
+
+  el("paletteBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    togglePalette();
+  });
+
+  el("submitBtn").addEventListener("click", ()=>{
+    const attempted = Object.keys(answers).length;
+    el("submitMsg").textContent = `You attempted ${attempted} of ${QUESTIONS.length}. Submit?`;
+    el("submitModal").style.display = "flex";
+  });
+
+  el("cancelSubmit").addEventListener("click", ()=> el("submitModal").style.display = "none");
+  el("confirmSubmit").addEventListener("click", ()=> { el("submitModal").style.display = "none"; submitQuiz(); });
+
+  el("modeToggle").addEventListener("click", ()=> {
+    el("modeToggle").classList.toggle("active");
+    isQuiz = el("modeToggle").classList.contains("active");
+    // re-render the current question so immediate behavior toggles
+    renderQuestion(current);
+  });
+
+  // close palette when clicking outside
+  document.addEventListener("click", (ev) => {
+    const pal = el("palette");
+    if(!pal) return;
+    if(pal.style.display === "flex"){
+      const viewBtn = el("paletteBtn");
+      if(ev.target !== pal && !pal.contains(ev.target) && ev.target !== viewBtn && !viewBtn.contains(ev.target)){
+        pal.style.display = "none";
+      }
+    }
+  });
+}
+
+/* Build palette buttons + summary */
+function buildPalette(){
+  const pal = el("palette");
+  pal.innerHTML = "";
+  for(let i=0;i<QUESTIONS.length;i++){
+    const b = document.createElement("button");
+    b.className = "qbtn";
+    b.textContent = i+1;
+    b.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      renderQuestion(i);
+      pal.style.display = "none";
+    });
+    pal.appendChild(b);
+  }
+  const summary = document.createElement("div");
+  summary.id = "palette-summary";
+  summary.style.marginTop = "8px";
+  pal.appendChild(summary);
+  highlightPalette();
+}
+
+/* color palette buttons and show summary */
+function highlightPalette(){
+  const pal = el("palette");
+  if(!pal) return;
+  const total = QUESTIONS.length;
+  const attempted = Object.keys(answers).length;
+  const notAttempted = total - attempted;
+  Array.from(pal.children).forEach((child, idx) => {
+    // skip summary
+    if(child.id === "palette-summary") return;
+    child.classList.remove("answered","current");
+    const qid = QUESTIONS[idx].id ?? idx;
+    if(idx === current) child.classList.add("current");
+    else if(answers[qid]) child.classList.add("answered");
+  });
+  const summary = el("palette-summary");
+  if(summary) summary.textContent = `Total: ${total} | Attempted: ${attempted} | Not Attempted: ${notAttempted}`;
+}
+
+/* toggle palette visibility */
+function togglePalette(){
+  const pal = el("palette");
+  if(pal.style.display === "flex") pal.style.display = "none";
+  else { pal.style.display = "flex"; highlightPalette(); }
+}
+
+// 🔐 COPY + WATERMARK PROTECTION (DEPENDENCY TRAP)
+(function () {
+
+  // Disable right click
+  document.addEventListener("contextmenu", e => e.preventDefault());
+
+  // Disable common copy shortcuts
+  document.addEventListener("keydown", function (e) {
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      ["c","x","v","a","s","p","u"].includes(e.key.toLowerCase())
+    ) {
+      e.preventDefault();
+    }
+  });
+
+  // Ensure watermark always exists
+  function ensureWatermark(){
+    if(!document.getElementById("ssc-watermark")){
+      document.body.innerHTML = "";
+      alert("Quiz file modified");
+      throw new Error("WATERMARK_REMOVED");
+    }
+  }
+
+  ensureWatermark();
+  setInterval(ensureWatermark, 2000);
+
+})();
+
+
+
+function filterResults(type){
+  const cards = document.querySelectorAll(".result-q");
+  cards.forEach(card=>{
+    if(type === "all"){
+      card.style.display = "block";
+    } else {
+      card.style.display = card.dataset.status === type ? "block" : "none";
+    }
+  });
+}
+
+/* start */
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
